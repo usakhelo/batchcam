@@ -1,0 +1,23 @@
+Current Version: 1.9.7
+
+Release Date: 04 July 2011
+
+New Features:
+
+Copy/Paste from one camera to one/several cameras - use new buttons at the top of the window.
+Submit Scripts section - you can assign script files that will run on each render submit. Per Submit script runs once per render submit and Per Camera script runs for each camera before submit. All these scripts run on local machine, not on render server.
+Last Rendered Location field - here is stored last render file location. Very useful for locating last-time rendered images.
+I hope many of you use Global Defaults INI file during the each day work. If so, I'm sure you'll find useful new feature - Local Defaults!
+Using this feature you can set default values for the current scene, project or some other group of files. Local default values override the values from Global INI file. They are defined in local INI file. Path of local INI file is set in the Local INI Path field in the Options rollout and it  can contain global keywords (%scenepath%, %projectpath% for example). To save some property value as local defaults press "To Local Defaults" button in property's section. After that all new cameras in current scene will have default values defined in saved section.
+Local INI Path can be saved in Global INI file, so by using relative keywords (%scenepath%, %projectpath%) each scene and project will use their own Local INI file automaticaly.
+
+Fixes:
+
+Empty fields now treated like undefined - experimental fix.
+Render Try Counter - now counts from the 0.
+Render Try Counter doesn't reset anymore after file open event.
+Create Folders Silently button moved to Options rollout.
+All Save Defaults buttons renamed to To Local Defaults. These buttons now saves section settings to local INI file if path to local INI file is set, overwise settings are saved to global INI file.
+Many different fixes in processing global and local settings.
+
+Download and full description here.
