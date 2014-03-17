@@ -1,7 +1,8 @@
 BatchCameraRender
 =================
 
-Current Version: 1.9.10
+Current Version: 1.9.11
+
 Release Date: 04 March 2014
 
 ### The Idea
@@ -68,7 +69,7 @@ Also script provides a way to specify custom keywords - User Key/Value fields lo
 
 ### Default values for all the properties.
 
-Values of all properties in script can be set as default. These values will be assigned to all newly created cameras in scene and will override undefined values in all cameras. There are two kind of default values in the script - Global and Local. Local values, if they exist, override the global values. Global values are stored in the INI file BatchCameraRender.ini and located in the %LOCALAPPDATA%/3dsmax/.../plugcfg/BatchCameraRender folder. Local default values are stored in the local INI file. Path of this file is set in Local INI Path field in Options rollout. Local INI path can be set using keyword syntax, so one local INI file can be assigned to several scenes or projects.
+Values of all properties in script can be set as default. These values will be assigned to all newly created cameras in scene and will override undefined values in all cameras. There are two kind of default values in the script - Global and Local. Local values, if they exist, override the global values. Global values are stored in the INI file BatchCameraRender.ini and located in the %LOCALAPPDATA%/3dsmax/.../plugcfg/BatchCameraRender folder. Local default values are stored in the INI files that can be located in scene folder and/or in any folder up to root level. You can have one ini file in root folder of all projects and another ini file in each project. In this case settings from root ini file will be overridden by project ini file. This allows you to have project wide settings and default settings specific for each project.
 
 To set the global defaul values, click Save All Settings as Global Defaults button in Options rollout. To set the local defaul values, click To Local Defaults located in each section ( you have to enter local INI path before that ). Alternatively you can edit INI files in text editor, use Open Global/Local INI File button in Options rollout.
 
