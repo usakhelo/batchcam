@@ -222,8 +222,6 @@ fn propName2Id property_name =
 		
 		"BatchCameraRender_lastRenderPath":		property_id = 7842
 		
-		"BatchCameraRender_localDefaultIniFile":		property_id = 7843
-		
 		"BatchCameraRender_vray_ortho_mode":		property_id = 7844
 		"BatchCameraRender_item_index":		property_id = 7845
 	)
@@ -248,10 +246,6 @@ fn getUserPropertyFromObject obj_itself property_name=
 
 fn isFrameRangeProperty property_name=
 (
--- 	framerange_properties = #("BatchCameraRender_frames", "BatchCameraRender_framerange_from", \
--- 		"BatchCameraRender_framerange_to", "BatchCameraRender_anim_frame_range")
--- 		
--- 	if (findItem framerange_properties property_name) != 0 then true else false
 	if ((property_name == "BatchCameraRender_frames") or (property_name == "BatchCameraRender_framerange_from") or \
 	(property_name == "BatchCameraRender_framerange_to")  or (property_name == "BatchCameraRender_anim_frame_range")) then true else false 
 )
@@ -524,45 +518,42 @@ fn compose_full_parsing_dictionary camera_name extraItems: =
 fn getDefaultFrameRangeValue camera_object property_name = 
 (
 	result_value = undefined
-	--get the local ini file path
-	localINI_path = getAppData rootnode (propName2Id "BatchCameraRender_localDefaultIniFile")
-	if (isUndefined localINI_path) then	--try to load local ini path from the global defaults
-		localINI_path = loadVarFromIniFile "Default Settings" "BatchCameraRender_localDefaultIniFile"
-	if (isUndefined camera_object or isUndefined localINI_path) then
-		result_value = loadVarFromIniFile "Default Settings" property_name
-	else
+	
+	localINI_path = maxFilePath
+	if localINI_path != "" then
 	(
-		if (pathConfig.isLegalPath localINI_path) then
+		found_value = false
+		while (not found_value) and (localINI_path != "") do
 		(
-			local localINI_path = parse_file_name_template localINI_path (compose_global_dictionary())
-			local local_data = false
-			--get the framerange value from the local ini file.
-			framerange_data1 = loadVarFromIniFile "Default Settings" "BatchCameraRender_frames"				 local_path:localINI_path
-			framerange_data2 = loadVarFromIniFile "Default Settings" "BatchCameraRender_framerange_from"	 local_path:localINI_path 
-			framerange_data3 = loadVarFromIniFile "Default Settings" "BatchCameraRender_framerange_to"		 local_path:localINI_path 
-			framerange_data4 = loadVarFromIniFile "Default Settings" "BatchCameraRender_anim_frame_range"	 local_path:localINI_path
-			
--- 			format "getDefaultFrameRangeValue - framerange_data1:% framerange_data2:% framerange_data3:% framerange_data4:% \n" framerange_data1 framerange_data2 framerange_data3 framerange_data4
-			local_data = case of
+			localINI_file = pathConfig.appendPath localINI_path "BatchCameraRender.ini"
+			if (doesFileExist localINI_file) then
 			(
-				(isNotUndefined framerange_data1): true
-				(isNotUndefined framerange_data2): true
-				(isNotUndefined framerange_data3): true
-				(isNotUndefined framerange_data4): true
-				default: false
+				--get the framerange value from the local ini file.
+				framerange_data1 = loadVarFromIniFile "Default Settings" "BatchCameraRender_frames"				 local_path:localINI_path
+				framerange_data2 = loadVarFromIniFile "Default Settings" "BatchCameraRender_framerange_from"	 local_path:localINI_path 
+				framerange_data3 = loadVarFromIniFile "Default Settings" "BatchCameraRender_framerange_to"		 local_path:localINI_path 
+				framerange_data4 = loadVarFromIniFile "Default Settings" "BatchCameraRender_anim_frame_range"	 local_path:localINI_path
+				
+				found_value = case of
+				(
+					(isNotUndefined framerange_data1): true
+					(isNotUndefined framerange_data2): true
+					(isNotUndefined framerange_data3): true
+					(isNotUndefined framerange_data4): true
+					default: false
+				)
+				if (found_value) then
+					result_value = loadVarFromIniFile "Default Settings" property_name local_path:localINI_path
 			)
-
--- 			format "getDefaultFrameRangeValue - localINI_path:% local_data:% property_name:% result_value:% \n" localINI_path local_data property_name result_value
-			if (local_data) then
-				result_value = loadVarFromIniFile "Default Settings" property_name local_path:localINI_path
-			else
-				--if all framerange data is undefined in local file then
-				--try to load it from global ini file
-				result_value = loadVarFromIniFile "Default Settings" property_name
+			if (not found_value) then
+				localINI_path = pathConfig.removePathLeaf localINI_path	--move to upper folder if ini file not found OR value in found ini file not found
 		)
-		else	--if local path is invalid
+		if (not found_value) then
 			result_value = loadVarFromIniFile "Default Settings" property_name
 	)
+	else	--if local path is invalid
+		result_value = loadVarFromIniFile "Default Settings" property_name
+
 	result_value
 )
 
@@ -620,7 +611,6 @@ fn getUserProperty camera_object property_name=
 			)
 			else
 				property_value = getDefaultValue camera_object property_name
--- 			format "getUserProperty - camera_object:% property_name:% property_value:%\n" camera_object property_name property_value
 		)
 		(if (isNotUndefined property_value) then property_value else undefined)
 	)

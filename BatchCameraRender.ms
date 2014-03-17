@@ -1,6 +1,6 @@
 macroScript BatchCameraRender
 	category:"Sergo Pogosyan"
-	toolTip:"Render scene cameras with specified rendering parameters"
+	toolTip:""
 	buttonText:"BatchCam"
 /*
 Batch Camera Render, maxscript tool for batch rendering in 3ds max
@@ -78,12 +78,13 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.10"
+VERSION_STRING = "1.9.11"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect")
-													
-BatchCam_ScriptsPropertiesNames = #("prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
+					
+BatchCam_ScriptsPropertiesNames = #("OnSubmitScriptEnable", "OnSubmitScript", "perCameraScriptEnable", "perCameraScript", "prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
+BatchCam_UserValuePropertiesNames = #("UserKey1", "UserKey2", "UserKey3", "UserVal1", "UserVal2", "UserVal3", "bbJobName", "elementName")
 --########################--
 --vray global vars
 --########################--
@@ -121,10 +122,10 @@ global BatchCam_listItem_state
 --end of session-wide persistent variables
 --########################--
 
-include "BatchCameraRender-functions-misc.ms"
-include "BatchCameraRender-functions-populating.ms"
-include "BatchCameraRender-functions-setters.ms"
-include "BatchCameraRender-functions-preparing.ms"
+include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-misc.ms"
+include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-populating.ms"
+include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-setters.ms"
+include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-preparing.ms"
 --########################--
 --ROLLOUT--
 --########################--
@@ -530,7 +531,6 @@ include "BatchCameraRender-functions-preparing.ms"
 								if (temp_string as BooleanClass) then
 								(
 									temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_script"
--- 									print temp_string
 									--check if the file exists
 									callbacks.addScript #preRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
 								)
@@ -541,7 +541,6 @@ include "BatchCameraRender-functions-preparing.ms"
 								if (temp_string as BooleanClass) then
 								(
 									temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_script"
--- 									print temp_string
 									--check if the file exists
 									callbacks.addScript #postRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
 								)
@@ -553,7 +552,6 @@ include "BatchCameraRender-functions-preparing.ms"
 								try
 								(
 									maxscript_file_name = Scripts_Rollout.percamera_submit_script.text
--- 									print maxscript_file_name
 									if isNotUndefinedOrEmpty maxscript_file_name then
 									(
 										if (doesFileExist maxscript_file_name) then
@@ -583,9 +581,6 @@ include "BatchCameraRender-functions-preparing.ms"
 								
 								viewport.setCamera camera_to_render
 								max quick render
-								
-								--failed to use render() instead of quick render
-								--renderImage = render camera:camera_to_render renderType:(getRenderType()) renderElements:false vfb:true progressbar:true pos:#vfb_renderer_position
 							)
 							
 							--remove callbacks after render started
@@ -593,7 +588,6 @@ include "BatchCameraRender-functions-preparing.ms"
 							--restore saved render_preset if render presets was applied during the rendering
 							if renderPresetsApplied then
 							(
-			-- 					print "test load render presets"
 								INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
 								tempRP_file = INIFileDir + "temp_render_preset.rps"
 								if doesFileExist tempRP_file then
@@ -799,7 +793,7 @@ include "BatchCameraRender-functions-preparing.ms"
 			if (targetIndex > -1) then
 			(
 				local itemBounds = lv_objects.GetItemRect targetIndex
-				if ( targetPoint.X > (itemBounds.Top + (itemBounds.Height / 2)) ) then
+				if ( targetPoint.Y > (itemBounds.Top + (itemBounds.Height / 2)) ) then
 					lv_objects.InsertionMark.AppearsAfterItem = true
 				else
 					lv_objects.InsertionMark.AppearsAfterItem = false
@@ -814,29 +808,19 @@ include "BatchCameraRender-functions-preparing.ms"
 		
 		on lv_objects DragDrop sender args do
 		(
--- 			// Retrieve the index of the insertion mark; 
 			local targetIndex = lv_objects.InsertionMark.Index
 
--- 			// If the insertion mark is not visible, exit the method. 
 			if (targetIndex != -1) then
 			(
-	-- 			// If the insertion mark is to the right of the item with 
-	-- 			// the corresponding index, increment the target index. 
 				if (lv_objects.InsertionMark.AppearsAfterItem) then
 					targetIndex += 1
 
-	-- 			// Retrieve the dragged item.
 				local draggedItem = args.Data.GetData "System.Windows.Forms.ListViewItem"
 
-	-- 			// Insert a copy of the dragged item at the target index. 
-	-- 			// A copy must be inserted before the original item is removed 
-	-- 			// to preserve item index values. 
 				lv_objects.Items.Insert targetIndex (draggedItem.Clone())
 
-	-- 			// Remove the original copy of the dragged item.
 				lv_objects.Items.Remove draggedItem
 				
-				--set new rowindex for all items' custattributes
 				for i = 0 to lv_objects.Items.Count-1 do
 				(
 					local listItem = lv_objects.Items.Item i
@@ -865,8 +849,6 @@ include "BatchCameraRender-functions-preparing.ms"
 			
 			button open_local_ini_file "Open Local INI file..." width:125 align:#left
 			dropdownlist found_local_ini_files "Found local INI files: " align:#left-- offset:[-20,2]
--- 			edittext local_ini_path "Local INI Path:" offset: [0,2] align:#left --across:2 
--- 			button browse_local_ini_file "Browse..." width:60  align:#right
 			
 			edittext command_line "Open Folder Command Line:" align:#left offset: [0,2]
 			checkbox silent_add_path_mode "Create New Paths Silently" align:#left offset: [0,12] \
@@ -891,17 +873,10 @@ include "BatchCameraRender-functions-preparing.ms"
 		
 		on open_local_ini_file pressed do
 		(
--- 			format "global_found_ini_file_paths - %\n" global_found_ini_file_paths
 			INIFilename = found_local_ini_files.selected
--- 			INIFileDir = getRootNodeData "BatchCameraRender_localDefaultIniFile"
 			-- try to load rollout parameters from ini file
 			if (isNotUndefined INIFilename) then
 			(
-				print INIFilename
--- 				INIFilename = pathConfig.appendPath INIFileDir "BatchCameraRender.ini"
-
--- 				INIFilename = parse_file_name_template INIFilename (compose_global_dictionary ())
-
 				if (doesFileExist INIFilename) then
 					temp_res = ShellLaunch INIFilename ""
 				else
@@ -926,10 +901,6 @@ include "BatchCameraRender-functions-preparing.ms"
 					property_value = getUserProperty obj_itself full_property_name
 					saveVar2IniFile "Default Settings" full_property_name (property_value as string)
 				)
-				--save local ini file path
-				full_property_name = "BatchCameraRender_localDefaultIniFile"
-				property_value = getRootNodeData full_property_name
-				saveVar2IniFile "Default Settings" full_property_name (property_value as string)
 				
 				--save user keywords and bb job and renderelement name
 				property_value = Net_Render_Options_Rollout.UserKey1.text
@@ -1112,6 +1083,7 @@ include "BatchCameraRender-functions-preparing.ms"
 		(
 			setRootNodeData "BatchCameraRender_bbJobName" text_val
 		)
+
 		on renderElementNamePattern entered text_val do
 		(
 			setRootNodeData "BatchCameraRender_elementName" text_val
@@ -1119,11 +1091,6 @@ include "BatchCameraRender-functions-preparing.ms"
 		
 		on Net_Render_Options_Rollout open do
 		(
-			--system section
-			--get settings from global variables
-			if (temp_state = getRootNodeData "BatchCameraRender_localDefaultIniFile")  != undefined then
-				local_ini_path.text= (temp_state as string)
-			
 			--save file state
 			if (temp_state = loadVarFromIniFile "Render_Output_Rollout" "command_line")  != undefined then
 				command_line.text= (temp_state as string)
@@ -1668,10 +1635,6 @@ include "BatchCameraRender-functions-preparing.ms"
 			edittext render_anim_from width:70 offset: [-70,0] readonly:true
 			edittext render_anim_to width:70 offset: [-150,0] readonly:true
 		
-		--#####--
-		--render type switch event handler--
-		--#####--
-		
 		on save_as_default pressed do
 		(
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
@@ -1716,7 +1679,7 @@ include "BatchCameraRender-functions-preparing.ms"
 				set_frame_single LV_ITEMS render_single.value
 			)
 		)
-		--button to set current frame
+
 		on set_current pressed do
 		(
 			rendType1.state = 1
@@ -1770,8 +1733,6 @@ include "BatchCameraRender-functions-preparing.ms"
 				set_anim_frame_range LV_ITEMS
 			)
 		)
-		
-		--handlers to handle start and end frames
 		on render_from changed val do
 		(	
 			rendType1.state = 0
@@ -1796,7 +1757,6 @@ include "BatchCameraRender-functions-preparing.ms"
 			rendType5.state = 0
 			set_frame_single LV_ITEMS render_single.value
 		)
-		--event handler to prevent entering symbols except digits, commas and "-"-s
 		on render_frames changed val do
 		(
 			rendType1.state = 0
@@ -1814,9 +1774,6 @@ include "BatchCameraRender-functions-preparing.ms"
 			)
 			render_frames.text  = tempstring
 		)
-		--this event handler calls set_frames function to set frame to render to camera properties
-		--there's no error checking because on_entered handler should filter unwanted symbols
-		--so just copy this string to rendPickupFrames global variable
 		on render_frames entered val do
 		(
 			rendType1.state = 0
@@ -1824,7 +1781,6 @@ include "BatchCameraRender-functions-preparing.ms"
 			render_from.enabled = render_to.enabled = false			
 			set_frames LV_ITEMS val
 		)
-		
 		on clear_frames pressed do
 		(
 			for i in LV_ITEMS do
@@ -1843,9 +1799,7 @@ include "BatchCameraRender-functions-preparing.ms"
 		
 		on Frame_Range_Rollout rolledUp state do
 		(
-			-- find rollout index in main windows's rollouts
 			index = findItem BatchCam_rollout_names Frame_Range_Rollout.name
-			-- set rollout state to the apropriate array element
 			BatchCam_rollout_state[index] = state
 		)
 	)
@@ -2217,10 +2171,6 @@ include "BatchCameraRender-functions-preparing.ms"
 		(
 			set_string_property LV_ITEMS "scene_state" scene_states_list2.SelectedItem
 		)
-
--- 		on scene_states_list2 TextChanged arg do
--- 		(
--- 		)
 
 		on scene_states_list2 KeyUp arg do
 		(
@@ -2685,7 +2635,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
 				)
 				if BatchCam_rollout_state[i] != undefined then
 				(
--- 					batchCameraRender_floater.rollouts[i].open = BatchCam_rollout_state[i]
 				)
 				else
 				(
