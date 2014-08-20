@@ -78,7 +78,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.11"
+VERSION_STRING = "1.9.12"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect")
@@ -122,10 +122,10 @@ global BatchCam_listItem_state
 --end of session-wide persistent variables
 --########################--
 
-include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-misc.ms"
-include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-populating.ms"
-include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-setters.ms"
-include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-preparing.ms"
+include @"BatchCameraRender-functions-misc.ms"
+include @"BatchCameraRender-functions-populating.ms"
+include @"BatchCameraRender-functions-setters.ms"
+include @"BatchCameraRender-functions-preparing.ms"
 --########################--
 --ROLLOUT--
 --########################--
@@ -817,7 +817,10 @@ include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-preparing.ms"
 
 				local draggedItem = args.Data.GetData "System.Windows.Forms.ListViewItem"
 
-				lv_objects.Items.Insert targetIndex (draggedItem.Clone())
+				local newItem = draggedItem.Clone()
+				for i=0 to (newItem.SubItems.Count-1) do ((newItem.SubItems.Item i).Name = (draggedItem.SubItems.Item i).Name)
+
+				lv_objects.Items.Insert targetIndex (newItem)
 
 				lv_objects.Items.Remove draggedItem
 				
@@ -828,6 +831,7 @@ include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-preparing.ms"
 					local obj_itself = getNodeByName obj_name
 					setUserProperty obj_itself ("BatchCameraRender_item_index") (listItem.index as string)
 				)
+				LV_ITEMS = for i=0 to (lv_objects.Items.Count - 1) collect (lv_objects.Items.Item i)
 			)
 		)
 
@@ -1778,7 +1782,7 @@ include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-preparing.ms"
 		(
 			rendType1.state = 0
 			rendType2.state = 0
-			render_from.enabled = render_to.enabled = false			
+			render_from.enabled = render_to.enabled = false
 			set_frames LV_ITEMS val
 		)
 		on clear_frames pressed do
@@ -1791,7 +1795,7 @@ include @"C:\Scripts\BatchCam\fossil\BatchCameraRender-functions-preparing.ms"
 					obj_itself = getNodeByName obj_name
 					setUserProperty obj_itself "BatchCameraRender_framerange_from" undefined
 					setUserProperty obj_itself "BatchCameraRender_framerange_to" undefined
-					clear_sub_item i "frames"
+					clear_sub_item i "Frames"
 				)
 			)
 			populate_framerange LV_ITEMS

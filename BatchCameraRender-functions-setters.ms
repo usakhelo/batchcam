@@ -416,17 +416,17 @@ fn set_anim_frame_range cameraItems =
 fn set_frames cameraItems frames =
 (
 	--cameraItems - listItems in activeX control
-	for i in cameraItems do
+	for item in cameraItems do
 	(
-		if i.selected then
+		if item.selected then
 		(
-			obj_name = i.text
+			obj_name = item.text
 			obj_itself = getNodeByName obj_name
 			setUserProperty obj_itself "BatchCameraRender_anim_frame_range" undefined
 			setUserProperty obj_itself "BatchCameraRender_frames" frames  as string
 			setUserProperty obj_itself "BatchCameraRender_framerange_from" undefined
 			setUserProperty obj_itself "BatchCameraRender_framerange_to" undefined
-			set_sub_item i (frames as string) "frames"
+			set_sub_item item (frames as string) "Frames"
 		)
 	)
 )
