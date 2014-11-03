@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>BatchCam</title><link href="/" rel="alternate"></link><link href="/feeds%5Csergo-pogosyan.atom.xml" rel="self"></link><id>/</id><updated>2014-03-04T19:30:00-05:00</updated><entry><title>BatchCam blog 1</title><link href="/batchcam_blog_1.html" rel="alternate"></link><updated>2014-03-04T19:30:00-05:00</updated><author><name>Sergo Pogosyan</name></author><id>tag:,2014-03-04:batchcam_blog_1.html</id><summary type="html">&lt;p&gt;Current Version: 1.9.12&lt;/p&gt;
+&lt;h3&gt;The Idea&lt;/h3&gt;
+&lt;p&gt;New version is out&lt;/p&gt;
+&lt;p&gt;axscript for batch rendering in 3ds max. There are a few more attributes that can be used to help position the target element. Specify a px value in the gumby-offset attribute to set an offset from the fixed point, similarly a px offset for the pin point can be specified in gumby-pinoffset. The gumby-top attribute can then be used to specify the distance from the top of the window a fixed element should be, defaulting to 0.&lt;/p&gt;</summary><category term="maxscript"></category><category term="rendering"></category></entry></feed>
