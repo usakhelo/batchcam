@@ -811,11 +811,11 @@ fn net_render_auto_submit camera_name =
 		-- do loop to correctly name render job.
 		-- job names composed of scene name + camera name + counter number.
 		existingJobs = batchManager.getjobs()
+		existingJobNames = for job in existingJobs collect job.name
 		do
 		(
 			tempjobName = jobName + " " + (leadingZero nameCounter ((nameCounter as string).count + 1))
-			jobItem = findItem existingJobs tempjobName
-
+			jobItem = findItem existingJobNames tempjobName
 			if jobItem == 0 then
 			(
 				alreadyHasName = false
