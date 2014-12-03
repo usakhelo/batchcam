@@ -55,6 +55,8 @@ RESOLUTIONS = #([640,480],[768,576],[900,600],[1200,800],[1200,960],[1500,1000],
 --main rollout
 local isDialogOpen = false		--variable to save main window open/close state
 global batchCameraRender_mainRollOut
+WindowHook --native window object to handle local render cancellation
+RenderCancelled = false
 Output_Size_Rollout
 Render_Output_Rollout
 Frame_Range_Rollout
@@ -78,7 +80,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.12"
+VERSION_STRING = "1.9.13"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect")
@@ -321,7 +323,40 @@ include @"BatchCameraRender-functions-preparing.ms"
 				ui_elements_refresh lv_objects
 			)
 		)
-		
+
+		fn onWmCommand ev args =
+		(
+		  -- format "ev:%\n" (ev)
+		  -- local query_approved = queryBox "Cancel all jobs?\n\n" title:"Warning: Cancel pressed"
+		  -- if query_approved then
+		  -- (
+	  		RenderCancelled = true
+			  dotnet.removeAllEventHandlers WindowHook
+		  -- )
+		)
+
+		fn DMNotification =
+		(
+		  local win_handle = DialogMonitorOPS.GetWindowHandle()
+		  if (win_handle != 0) then
+		  (
+			  local win_text = (UIAccessor.GetWindowText win_handle)
+			  local win_class = (UIAccessor.GetWindowClassName win_handle)
+			  if (matchPattern win_text pattern:"Rendering*" ignoreCase:false) then
+			  (
+	      	WindowHook.ReleaseHandle()
+			    WindowHook.AssignHandle (dotnetobject "IntPtr" win_handle)
+			  	dotnet.removeAllEventHandlers WindowHook
+			    dotnet.addEventHandler WindowHook "WmCommand" onWmCommand
+			    -- format "render_handle:%\n" (win_handle)
+			    
+			    DialogMonitorOPS.unRegisterNotification id:#get_render_win
+			    DialogMonitorOPS.Enabled = false
+		    )
+	    )
+		  true
+		)
+
 		fn do_render preview =
 		(
 			--store parameter
@@ -347,10 +382,18 @@ include @"BatchCameraRender-functions-preparing.ms"
 				renderPresetsApplied = false
 				lightStateApplied = false
 				
+				--if not netrender then set cancellation detection handler here
+				if (not net_render.checked) do
+				(
+					RenderCancelled = false
+					DialogMonitorOPS.unRegisterNotification id:#get_render_win
+					DialogMonitorOPS.RegisterNotification DMNotification id:#get_render_win
+					DialogMonitorOPS.Enabled = true
+				)
 				--	THIS SECTION SHOULD BE UNDER TRY-CATCH BLOCK
 				try
 				(
-					for i in LV_ITEMS do
+					for i in LV_ITEMS while not RenderCancelled do
 					(
 						if i.checked then
 						(
@@ -600,8 +643,8 @@ include @"BatchCameraRender-functions-preparing.ms"
 								restore_lighting_state()
 						) -- if close
 					) -- end of for loop
-					--insert script refresh here
--- 					BatchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects
+					DialogMonitorOPS.unRegisterNotification id:#get_render_win
+					DialogMonitorOPS.Enabled = false
 				) -- end of try close
 				catch
 				(
@@ -724,6 +767,54 @@ include @"BatchCameraRender-functions-preparing.ms"
 			callbacks.addScript #systemPostNew "batchCameraRender_reset_render_counter()" id:#batchcam
 			callbacks.addScript #systemPostReset "batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects" id:#batchcam
 			callbacks.addScript #systemPostReset "batchCameraRender_reset_render_counter()" id:#batchcam
+
+			fn CreateNativeWindowOps =
+			(
+			  source ="
+			  using System;
+			  using System.Windows.Forms;
+			  public class WindowHook : NativeWindow
+			  {
+			    private const int WM_COMMAND = 0x0111;
+			    
+			    public event EventHandler WmCommand;
+			    
+			    protected override void WndProc(ref Message m)
+			    {
+			      switch (m.Msg)
+			      {
+			        case WM_COMMAND:
+			        this.ReleaseHandle();
+			        if (this.WmCommand != null) this.WmCommand(this, EventArgs.Empty);
+			        break;
+			      }
+			      base.WndProc(ref m);
+			    }
+			  }
+			  "
+			  csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+			  compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+			  
+			  compilerParams.ReferencedAssemblies.AddRange #("System.dll", "System.Windows.Forms.dll")
+			  
+			  compilerParams.GenerateInMemory = true
+			  compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
+			  
+			  compilerResults.CompiledAssembly
+			)  
+
+			if (dotnetclass "WindowHook" == undefined) then
+				CreateNativeWindowOps()         --create dotnet object in memory
+			if (WindowHook == undefined) then
+			(
+				WindowHook = dotnetobject "WindowHook"
+				format "windowhook ready:%\n" WindowHook
+			)
+			else
+			(
+      	WindowHook.ReleaseHandle()
+		  	dotnet.removeAllEventHandlers WindowHook
+	  	)
 		)
 
 		on batchCameraRender_mainRollOut close do 
@@ -738,6 +829,13 @@ include @"BatchCameraRender-functions-preparing.ms"
 			updateToolbarButtons()
 			--remove all script callbacks
 			callbacks.removeScripts id:#batchcam
+			if (WindowHook != undefined) then
+      (
+      	WindowHook.ReleaseHandle()
+		  	dotnet.removeAllEventHandlers WindowHook
+	  	)
+			DialogMonitorOPS.unRegisterNotification id:#get_render_win
+			DialogMonitorOPS.Enabled = false
 		)
 		
 		on batchCameraRender_mainRollOut moved pos do
@@ -810,7 +908,7 @@ include @"BatchCameraRender-functions-preparing.ms"
 		(
 			local targetIndex = lv_objects.InsertionMark.Index
 
-			if (targetIndex != -1) then
+		if (targetIndex != -1) then
 			(
 				if (lv_objects.InsertionMark.AppearsAfterItem) then
 					targetIndex += 1
