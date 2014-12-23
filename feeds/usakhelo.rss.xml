@@ -1,2 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BatchCam</title><link>http://usakhelo.github.io/batchcam/</link><description>Batch rendering tool for 3ds max</description><atom:link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 03 Nov 2014 10:20:00 -0500</lastBuildDate><item><title>New site and Github for the script</title><link>http://usakhelo.github.io/batchcam/site-github.html</link><description>&lt;p&gt;This script has been offline for quite some time and finally I managed to put together a site and put script's sources on github. I hope it makes easier for you to get recent versions or modify script for your own needs.&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">usakhelo</dc:creator><pubDate>Mon, 03 Nov 2014 10:20:00 -0500</pubDate><guid>tag:usakhelo.github.io,2014-11-03:batchcam/site-github.html</guid><category>site</category><category>github</category></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BatchCam</title><link>http://usakhelo.github.io/batchcam/</link><description>Batch rendering tool for 3ds max</description><atom:link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 22 Dec 2014 10:20:00 -0500</lastBuildDate><item><title>Version 1.9.13 is ready!</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.13.html</link><description>&lt;h2&gt;New version is ready for download and testing!&lt;/h2&gt;
+&lt;h3&gt;New features:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Local rendering of multiple cameras can be cancelled at once. You need to press Cancel button to do this. Pressing Esc button doesn't stop all cameras.&lt;/li&gt;
+&lt;li&gt;Hierarchical ini files with default values. Script is looking for default ini files starting with scene folder and up to root folder. Files located on upper level override values of files located on lower levels, so you can have ini files with certain values common for all projects, then ini file for each project and ini file for certain scene.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Bug fixes:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Netrender failed when same job name exist in queue (presumably this bug appears with backburner 2013+)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Drag-and-drop of cameras causes messed up some parameters&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This site is still under develepment so, please, write comments on &lt;a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render"&gt;ScriptSpot.com&lt;/a&gt;&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">usakhelo</dc:creator><pubDate>Mon, 22 Dec 2014 10:20:00 -0500</pubDate><guid>tag:usakhelo.github.io,2014-12-22:batchcam/batchcam-1.9.13.html</guid><category>new version</category></item><item><title>New site and Github for the script</title><link>http://usakhelo.github.io/batchcam/site-github.html</link><description>&lt;p&gt;This script has been offline for quite some time and finally I managed to put together a site and put script's sources on github. I hope it makes easier for you to get recent versions or modify script for your own needs.&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">usakhelo</dc:creator><pubDate>Mon, 03 Nov 2014 10:20:00 -0500</pubDate><guid>tag:usakhelo.github.io,2014-11-03:batchcam/site-github.html</guid><category>site</category><category>github</category></item></channel></rss>
