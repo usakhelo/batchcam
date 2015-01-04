@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>BatchCam</title><link href="http://usakhelo.github.io/batchcam/" rel="alternate"></link><link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.atom.xml" rel="self"></link><id>http://usakhelo.github.io/batchcam/</id><updated>2014-12-22T10:20:00-05:00</updated><entry><title>Version 1.9.13 is ready!</title><link href="http://usakhelo.github.io/batchcam/batchcam-1.9.13.html" rel="alternate"></link><updated>2014-12-22T10:20:00-05:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2014-12-22:batchcam/batchcam-1.9.13.html</id><summary type="html">&lt;h2&gt;New version is ready for download and testing!&lt;/h2&gt;
-&lt;p&gt;&lt;img alt="screengrab" src="./images/1.9.13.jpg" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="screengrab" src="http://usakhelo.github.io/batchcam/images/1.9.13.jpg" /&gt;&lt;/p&gt;
 &lt;h3&gt;New features:&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;Local rendering of multiple cameras can be cancelled at once. You need to press Cancel button to do this. Pressing Esc button doesn't stop all cameras.&lt;/li&gt;
