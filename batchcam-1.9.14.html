@@ -2,7 +2,7 @@
 <html lang="en"
 >
 <head>
-    <title>Authors - BatchCam</title>
+    <title>1.9.14 - Vray output and Vray elements - BatchCam</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -11,18 +11,15 @@
 
     <link href="./images/favicon.ico" rel="icon">
 
+<link rel="canonical" href="./batchcam-1.9.14.html">
 
         <meta name="author" content="usakhelo" />
+        <meta name="keywords" content="new version" />
+        <meta name="description" content="Saving of Vray Frame Buffer with Color Correction Checkbox Save Vray Ouput was added in this version of the script. You can use it to save Vray VFB output including color correction that was done in VFB window. Tricky part is that this setting is tied with Enable Elements setting ..." />
 
     <!-- Enable latex plugin -->
 
 
-    <!-- Open Graph tags -->
-        <meta property="og:site_name" content="BatchCam" />
-        <meta property="og:type" content="website"/>
-        <meta property="og:title" content="BatchCam"/>
-        <meta property="og:url" content="."/>
-        <meta property="og:description" content="BatchCam"/>
 
 
     <!-- Bootstrap -->
@@ -87,8 +84,52 @@
 
         <div class="col-sm-9" role="main">
 
-    <h1>Authors on BatchCam</h1>
-        <li><a href="./author/usakhelo.html">usakhelo</a> (3)</li>
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="./batchcam-1.9.14.html"
+                       rel="bookmark"
+                       title="Permalink to 1.9.14 - Vray output and Vray elements">
+                        1.9.14 - Vray output and Vray elements
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-01-06T10:20:00"> Tue 06 January 2015</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="./tag/new-version.html">new version</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>Saving of Vray Frame Buffer with Color Correction</h2>
+<p><img alt="screengrab" src="./images/1.9.14_vrayoutput.jpg" /></p>
+<p>Checkbox <strong>Save Vray Ouput</strong> was added in this version of the script. You can use it to save Vray VFB output including color correction that was done in VFB window.</p>
+<p>Tricky part is that this setting is tied with Enable Elements setting. If you have elements enabled and have some path set for the elements then Vray output goes to that path. If elements are disabled then Vray output goes to main output folder. Vray output filetype is the same of main ouput and '<em>vrayoutput</em>' is added to the end of filename.</p>
+<p>Other thing to consider is that there is still <strong>Save Vray Separate Channels</strong> checkbox in the script. If this checkbox is off but Enable Elements and Vray Ouput are both <strong>on</strong> then you still get all the elements rendered to elements (or main) path.</p>
+<p>Other notices:</p>
+<ul>
+<li>alpha channel is saving as well along with Vray output image</li>
+<li>this settings are <strong>global</strong> - e.g. apply to all cameras</li>
+<li>script was tested on 3ds Max 2014 + Vray 3</li>
+</ul>
+<h2>Vray Elements</h2>
+<p>Several people on Scriptspot.com complained about not being able to get render elements on Vray 3 rendered. It looks like I've fixed that bug. At least I am able to render elements. <a href="http://www.scriptspot.com/users/fajar">Fajar's</a> modified version of the script inspired me to fix that annoying bug. Thanks Fajar!</p>
+<p>This site is still under develepment so, please, go ahead and comment on <a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render">ScriptSpot.com</a>. Some more +-s will also help!</p>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
         </div>
     </div>
 </div>

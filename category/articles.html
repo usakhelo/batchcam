@@ -44,7 +44,7 @@
         <h3>
             <a href="https://github.com/usakhelo/batchcam" class="btn btn-success" role="button"><i class="fa fa-github"></i> Github</a>
             <a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render" class="btn btn-success" role="button"><i class="fa fa-link"></i> ScriptSpot</a>            
-            <a href="../compiled/batchcamerarender_1.9.13.ms" class="btn btn-success" role="button"><i class="fa fa-download"></i> Download 1.9.13</a>
+            <a href="../compiled/batchcamerarender_1.9.14.ms" class="btn btn-success" role="button"><i class="fa fa-download"></i> Download 1.9.14</a>
         </h3>
     </div>
 </header>
@@ -56,6 +56,11 @@
         <ul class="list-group list-group-flush" id="sidebar" role="complementary">
             <li class="list-group-item"><h4><span class="icon-label"><a href="../">News</a></span></h4>
                 <ul class="list-group" id="recentposts">
+                    <li class="list-group-item">
+                        <a href="../batchcam-1.9.14.html#content">
+                            1.9.14 - Vray output and Vray elements
+                        </a>
+                    </li>
                     <li class="list-group-item">
                         <a href="../batchcam-1.9.13.html#content">
                             Version 1.9.13 is ready!
@@ -83,6 +88,39 @@
 
         <div class="col-sm-9" role="main">
 
+            <article>
+                <h2><a href="../batchcam-1.9.14.html">1.9.14 - Vray output and Vray elements</a></h2>
+                    <div class="well well-sm">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-01-06T10:20:00"> Tue 06 January 2015</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="../tag/new-version.html">new version</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                <div class="entry-content"><h2>Saving of Vray Frame Buffer with Color Correction</h2>
+<p><img alt="screengrab" src="../images/1.9.14_vrayoutput.jpg" /></p>
+<p>Checkbox <strong>Save Vray Ouput</strong> was added in this version of the script. You can use it to save Vray VFB output including color correction that was done in VFB window.</p>
+<p>Tricky part is that this setting is tied with Enable Elements setting. If you have elements enabled and have some path set for the elements then Vray output goes to that path. If elements are disabled then Vray output goes to main output folder. Vray output filetype is the same of main ouput and '<em>vrayoutput</em>' is added to the end of filename.</p>
+<p>Other thing to consider is that there is still <strong>Save Vray Separate Channels</strong> checkbox in the script. If this checkbox is off but Enable Elements and Vray Ouput are both <strong>on</strong> then you still get all the elements rendered to elements (or main) path.</p>
+<p>Other notices:</p>
+<ul>
+<li>alpha channel is saving as well along with Vray output image</li>
+<li>this settings are <strong>global</strong> - e.g. apply to all cameras</li>
+<li>script was tested on 3ds Max 2014 + Vray 3</li>
+</ul>
+<h2>Vray Elements</h2>
+<p>Several people on Scriptspot.com complained about not being able to get render elements on Vray 3 rendered. It looks like I've fixed that bug. At least I am able to render elements. <a href="http://www.scriptspot.com/users/fajar">Fajar's</a> modified version of the script inspired me to fix that annoying bug. Thanks Fajar!</p>
+<p>This site is still under develepment so, please, go ahead and comment on <a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render">ScriptSpot.com</a>. Some more +-s will also help!</p>
+                    <!-- <a class="btn btn-default btn-xs" href="../batchcam-1.9.14.html">more ...</a> -->
+                </div>
+            </article>
+            <hr/>
             <article>
                 <h2><a href="../batchcam-1.9.13.html">Version 1.9.13 is ready!</a></h2>
                     <div class="well well-sm">
@@ -149,7 +187,7 @@
    <div class="container">
       <hr>
       <div class="row">
-         <div class="col-xs-10">&copy; 2014 usakhelo
+         <div class="col-xs-10">&copy; 2015 usakhelo
             &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
