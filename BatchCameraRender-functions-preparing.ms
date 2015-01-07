@@ -205,10 +205,10 @@ fn restoreRenderParams buffer=
 fn prepare_render_elements camera_to_render=
 (
 	temp_string = getUserProperty camera_to_render "BatchCameraRender_elements_state"
+	elementsFullPath = undefined
 	if (isNotUndefined temp_string) then
 	(
 		elementMgr = maxOps.GetCurRenderElementMgr()
-		
 		if shouldBeSaved() and (temp_string as booleanClass) then
 		(
 			elementMgr.SetElementsActive true
@@ -231,8 +231,8 @@ fn prepare_render_elements camera_to_render=
 					mainOutput = rendOutputFilename
 					mainPath = getFilenamePath mainOutput
 					mainFileNameOnly = getFilenameFile mainOutput
--- 					mainFileType = getFilenameType mainOutput
-					mainFileType = ".tga"
+					mainFileType = getFilenameType mainOutput
+					-- mainFileType = ".tga"
 					
 					newPath = getUserProperty camera_to_render "BatchCameraRender_elements_output"
 					if (isNotUndefined newPath) then
@@ -255,23 +255,16 @@ fn prepare_render_elements camera_to_render=
 					
 					elementsFileName += mainFileType
 					
-					vray_file_extension = Vray_Settings_Rollout.vray_extension_list.items[Vray_Settings_Rollout.vray_extension_list.selection]
-					vrayElementsFileName = mainFileNameOnly + mainFileType
-					elementsFullPath = ""
-					vrayElementsFullPath = ""
-					
 					if (isPathAbsolute newPath) then
 					(
 						--use absolute path + existing or composed file name
 						elementsFullPath = pathConfig.appendPath newPath elementsFileName
-						vrayElementsFullPath = pathConfig.appendPath newPath vrayelementsFileName
 					)
 					else
 					(
 						--if subfolder then add subfolder to main path
 						elementsNewPath = pathConfig.appendPath mainPath newPath	--path is main + elements subfolder
 						elementsFullPath = pathConfig.appendPath elementsNewPath elementsFileName
-						vrayElementsFullPath = pathConfig.appendPath elementsNewPath vrayElementsFileName
 					)
 					
 					--check if the path (without filename) exist
@@ -291,41 +284,15 @@ fn prepare_render_elements camera_to_render=
 					)
 					--set new path to element
 					elementMgr.setRenderElementFilename index elementsFullPath
-
-					if isVrayRenderer() and (Vray_Settings_Rollout.save_separate_render_channels.checked) then	--added flag checking to avoid creating separate channel files
-					(
-						vr = renderers.current
-						vr.output_splitgbuffer = true
-						vr.output_splitfilename = vrayElementsFullPath
-						
-						-- hack, to make vray save elements from vfb
-						--Thank you, Track! :)
-						try
-						(
-						split_bitmap=Bitmap 10 10 fileName: vrayElementsFullPath
-						save split_bitmap
-						close split_bitmap
-						vr.output_splitbitmap=split_bitmap
-						deleteFile vrayElementsFullPath
-						)
-						catch
-						(
-							messagebox (getCurrentException()) title:"Error"
-						)
-					)
 				)
 			)
 		)
 		else
 		(
 			elementMgr.SetElementsActive false
-			if isVrayRenderer() then
-			(
-				vr = renderers.current
-				vr.output_splitgbuffer = false
-			)
 		)
 	)
+	elementsFullPath
 )
 
 fn checkAndAppendMainPath path_string = 
@@ -347,7 +314,7 @@ fn checkAndAppendMainPath path_string =
 )
 
 --V-ray settings
-fn prepare_vray_settings camera_to_render main_output_file =
+fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 (
 	if isVrayRenderer() then
 	(
@@ -357,13 +324,57 @@ fn prepare_vray_settings camera_to_render main_output_file =
 		(
 			vr.output_on = true
 			--output_saveRawFile flag should be checked only if output file is given
-			if isNotUndefined main_output_file then
+			if shouldBeSaved() and isNotUndefined main_output_file then
 			(
+				if isNotUndefinedOrEmpty elementsPath then
+					elementsPath = getFilenamePath elementsPath
+				else
+					elementsPath = getFilenamePath main_output_file
+
 				vr.output_saveRawFile = Vray_Settings_Rollout.save_vray_image_file.checked
 			
 				file_extension = Vray_Settings_Rollout.vray_extension_list.items[Vray_Settings_Rollout.vray_extension_list.selection]
-				vr.output_rawFileName = (getFilenamePath main_output_file) + (getFilenameFile main_output_file) + ("_vray_") + file_extension 
+				vrayRawFullPath = elementsPath + (getFilenameFile main_output_file) + ("_vray_") + file_extension 
+				vr.output_rawFileName = vrayRawFullPath
 				
+				vrayOutputFullPath = elementsPath + (getFilenameFile main_output_file) + ("_vrayoutput_") + (getFilenameType main_output_file)
+				if (Vray_Settings_Rollout.save_separate_render_channels.checked) or (Vray_Settings_Rollout.save_vray_output.checked) then
+				(
+					vr.output_splitgbuffer = true
+					vr.output_splitfilename = vrayOutputFullPath
+					-- hack, to make vray save elements from vfb
+					--Thank you, Track! :)
+					try
+					(
+						local split_bitmap=Bitmap 10 10 fileName: vrayOutputFullPath
+						save split_bitmap
+						close split_bitmap
+						vr.output_splitbitmap=split_bitmap
+						
+						deleteFile vrayOutputFullPath
+					)
+					catch
+					(
+						messagebox (getCurrentException()) title:"Error Setting Vray Output"
+					)
+					
+					if (Vray_Settings_Rollout.save_vray_output.checked) then
+					(
+						vr.output_splitRGB = true
+						vr.output_splitAlpha = true
+					)
+					else
+					(
+						vr.output_splitRGB = false
+						vr.output_splitAlpha = false
+					)
+				)
+				else
+				(
+					vr.output_splitgbuffer = false
+					vr.output_splitRGB = false
+					vr.output_splitAlpha = false
+				)
 				--set vray frame buffer resolution based on multiplier - only in case output_saveRawFile is checked
 				if Vray_Settings_Rollout.vray_image_multiplier.value != 1.0 then
 				(
@@ -375,12 +386,14 @@ fn prepare_vray_settings camera_to_render main_output_file =
 				(
 					vr.output_getsetsfrommax = true
 				)
-				
 			)
 			else
 			(
 				vr.output_saveRawFile = false
 				vr.output_rawFileName = ""
+				vr.output_splitgbuffer = false
+				vr.output_splitRGB = false
+				vr.output_splitAlpha = false
 			)
 		)
 		else
@@ -388,9 +401,6 @@ fn prepare_vray_settings camera_to_render main_output_file =
 			--if show_vray_vfb is not checked then uncheck output_on flag
 			vr.output_on = false
 		)
-		-- BatchCameraRender_
-		-- irmap_mode auto_save_irmap auto_switch_irmap irmap_read_file irmap_save_file
-		-- lcmap_mode auto_save_lcmap auto_switch_lcmap lcmap_read_file lcmap_save_file
 
 		--set misc. settings
 		temp_string = getUserProperty camera_to_render "BatchCameraRender_vray_ortho_mode"

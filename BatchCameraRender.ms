@@ -80,7 +80,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.13"
+VERSION_STRING = "1.9.14"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect")
@@ -124,10 +124,10 @@ global BatchCam_listItem_state
 --end of session-wide persistent variables
 --########################--
 
-include @"BatchCameraRender-functions-misc.ms"
-include @"BatchCameraRender-functions-populating.ms"
-include @"BatchCameraRender-functions-setters.ms"
-include @"BatchCameraRender-functions-preparing.ms"
+include @"C:\GitHub\batchcam\BatchCameraRender-functions-misc.ms"
+include @"C:\GitHub\batchcam\BatchCameraRender-functions-populating.ms"
+include @"C:\GitHub\batchcam\BatchCameraRender-functions-setters.ms"
+include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 --########################--
 --ROLLOUT--
 --########################--
@@ -517,12 +517,13 @@ include @"BatchCameraRender-functions-preparing.ms"
 							)
 							else
 								rendSaveFile = false
+
+							--render elements section
+							local elementsPath = prepare_render_elements camera_to_render
 							
 							--V-ray settings
-							prepare_vray_settings camera_to_render temp_string
+							prepare_vray_settings camera_to_render temp_string elementsPath
 							
-							--render elements section
-							prepare_render_elements camera_to_render
 							
 							--get lightstate
 							temp_string1 = getUserProperty camera_to_render "BatchCameraRender_solo_lights"
@@ -1647,7 +1648,6 @@ include @"BatchCameraRender-functions-preparing.ms"
 			set_elements_state LV_ITEMS state
 		)
 		
-		
 		on elements_path entered val do
 		(
 			set_elements_path LV_ITEMS val
@@ -1913,9 +1913,12 @@ include @"BatchCameraRender-functions-preparing.ms"
 			checkbox show_vray_vfb "Enable VFB" offset:[0,0] align:#left enabled:false checked:SAVE_VRAY_IMAGE_FILE_STATE across:3
 			checkbox save_vray_image_file "Save V-ray Raw Image File" offset:[-65,0] align:#left enabled:false
 			spinner vray_image_multiplier "Vray Image Multiplier: " range:[0,100000,1.0] type:#float width:100 offset:[-60,0] align:#left
-			checkbox save_separate_render_channels "Save Separate Render Channels" offset:[0,0] align:#left enabled:false
+		
 			label label1 "Vray Image Type:" offset: [0,0] align:#left across:2
 			dropdownlist vray_extension_list width:55 offset: [-140,-2] align:#left
+
+			checkbox save_separate_render_channels "Save Vray Separate Channels (No effect if Enable Elements is off)" offset:[0,0] align:#left enabled:false
+			checkbox save_vray_output "Save Vray Output (includes VFB color corrections)" offset:[0,0] align:#left enabled:false
 		)
 		
 		group "Misc. Settings"
@@ -2140,6 +2143,7 @@ include @"BatchCameraRender-functions-preparing.ms"
 			saveVar2IniFile "Vray_Settings_Rollout" "show_vray_vfb" state
 			save_vray_image_file.enabled = state
 			save_separate_render_channels.enabled = state
+			save_vray_output.enabled = state
 		)
 		
 		on vray_image_multiplier changed state do
@@ -2150,7 +2154,10 @@ include @"BatchCameraRender-functions-preparing.ms"
 		
 		on save_separate_render_channels changed state do
 			saveVar2IniFile "Vray_Settings_Rollout" "save_separate_render_channels" state
-		
+
+		on save_vray_output changed state do
+			saveVar2IniFile "Vray_Settings_Rollout" "save_vray_output" state
+	
 		on vray_extension_list selected index do
 			saveVar2IniFile "Vray_Settings_Rollout" "vray_extension" index
 		
@@ -2193,6 +2200,14 @@ include @"BatchCameraRender-functions-preparing.ms"
 			(
 				save_separate_render_channels.checked = false
 				saveVar2IniFile "Vray_Settings_Rollout" "save_separate_render_channels" false
+			)
+			
+			if (temp_state = loadVarFromIniFile "Vray_Settings_Rollout" "save_vray_output") != undefined then
+				save_vray_output.checked = (temp_state as booleanClass)  
+			else
+			(
+				save_vray_output.checked = false
+				saveVar2IniFile "Vray_Settings_Rollout" "save_vray_output" false
 			)
 						
 			if (temp_state = loadVarFromIniFile "Vray_Settings_Rollout" "show_vray_vfb")  != undefined then
