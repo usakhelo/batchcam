@@ -41,34 +41,28 @@ struct BatchCam_RenderParameterStore
 	old_lightcache_autoSave,
 	old_lightcache_autoSaveFileName,
 	old_lightcache_switchToSavedMap,
-	oldrenderUseNet
+	oldrenderUseNet,
+	oldRenderType
 )
 
 fn storeRenderParams buffer=
 (
-	--store parameters
 	buffer.old_rendUseActiveView = rendUseActiveView
-	
-	--store viewport type and camera
 	buffer.viewport_type = viewport.getType()
 	if buffer.viewport_type == #view_camera then
 		buffer.old_camera = viewport.getCamera()
-	--store frame range
 	buffer.oldrendType = rendTimeType
 	buffer.oldrendStart = rendStart
 	buffer.oldrendEnd = rendEnd
 	buffer.oldrendPickupFrames = rendPickupFrames
 	buffer.oldrendNThFrame = rendNThFrame
-	--store resolution
 	buffer.oldrenderWidth = renderWidth
 	buffer.oldrenderHeight = renderHeight
-	--store filename
 	buffer.oldfilename = rendOutputFilename
 	buffer.oldsavestate = rendSaveFile
-	--netrender status
 	buffer.oldrenderUseNet = rendUseNet 
-	
-	--store render elements state and filenames
+	buffer.oldRenderType = getRenderType()
+
 	elementMgr = maxOps.GetCurRenderElementMgr()
 	buffer.numOfElements = elementMgr.NumRenderElements()
 	buffer.oldElementsFullPaths = #()
@@ -81,7 +75,6 @@ fn storeRenderParams buffer=
 			append buffer.oldElementsFullPaths ""
 	)
 	buffer.oldElementsState = elementMgr.GetElementsActive()
-
 	
 	--store V-ray image properties
 	buffer.oldoutput_saveRawFile = false
@@ -140,21 +133,16 @@ fn storeRenderParams buffer=
 
 fn restoreRenderParams buffer=
 (
-	--restore parameter
 		rendUseActiveView = buffer.old_rendUseActiveView
-		--restore frame range
 		rendTimeType = buffer.oldrendType 
 		rendStart = buffer.oldrendStart
 		rendEnd = buffer.oldrendEnd
 		rendPickupFrames = buffer.oldrendPickupFrames
 		rendNThFrame = buffer.oldrendNThFrame
-		--restore resolution
 		renderWidth = buffer.oldrenderWidth
 		renderHeight = buffer.oldrenderHeight
-		--restore filename
 		rendOutputFilename = buffer.oldfilename
 		rendSaveFile = buffer.oldsavestate
-		--restore render elements state and filenames
 		elementMgr = maxOps.GetCurRenderElementMgr()
 		for index=0 to (buffer.numOfElements-1) do
 			elementMgr.setRenderElementFilename index buffer.oldElementsFullPaths[index+1]
@@ -189,9 +177,9 @@ fn restoreRenderParams buffer=
 			vr.lightcache_autoSave = buffer.old_lightcache_autoSave
 			vr.lightcache_switchToSavedMap = buffer.old_lightcache_switchToSavedMap
 		)
-		--restore netrender
 		rendUseNet = buffer.oldrenderUseNet
-						
+		setRenderType (buffer.oldRenderType)
+
 		--restore viewport type and camera if not silent submit mode
 		if (not batchCamPreview) and ((batchCameraRender_mainRollOut.show_net_submit.enabled and batchCameraRender_mainRollOut.show_net_submit.checked) or (not batchCameraRender_mainRollOut.net_render.checked)) then
 		(

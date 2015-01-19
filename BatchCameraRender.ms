@@ -80,7 +80,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.14"
+VERSION_STRING = "1.9.15"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect")
@@ -302,6 +302,17 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			camera_obj = getNodeByName camera_name
 			if (findString ((classof camera_obj) as string) "camera")  != undefined then	--set viewport camera
 				viewport.setCamera camera_obj
+
+			local xres_prop = getUserProperty camera_obj "BatchCameraRender_frame_width"
+			local yres_prop = getUserProperty camera_obj "BatchCameraRender_frame_heigth"
+			if (isNotUndefined xres_prop) and (isNotUndefined yres_prop) then
+			(
+				if renderSceneDialog.isOpen() then
+						renderSceneDialog.close()
+
+				renderWidth = xres_prop as integer
+				renderHeight = yres_prop as integer
+			)
 		)
 		
 		--function to select active viewport camera in script's list
@@ -490,6 +501,28 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 								renderHeight = yres_prop as integer
 							)
 							
+							--set render region
+							local use_region = getUserProperty camera_to_render "BatchCameraRender_region_enabled"
+							format "use_region: %\n" use_region
+							format "(use_region as BooleanClass): %\n" (use_region as BooleanClass)
+							if (isNotUndefined use_region) and (use_region as BooleanClass) then
+							(
+								setRenderType #region
+								local reg_x = getUserProperty camera_to_render "BatchCameraRender_region_x"
+								local reg_y = getUserProperty camera_to_render "BatchCameraRender_region_y"
+								local reg_w = getUserProperty camera_to_render "BatchCameraRender_region_w"
+								local reg_h = getUserProperty camera_to_render "BatchCameraRender_region_h"
+								if (isNotUndefined reg_x) and (isNotUndefined reg_y) and\
+								(isNotUndefined reg_w) and (isNotUndefined reg_h)	then
+								(
+									local x = (renderWidth / 100.0) * (reg_x as integer)
+									local y = (renderHeight / 100.0) * (reg_y as integer)
+									local w = ((renderWidth / 100.0) * (reg_w as integer)) + x
+									local h = ((renderHeight / 100.0) * (reg_h as integer)) + y
+									viewport.setRegionRect (viewport.activeViewport) (box2 x y w h)
+								)
+							)
+
 							--get and set file name
 							temp_string = getUserProperty camera_to_render "BatchCameraRender_render_output"
 							if (shouldBeSaved()) and (isNotUndefined temp_string) then
@@ -1341,8 +1374,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		checkbutton lock_aspect "Lock" width:30 align:#left offset: [2,-3]
 		
 		checkbutton use_region "Region" align:#left width:40 offset:[10,-3]
-		spinner region_x "X:" range:[0,100000,0] type:#integer align:#left width:80 offset: [-10,0]
-		spinner region_y "Y:" range:[0,100000,0] type:#integer align:#left width:80 offset: [0,0]
+		spinner region_x "X:" range:[0,100,0] type:#integer align:#left width:80 offset: [-10,0]
+		spinner region_y "Y:" range:[0,100,0] type:#integer align:#left width:80 offset: [0,0]
 
 		label label3 "Height:" align:#left across:10
 		spinner frame_height range:[1,100000,480] type:#integer width:60 align:#left offset: [-13,0]
@@ -1354,8 +1387,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		button set_region_to_max "Set" width:30 align:#left offset: [-30,-2]
 		button get_region_from_max "Get" width:30 align:#left offset: [-42,-2]
 
-		spinner region_w "W:" range:[0,100000,0] type:#integer align:#left width:92 offset: [-53, 0]
-		spinner region_h "H:" range:[0,100000,0] type:#integer align:#left width:85 offset: [-22,0]
+		spinner region_w "W:" range:[0,100,0] type:#integer align:#left width:92 offset: [-53, 0]
+		spinner region_h "H:" range:[0,100,0] type:#integer align:#left width:85 offset: [-22,0]
 		
 		on Output_Size_Rollout open do
 		(
@@ -1496,13 +1529,67 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			)
 		)
 		
+		on region_x changed val do
+		(
+			set_named_integer_property_no_listview LV_ITEMS "region_x" val
+			populate_spinner_field LV_ITEMS "region_x" Output_Size_Rollout.region_x
+		)
+
+		on region_y changed val do
+		(
+			set_named_integer_property_no_listview LV_ITEMS "region_y" val
+			populate_spinner_field LV_ITEMS "region_y" Output_Size_Rollout.region_y
+		)
+
+		on region_w changed val do
+		(
+			set_named_integer_property_no_listview LV_ITEMS "region_w" val
+			populate_spinner_field LV_ITEMS "region_w" Output_Size_Rollout.region_w
+		)
+
+		on region_h changed val do
+		(
+			set_named_integer_property_no_listview LV_ITEMS "region_h" val
+			populate_spinner_field LV_ITEMS "region_h" Output_Size_Rollout.region_h
+		)
+
+		on set_region_to_max pressed do
+		(
+			if (not region_x.indeterminate) and (not region_y.indeterminate) and\
+			(not region_w.indeterminate) and (not region_w.indeterminate) and\
+			(not frame_width.indeterminate) and (not frame_height.indeterminate) then
+			(
+				setRenderType #region
+				--convert percentage to viewport sizes
+				local x = (renderWidth / 100.0) * region_x.value
+				local y = (renderHeight / 100.0) * region_y.value
+				local w = ((renderWidth / 100.0) * region_w.value) + x
+				local h = ((renderHeight / 100.0) * region_h.value) + y
+				viewport.setRegionRect (viewport.activeViewport) (box2 x y w h) 
+				if (((maxVersion())[1] / 1000) > 10) then
+					EditRenderRegion.UpdateRegion()
+			)
+		)
+
 		on get_region_from_max pressed do
 		(
 			local region_box = viewport.getRegionRect (viewport.activeViewport)
-			set_named_integer_property_no_listview LV_ITEMS "region_x" region_box.x
-			set_named_integer_property_no_listview LV_ITEMS "region_y" region_box.y
-			set_named_integer_property_no_listview LV_ITEMS "region_w" region_box.w
-			set_named_integer_property_no_listview LV_ITEMS "region_h" region_box.h
+			local width = renderWidth
+			local height = renderHeight
+			if (not frame_width.indeterminate) and (not frame_height.indeterminate) then
+			(
+				width = frame_width.value
+				height = frame_height.value
+			)
+			local x = ((region_box.x as float) / width) * 100
+			local y = ((region_box.y as float) / height) * 100
+			local w = (((region_box.x + region_box.w) as float) / width) * 100
+			local h = (((region_box.y + region_box.h) as float) / height) * 100
+
+			set_named_integer_property_no_listview LV_ITEMS "region_x" x
+			set_named_integer_property_no_listview LV_ITEMS "region_y" y
+			set_named_integer_property_no_listview LV_ITEMS "region_w" w
+			set_named_integer_property_no_listview LV_ITEMS "region_h" h
 			
 			populate_resolution_options LV_ITEMS
 		)
