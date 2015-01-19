@@ -1334,19 +1334,28 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		button clear_resolution "Clear" width:45  offset: [65,0] align:#right
 		button save_as_default  "Save to INI..." width:85 align:#right
 		
-		label label1 "Width:" align:#left across:5
-		spinner frame_width  range:[1,100000,640] type:#integer width:70 offset: [-21,0]
+		label label1 "Width:" align:#left across:7
+		spinner frame_width range:[1,100000,640] type:#integer align:#left width:60 offset: [-32,0]
 
-		label label2 "Image Aspect:" align:#left offset: [20,0]
-		spinner image_aspect_spinner range:[0,100000,1.333] type:#float width:70 offset: [-30,0]
-		checkbutton lock_aspect "Lock" width:30 align:#left offset: [-17,-3]
+		spinner image_aspect_spinner "Aspect:" range:[0,100000,1.333] type:#float width:90 offset: [-20,0]
+		checkbutton lock_aspect "Lock" width:30 align:#left offset: [2,-3]
 		
-		label label3 "Height:" align:#left across:6
-		spinner frame_height range:[1,100000,480] type:#integer width:70 align:#left offset: [27,0]
-		button double_resolution "x2" width:30 align:#left offset: [32,-2]
-		button half_resolution "1/2" width:30 align:#left offset: [-12,-2]
-		button set_resolution_to_max "to Max" width:50 align:#left offset: [-25,-2]
-		button get_resolution_from_max "from Max" width:50 align:#left offset: [-49,-2]
+		checkbutton use_region "Region" align:#left width:40 offset:[10,-3]
+		spinner region_x "X:" range:[0,100000,0] type:#integer align:#left width:80 offset: [-10,0]
+		spinner region_y "Y:" range:[0,100000,0] type:#integer align:#left width:80 offset: [0,0]
+
+		label label3 "Height:" align:#left across:10
+		spinner frame_height range:[1,100000,480] type:#integer width:60 align:#left offset: [-13,0]
+		button double_resolution "x2" width:30 align:#left offset: [5,-2]
+		button half_resolution "1/2" width:30 align:#left offset: [-8,-2]
+		button set_resolution_to_max "Set" width:30 align:#left offset: [-20,-2]
+		button get_resolution_from_max "Get" width:30 align:#left offset: [-33,-2]
+
+		button set_region_to_max "Set" width:30 align:#left offset: [-30,-2]
+		button get_region_from_max "Get" width:30 align:#left offset: [-42,-2]
+
+		spinner region_w "W:" range:[0,100000,0] type:#integer align:#left width:92 offset: [-53, 0]
+		spinner region_h "H:" range:[0,100000,0] type:#integer align:#left width:85 offset: [-22,0]
 		
 		on Output_Size_Rollout open do
 		(
@@ -1415,6 +1424,12 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			saveVar2IniFile "Output_Size_Rollout" "lock_aspect" state
 			populate_resolution_options LV_ITEMS
 		)
+
+		on use_region changed state do 
+		(
+			set_checkbox_property_no_listview LV_ITEMS "region_enabled" state
+			populate_resolution_options LV_ITEMS
+		)
 		
 		on image_aspect_spinner changed val do
 		(
@@ -1479,6 +1494,17 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				set_resolution LV_ITEMS (renderWidth) (renderHeight)
 				populate_resolution_options LV_ITEMS
 			)
+		)
+		
+		on get_region_from_max pressed do
+		(
+			local region_box = viewport.getRegionRect (viewport.activeViewport)
+			set_named_integer_property_no_listview LV_ITEMS "region_x" region_box.x
+			set_named_integer_property_no_listview LV_ITEMS "region_y" region_box.y
+			set_named_integer_property_no_listview LV_ITEMS "region_w" region_box.w
+			set_named_integer_property_no_listview LV_ITEMS "region_h" region_box.h
+			
+			populate_resolution_options LV_ITEMS
 		)
 		
 		on Output_Size_Rollout rolledUp state do

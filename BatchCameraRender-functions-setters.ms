@@ -38,6 +38,21 @@ fn set_checkbox_property cameraItems property_name checkbox_value =
 	)
 )
 
+-- general function to set checkbox value to user properties
+fn set_checkbox_property_no_listview cameraItems property_name checkbox_value =
+(
+	for i in cameraItems do
+	(
+		if i.selected then
+		(
+			obj_name = i.text
+			obj_itself = getNodeByName obj_name
+			
+			setUserProperty obj_itself ("BatchCameraRender_" + property_name) (checkbox_value as string)
+		)
+	)
+)
+
 --general function to set integer elements and display given integer value's name in listview
 fn set_string_property cameraItems property_name string_value =
 (
@@ -66,6 +81,22 @@ fn set_named_integer_property cameraItems property_name integer_value value_name
 			
 			setUserProperty obj_itself ("BatchCameraRender_" + property_name) (integer_value as string)
 			set_sub_item i (value_name as string) property_name
+		)
+	)
+)
+
+--general function to set integer elements and display given integer value's name in listview
+fn set_named_integer_property_no_listview cameraItems property_name integer_value =
+(
+	for i in cameraItems do
+	(
+		if i.selected then
+		(
+			obj_name = i.text
+			obj_itself = getNodeByName obj_name
+			
+			setUserProperty obj_itself ("BatchCameraRender_" + property_name) (integer_value as string)
+			-- set_sub_item i (value_name as string) property_name
 		)
 	)
 )

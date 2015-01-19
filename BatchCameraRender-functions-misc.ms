@@ -224,6 +224,12 @@ fn propName2Id property_name =
 		
 		"BatchCameraRender_vray_ortho_mode":		property_id = 7844
 		"BatchCameraRender_item_index":		property_id = 7845
+		
+		"BatchCameraRender_region_enabled":		property_id = 7846
+		"BatchCameraRender_region_x":		property_id = 7847
+		"BatchCameraRender_region_y":		property_id = 7848
+		"BatchCameraRender_region_w":		property_id = 7849
+		"BatchCameraRender_region_h":		property_id = 7850
 	)
 	property_id
 )

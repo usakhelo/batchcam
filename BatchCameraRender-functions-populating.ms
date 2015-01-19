@@ -121,7 +121,6 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 (
 	local uiCheckBox  = rollout_control
 	
-	--collect selected items
 	selected_items = for i in cameraItems where i.selected collect i
 		
 	if selected_items.count == 1 then
@@ -134,7 +133,10 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 		if isNotUndefined temp_string then
 			uiCheckBox.state = (temp_string as booleanclass)
 		else
-			uiCheckBox.triState = 2
+		(
+			if (classof uiCheckBox) != CheckButtonControl then
+				uiCheckBox.triState = 2
+		)
 	)
 	else --multiple selection
 	(	
@@ -157,16 +159,21 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 				if temp_string != prev_state then 
 				(
 					state_diff_flag = true	--set flag if values differ
-					uiCheckBox.triState = 2
+					if (classof uiCheckBox) != CheckButtonControl then
+						uiCheckBox.triState = 2
 				)
 				else if not state_diff_flag then	--if values are same and flag hasn't been set
-					uiCheckBox.triState = if temp_string then 1 else 0
+				(
+					if (classof uiCheckBox) != CheckButtonControl then
+						uiCheckBox.triState = if temp_string then 1 else 0
+				)
 				
 				prev_state = temp_string
 			)
 			else
 			(
-				uiCheckBox.triState = 2
+				if (classof uiCheckBox) != CheckButtonControl then
+						uiCheckBox.triState = 2
 			)			
 		)
 	)
@@ -897,6 +904,11 @@ fn populate_resolution_options selectedItems =
 	populate_spinner_field selectedItems "image_aspect" Output_Size_Rollout.image_aspect_spinner
 	--display selected resolution
 	populate_dropdownbox_resolution selectedItems Output_Size_Rollout.out_size_list
+	populate_checkbox_item LV_ITEMS "region_enabled" Output_Size_Rollout.use_region
+	populate_spinner_field LV_ITEMS "region_x" Output_Size_Rollout.region_x
+	populate_spinner_field LV_ITEMS "region_y" Output_Size_Rollout.region_y
+	populate_spinner_field LV_ITEMS "region_w" Output_Size_Rollout.region_w
+	populate_spinner_field LV_ITEMS "region_h" Output_Size_Rollout.region_h
 )
 
 fn populate_scenestate_renderpreset selectedItems =
