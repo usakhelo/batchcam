@@ -2,7 +2,7 @@
 <html lang="en"
 >
 <head>
-    <title>Version 1.9.13 is ready! - BatchCam</title>
+    <title>1.9.15- Region Rendering and Backburner Servers - BatchCam</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -11,11 +11,11 @@
 
     <link href="./images/favicon.ico" rel="icon">
 
-<link rel="canonical" href="./batchcam-1.9.13.html">
+<link rel="canonical" href="./batchcam-1.9.15.html">
 
         <meta name="author" content="usakhelo" />
         <meta name="keywords" content="new version" />
-        <meta name="description" content="New version is ready for download and testing! New features: Local rendering of multiple cameras can be cancelled at once. You need to press Cancel button to do this. Pressing Esc button doesn&#39;t stop all cameras. Hierarchical ini files with default values. Script is looking for default ini files ..." />
+        <meta name="description" content="New features of this release: Region render parameter can be specified for each camera Set Viewport button sets viewport camera and resolution and aspect as well It is possible now to specify backburner servers and server groups for silent rendering submit Download Since this version is not tested thoroughly I ..." />
 
     <!-- Enable latex plugin -->
 
@@ -98,10 +98,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="./batchcam-1.9.13.html"
+                    <a href="./batchcam-1.9.15.html"
                        rel="bookmark"
-                       title="Permalink to Version 1.9.13 is ready!">
-                        Version 1.9.13 is ready!
+                       title="Permalink to 1.9.15- Region Rendering and Backburner Servers">
+                        1.9.15- Region Rendering and Backburner Servers
                     </a>
                 </h1>
             </header>
@@ -111,7 +111,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2014-12-22T10:20:00"> Mon 22 December 2014</time>
+        <i class="fa fa-calendar"></i><time datetime="2015-02-06T10:20:00"> Fri 06 February 2015</time>
     </span>
 
 
@@ -121,23 +121,45 @@
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <h2>New version is ready for download and testing!</h2>
-<p><img alt="screengrab" src="./images/1.9.13.jpg" /></p>
-<h3>New features:</h3>
+                <h2>New features of this release:</h2>
 <ul>
-<li>Local rendering of multiple cameras can be cancelled at once. You need to press Cancel button to do this. Pressing Esc button doesn't stop all cameras.</li>
-<li>Hierarchical ini files with default values. Script is looking for default ini files starting with scene folder and up to root folder. Files located on upper level override values of files located on lower levels, so you can have ini files with certain values common for all projects, then ini file for each project and ini file for certain scene.</li>
+<li>Region render parameter can be specified for each camera</li>
+<li>Set Viewport button sets viewport camera and resolution and aspect as well</li>
+<li>It is possible now to specify backburner servers and server groups for silent rendering submit</li>
 </ul>
-<h3>Bug fixes:</h3>
+<h3>Download</h3>
+<p>Since this version is not tested thoroughly I put download link here - <a href="./compiled/batchcamerarender_1.9.15.ms">batchcamerarender_1.9.15.ms</a></p>
+<h2>Region render parameters</h2>
+<p><img alt="screengrab" src="./images/1.9.15_region_render.jpg" /></p>
+<p>By using these parameters you can specify different regions for each camera in the scene. Get/Set buttons are used to get/set region settings of the current viewport. Values are set as follows: X/Y coordinates of upper left corner and Width/Height of the region rectangle. To keep values resolution independent they are set in <strong>percents</strong> not pixels. To enable/disable region rendering use Region swatch button.</p>
+<h2>Backburner servers</h2>
+<p>Ok, to use this feature you will need to edit the code. Sorry for that, but adding UI elements requires so much work, I would not be able to make it for weeks. So, here it is, at line 972 we have this:</p>
+<div class="highlight"><pre><span class="n">local</span> <span class="n">render_servers</span> <span class="o">=</span> <span class="err">#</span><span class="p">()</span>
+<span class="o">--</span> <span class="n">render_servers</span> <span class="o">=</span> <span class="n">batchManager</span><span class="p">.</span><span class="n">GetServers</span> <span class="n">filter</span><span class="o">:</span><span class="err">#</span><span class="n">group</span> <span class="n">key</span><span class="o">:</span><span class="s">&quot;test_global&quot;</span>
+<span class="o">--</span> <span class="n">render_servers</span> <span class="o">=</span> <span class="n">batchManager</span><span class="p">.</span><span class="n">GetServers</span> <span class="n">filter</span><span class="o">:</span><span class="err">#</span><span class="n">index</span> <span class="n">key</span><span class="o">:</span><span class="mi">2</span>
+<span class="n">render_servers</span> <span class="o">=</span> <span class="n">batchManager</span><span class="p">.</span><span class="n">GetServers</span><span class="p">()</span>
+<span class="n">local</span> <span class="n">servernames</span> <span class="o">=</span> <span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="n">render_servers</span> <span class="n">collect</span> <span class="n">i</span><span class="p">.</span><span class="n">name</span>
+<span class="n">format</span> <span class="s">&quot;servernames:%</span><span class="se">\n</span><span class="s">&quot;</span> <span class="n">servernames</span>
+<span class="n">batchJob</span><span class="p">.</span><span class="n">Submit</span> <span class="n">Servers</span><span class="o">:</span><span class="n">render_servers</span>
+<span class="o">--</span> <span class="n">batchJob</span><span class="p">.</span><span class="n">Submit</span> <span class="n">Servers</span><span class="o">:</span><span class="err">#</span><span class="p">(</span><span class="n">render_servers</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+
+<p><code>render_servers</code> array contains servers and it is passed to <code>batchJob.Submit</code> method. In current state array contains all the servers since line 975 collects all of them. If you need to select group of servers you need to:</p>
 <ul>
-<li>
-<p>Netrender failed when same job name exist in queue (presumably this bug appears with backburner 2013+)</p>
-</li>
-<li>
-<p>Drag-and-drop of cameras causes messed up some parameters</p>
-</li>
+<li>Uncomment line 973 and comment 975</li>
+<li>Specify group name in the end of line 973 </li>
+<li>Remember to save and run the script using <code>Ctrl+E</code> in maxscript editor to update the script in 3ds max.</li>
 </ul>
-<p>This site is still under develepment so, please, write comments on <a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render">ScriptSpot.com</a></p>
+<p>After that all your silent network rendering jobs will be assigned to that server groups. Also remember that only <strong>global groups</strong> are supported.</p>
+<p>To use one or more particular servers you will need to get their indexes in <code>render_servers</code> array. To get that information first make sure script is configured to use all the servers (use fragment above as a guide) then submit any render job and check maxscript listener - there should be the list of all your servers' names. Note the index of needed servers in that list.</p>
+<ul>
+<li>Uncomment line 979 and comment line 978</li>
+<li>List the servers using your indexes and array just like this: <code>#(render_servers[1], render_servers[2], render_servers[3])</code>. I used 1, 2, 3 here as indexes. </li>
+</ul>
+<p>That's it. Run the script using <code>Ctrl+E</code> and then run it in regular way, using toolbar button.</p>
+<p>I hope this little guide helps you to customize your script.</p>
+<p>This site is still under develepment so, please, go ahead and comment on <a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render">ScriptSpot.com</a>. Some more <code>+</code>-s on Scriptspot are much appreciated!</p>
             </div>
             <!-- /.entry-content -->
         </article>

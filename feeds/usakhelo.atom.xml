@@ -1,5 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>BatchCam</title><link href="http://usakhelo.github.io/batchcam/" rel="alternate"></link><link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.atom.xml" rel="self"></link><id>http://usakhelo.github.io/batchcam/</id><updated>2015-01-21T10:20:00-05:00</updated><entry><title>Script Development Roadmap</title><link href="http://usakhelo.github.io/batchcam/roadmap.html" rel="alternate"></link><updated>2015-01-21T10:20:00-05:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2015-01-21:batchcam/roadmap.html</id><summary type="html">&lt;p&gt;I keep getting emails and comments with feature suggestions. Some features look interesting for public version and some look too specific to user's workflow. I decided to list the features that interest me the most and which I think are valuable for public version.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>BatchCam</title><link href="http://usakhelo.github.io/batchcam/" rel="alternate"></link><link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.atom.xml" rel="self"></link><id>http://usakhelo.github.io/batchcam/</id><updated>2015-02-06T10:20:00-05:00</updated><entry><title>1.9.15- Region Rendering and Backburner Servers</title><link href="http://usakhelo.github.io/batchcam/batchcam-1.9.15.html" rel="alternate"></link><updated>2015-02-06T10:20:00-05:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2015-02-06:batchcam/batchcam-1.9.15.html</id><summary type="html">&lt;h2&gt;New features of this release:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Region render parameter can be specified for each camera&lt;/li&gt;
+&lt;li&gt;Set Viewport button sets viewport camera and resolution and aspect as well&lt;/li&gt;
+&lt;li&gt;It is possible now to specify backburner servers and server groups for silent rendering submit&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Download&lt;/h3&gt;
+&lt;p&gt;Since this version is not tested thoroughly I put download link here - &lt;a href="http://usakhelo.github.io/batchcam/compiled/batchcamerarender_1.9.15.ms"&gt;batchcamerarender_1.9.15.ms&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;Region render parameters&lt;/h2&gt;
+&lt;p&gt;&lt;img alt="screengrab" src="http://usakhelo.github.io/batchcam/images/1.9.15_region_render.jpg" /&gt;&lt;/p&gt;
+&lt;p&gt;By using these parameters you can specify different regions for each camera in the scene. Get/Set buttons are used to get/set region settings of the current viewport. Values are set as follows: X/Y coordinates of upper left corner and Width/Height of the region rectangle. To keep values resolution independent they are set in &lt;strong&gt;percents&lt;/strong&gt; not pixels. To enable/disable region rendering use Region swatch button.&lt;/p&gt;
+&lt;h2&gt;Backburner servers&lt;/h2&gt;
+&lt;p&gt;Ok, to use this feature you will need to edit the code. Sorry for that, but adding UI elements requires so much work, I would not be able to make it for weeks. So, here it is, at line 972 we have this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;local&lt;/span&gt; &lt;span class="n"&gt;render_servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="o"&gt;--&lt;/span&gt; &lt;span class="n"&gt;render_servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;batchManager&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetServers&lt;/span&gt; &lt;span class="n"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="err"&gt;#&lt;/span&gt;&lt;span class="n"&gt;group&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;test_global&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;--&lt;/span&gt; &lt;span class="n"&gt;render_servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;batchManager&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetServers&lt;/span&gt; &lt;span class="n"&gt;filter&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="err"&gt;#&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;span class="n"&gt;render_servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;batchManager&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetServers&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;local&lt;/span&gt; &lt;span class="n"&gt;servernames&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;render_servers&lt;/span&gt; &lt;span class="n"&gt;collect&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;
+&lt;span class="n"&gt;format&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;servernames:%&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt; &lt;span class="n"&gt;servernames&lt;/span&gt;
+&lt;span class="n"&gt;batchJob&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Submit&lt;/span&gt; &lt;span class="n"&gt;Servers&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;render_servers&lt;/span&gt;
+&lt;span class="o"&gt;--&lt;/span&gt; &lt;span class="n"&gt;batchJob&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Submit&lt;/span&gt; &lt;span class="n"&gt;Servers&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="err"&gt;#&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;render_servers&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;render_servers&lt;/code&gt; array contains servers and it is passed to &lt;code&gt;batchJob.Submit&lt;/code&gt; method. In current state array contains all the servers since line 975 collects all of them. If you need to select group of servers you need to:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Uncomment line 973 and comment 975&lt;/li&gt;
+&lt;li&gt;Specify group name in the end of line 973 &lt;/li&gt;
+&lt;li&gt;Remember to save and run the script using &lt;code&gt;Ctrl+E&lt;/code&gt; in maxscript editor to update the script in 3ds max.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;After that all your silent network rendering jobs will be assigned to that server groups. Also remember that only &lt;strong&gt;global groups&lt;/strong&gt; are supported.&lt;/p&gt;
+&lt;p&gt;To use one or more particular servers you will need to get their indexes in &lt;code&gt;render_servers&lt;/code&gt; array. To get that information first make sure script is configured to use all the servers (use fragment above as a guide) then submit any render job and check maxscript listener - there should be the list of all your servers' names. Note the index of needed servers in that list.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Uncomment line 979 and comment line 978&lt;/li&gt;
+&lt;li&gt;List the servers using your indexes and array just like this: &lt;code&gt;#(render_servers[1], render_servers[2], render_servers[3])&lt;/code&gt;. I used 1, 2, 3 here as indexes. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;That's it. Run the script using &lt;code&gt;Ctrl+E&lt;/code&gt; and then run it in regular way, using toolbar button.&lt;/p&gt;
+&lt;p&gt;I hope this little guide helps you to customize your script.&lt;/p&gt;
+&lt;p&gt;This site is still under develepment so, please, go ahead and comment on &lt;a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render"&gt;ScriptSpot.com&lt;/a&gt;. Some more &lt;code&gt;+&lt;/code&gt;-s on Scriptspot are much appreciated!&lt;/p&gt;</summary><category term="new version"></category></entry><entry><title>Script Development Roadmap</title><link href="http://usakhelo.github.io/batchcam/roadmap.html" rel="alternate"></link><updated>2015-01-21T10:20:00-05:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2015-01-21:batchcam/roadmap.html</id><summary type="html">&lt;p&gt;I keep getting emails and comments with feature suggestions. Some features look interesting for public version and some look too specific to user's workflow. I decided to list the features that interest me the most and which I think are valuable for public version.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Region render parameters for each camera (almost done)&lt;/li&gt;
 &lt;li&gt;Parameters for previews&lt;/li&gt;
