@@ -1,10 +1,6 @@
 BatchCameraRender
 =================
 
-Current Version: 1.9.11
-
-Release Date: 04 March 2014
-
 ### The Idea
 
 Very first idea to write such script came to me when I started to learn Houdini. Houdini has node architecture, and for the rendering it uses output nodes. These nodes have properties to specify included/excluded lights and objects, so you can create several output nodes and specify camera/lighting/objects relationship for each node. It's a great feature and you can implement same relationship in 3dsmax using batch render command with "scene states" where you can specify lighting options and "render preset" where you can specify rendering properties.
@@ -17,7 +13,7 @@ When you start this script it collects all cameras in scene and list them in the
 
 ### Main Features
 
-Here is the list of options that could be assigned to each camera.
+Here is the list of options that can be assigned to each camera.
 
 * IMAGE RESOLUTION. Resolution could be selected from the listbox or entered in the width and height spinners. Next to these spinners are placed two buttons to quickly double or halve the resolution. There are also two buttons to get and set resolution from/to Render Setup window.
 
@@ -34,8 +30,6 @@ Here is the list of options that could be assigned to each camera.
 * SCRIPTS (BETA). In this section script files can be assigned to the camera. There are to sub-section: Submit Scripts and Render Scripts. Submit Scripts run on local machine before render jobs are submitted to render servers, Render Script run on render servers. Note that this section is in beta stage, especially Render Scripts, so use it carefully.
 
 All sections contain Clear button to delete section properties and use default ones.
-
-
 
 ### Some Other Features and Usabitility
 
@@ -65,8 +59,6 @@ produces D:\Work\SomeProject\2010-03-10\interior.jpg
 
 Also script provides a way to specify custom keywords - User Key/Value fields located in the Options rollout. These fields allow user to define custom template keywords. User Key contains the keyword and User Value contains computable expression - e.g. you can enter any maxscript expression into field and it will be computed for every camera before the rendering. For example, if you want to use username in the file or folder name you just enter word "username" to the User Key and sysInfo.username expression to the User Value field. After that %username% keyword will be replaced with actual username of the user who sends the job to the rendering. If the expression could not be computed it is replaced by "ErrUserVal" string. Make sure your expression works in maxscript listener before you use it in the User Value field.
 
-
-
 ### Default values for all the properties.
 
 Values of all properties in script can be set as default. These values will be assigned to all newly created cameras in scene and will override undefined values in all cameras. There are two kind of default values in the script - Global and Local. Local values, if they exist, override the global values. Global values are stored in the INI file BatchCameraRender.ini and located in the %LOCALAPPDATA%/3dsmax/.../plugcfg/BatchCameraRender folder. Local default values are stored in the INI files that can be located in scene folder and/or in any folder up to root level. You can have one ini file in root folder of all projects and another ini file in each project. In this case settings from root ini file will be overridden by project ini file. This allows you to have project wide settings and default settings specific for each project.
@@ -77,7 +69,7 @@ All specified paths that don't exist at moment the rendering starts will be crea
 
 Network rendering is also automated - several netrender jobs can be sent with one click, bypassing Submit Network Job Assignement window.
 
-Several buttons below the main camera list are given to make work with large list more comfortable.
+Several buttons below the main camera list are given to make the work with large list more comfortable.
 
 Macroscript is designed as standard dialog window - toolbar button works as a switch, first click runs the script, the second closes the script.
 
@@ -87,7 +79,7 @@ Rollout state and window size and position is saving during the session. Upon th
 
 Some of the properties (if not all) doesn't pass very strict checking. For example if the Vray GI is turned off and in the script Irradiance Map map save file name is specified then the file wouldn't be saved.
 
-I'm using this script every day and trying to make it stable but, anyway, it may contain some bugs. Use this script at your own risk.
+I was using this script every day and I'm trying to make it stable but it still may contain some bugs. Use this script at your own risk.
 
 ### Thanks
 

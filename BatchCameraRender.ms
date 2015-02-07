@@ -83,8 +83,8 @@ SAVE_VRAY_IMAGE_FILE_STATE = false
 VERSION_STRING = "1.9.15"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
-													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect")
-					
+													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
+													"region_enabled", "region_x", "region_y", "region_w", "region_h" )
 BatchCam_ScriptsPropertiesNames = #("OnSubmitScriptEnable", "OnSubmitScript", "perCameraScriptEnable", "perCameraScript", "prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
 BatchCam_UserValuePropertiesNames = #("UserKey1", "UserKey2", "UserKey3", "UserVal1", "UserVal2", "UserVal3", "bbJobName", "elementName")
 --########################--
@@ -95,8 +95,6 @@ struct BatchCam_VrayPropertiesMapping (propertyName, propertyUIelement, property
 BatchCam_VrayPropertiesNames = #("irmap_mode", "auto_save_irmap", "auto_switch_irmap", "irmap_read_file", "irmap_save_file", \
 	"lcmap_mode", "auto_save_lcmap", "auto_switch_lcmap", "lcmap_read_file", "lcmap_save_file", "vray_ortho_mode" )
 
-
-	
 BatchCam_VrayPropertiesMappingArray = #()
 	
 BatchCam_Vray_irmap_modes = #("Single Frame", "Multiframe incremental", "From file", "Add to current map", "Incremental add to current map", "Bucket mode",\ 
@@ -503,8 +501,6 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							
 							--set render region
 							local use_region = getUserProperty camera_to_render "BatchCameraRender_region_enabled"
-							format "use_region: %\n" use_region
-							format "(use_region as BooleanClass): %\n" (use_region as BooleanClass)
 							if (isNotUndefined use_region) and (use_region as BooleanClass) then
 							(
 								setRenderType #region
@@ -981,7 +977,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		group "System"
 		(
 			button open_ini_file "Open Global INI file..." width:125 align:#left across:2
-			button save_as_default "Save All Settings as Global Defaults" width:195 align:#left offset:[-100,0]
+			button save_all_as_default "Save All Settings as Global Defaults" width:195 align:#left offset:[-100,0]
 			
 			button open_local_ini_file "Open Local INI file..." width:125 align:#left
 			dropdownlist found_local_ini_files "Found local INI files: " align:#left-- offset:[-20,2]
@@ -1021,7 +1017,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		)
 		
 		--save to global defaults
-		on save_as_default pressed do
+		on save_all_as_default pressed do
 		(
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
@@ -1031,7 +1027,6 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				property_names = BatchCam_CommonPropertiesNames + BatchCam_ScriptsPropertiesNames + BatchCam_VrayPropertiesNames
 
 				for property_name in property_names do
-				--get property_name from selected camera and save it no ini file
 				(
 					full_property_name = ("BatchCameraRender_" + property_name)
 					property_value = getUserProperty obj_itself full_property_name

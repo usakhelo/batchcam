@@ -672,12 +672,12 @@ fn elements_active state =
 
 	if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 	(
-		Net_Render_Options_Rollout.save_as_default.enabled = true
+		Net_Render_Options_Rollout.save_all_as_default.enabled = true
 		batchCameraRender_mainRollOut.copy_button.enabled = true
 	)
 	else
 	(
-		Net_Render_Options_Rollout.save_as_default.enabled = false
+		Net_Render_Options_Rollout.save_all_as_default.enabled = false
 		batchCameraRender_mainRollOut.copy_button.enabled = false
 	)
 	
@@ -771,11 +771,6 @@ fn leadingZero num digitCount=
 	str
 )
 
-fn netrender_submit_progress total current =
-(
-	format "Progress: completed % out of %\n" current total
-)
-
 --function to submit current scene to backburner manager
 fn net_render_auto_submit camera_name =
 (
@@ -850,10 +845,14 @@ fn net_render_auto_submit camera_name =
 		batchJob.toFrame = currentTime.frame
 	)
 	
-	batchJob.Submit()
--- 	doesn't work
--- 	batchManager.setCallback #progress netrender_submit_progress
--- 	format "callback after set:%\n" (batchManager.getCallback #update )
+	local render_servers = #()
+	-- render_servers = batchManager.GetServers filter:#group key:"test_global"
+	-- render_servers = batchManager.GetServers filter:#index key:2
+	render_servers = batchManager.GetServers()
+	local servernames = for i in render_servers collect i.name
+	format "servernames:%\n" servernames
+	batchJob.Submit Servers:render_servers
+	-- batchJob.Submit Servers:#(render_servers[1])
 	batchManager.Disconnect()
 )
 
