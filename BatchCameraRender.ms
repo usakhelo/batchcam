@@ -80,7 +80,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.15"
+VERSION_STRING = "1.9.16"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -357,10 +357,6 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			    WindowHook.AssignHandle (dotnetobject "IntPtr" win_handle)
 			  	dotnet.removeAllEventHandlers WindowHook
 			    dotnet.addEventHandler WindowHook "WmCommand" onWmCommand
-			    -- format "render_handle:%\n" (win_handle)
-			    
-			    DialogMonitorOPS.unRegisterNotification id:#get_render_win
-			    DialogMonitorOPS.Enabled = false
 		    )
 	    )
 		  true
