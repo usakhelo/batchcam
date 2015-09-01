@@ -135,7 +135,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		button refresh "Refresh" align:#left width:65 across:3
 		button copy_button "Copy" align:#right offset:[85,0] width:65
 		button paste_button "Paste" align:#right width:65
-		dotNetControl lv_objects "System.Windows.Forms.ListView" height:global_listview_height	--height:170
+		dotNetControl lv_objects "ListView" height:global_listview_height	--height:170
 		
 		button toggle_select_all "[Un]Select All" align:#left width:75 across:5
 		button toggle_check_all "[Un]Toggle All" align:#left width:75 offset: [-12,0]
@@ -362,321 +362,347 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		  true
 		)
 
-		fn do_render preview =
+		fn do_render preview allCameras=
 		(
-			--store parameter
-				renderParamBuf = BatchCam_RenderParameterStore()
-				renderParamBuf = storeRenderParams renderParamBuf
-					
-				rendUseActiveView = true
+		--store parameter
+			renderParamBuf = BatchCam_RenderParameterStore()
+			renderParamBuf = storeRenderParams renderParamBuf
 				
-				--refill light_list in case some lights were removed or added during script running state
-				LIGHT_LIST = collect_scene_lights()
-				--save lights state
-				store_lighting_state()
-				--scene state saving
-				--there's no current scenestate properties in maxscript
- 				--oldscenestate = 
-				
-				--render preset saving
-				INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
-				if (getDirectories INIFileDir).count == 0 then makeDir INIFileDir
-				tempRP_file = INIFileDir + "temp_render_preset.rps"
-				renderpresets.SaveAll 0 tempRP_file
-				
-				renderPresetsApplied = false
-				lightStateApplied = false
-				
-				--if not netrender then set cancellation detection handler here
-				if (not net_render.checked) do
+			rendUseActiveView = true
+			
+			--refill light_list in case some lights were removed or added during script running state
+			LIGHT_LIST = collect_scene_lights()
+			--save lights state
+			store_lighting_state()
+			--scene state saving
+			--there's no current scenestate properties in maxscript
+				--oldscenestate = 
+			
+			--render preset saving
+			INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
+			if (getDirectories INIFileDir).count == 0 then makeDir INIFileDir
+			tempRP_file = INIFileDir + "temp_render_preset.rps"
+			renderpresets.SaveAll 0 tempRP_file
+			
+			renderPresetsApplied = false
+			lightStateApplied = false
+			
+			--if not netrender then set cancellation detection handler here
+			if (not net_render.checked) do
+			(
+				RenderCancelled = false
+				DialogMonitorOPS.unRegisterNotification id:#get_render_win
+				DialogMonitorOPS.RegisterNotification DMNotification id:#get_render_win
+				DialogMonitorOPS.Enabled = true
+			)
+			--	THIS SECTION SHOULD BE UNDER TRY-CATCH BLOCK
+			try
+			(
+				for i in LV_ITEMS while not RenderCancelled do
 				(
-					RenderCancelled = false
-					DialogMonitorOPS.unRegisterNotification id:#get_render_win
-					DialogMonitorOPS.RegisterNotification DMNotification id:#get_render_win
-					DialogMonitorOPS.Enabled = true
-				)
-				--	THIS SECTION SHOULD BE UNDER TRY-CATCH BLOCK
-				try
-				(
-					for i in LV_ITEMS while not RenderCancelled do
+					if allCameras or i.checked then
 					(
-						if i.checked then
+						--get camera name
+						camera_name = i.text
+						camera_to_render = getNodeByName camera_name
+						--unhide camera objects
+						if (camera_to_render.isHiddenInVpt) then
 						(
-							--get camera name
-							camera_name = i.text
-							camera_to_render = getNodeByName camera_name
-							--unhide camera objects
-							if (camera_to_render.isHiddenInVpt) then
+							camera_to_render.isHidden = false
+							hideByCategory.cameras = false
+						)
+						-- set the render preset
+						temp_string = getUserProperty camera_to_render "BatchCameraRender_render_preset"
+						if isNotUndefined temp_string then
+						(
+							setSilentMode true --set silent to prevent dialogs with gamma warning
+							presetsArray = #()
+							if (maxVersion())[1] >= 11000 then	--run renderPresetMRUList command only if script is running under 3dsmax 2009+
+								presetsArray = renderPresetMRUList
+							presetsNames = for preset in presetsArray collect preset[1]
+							presetIndex = finditem presetsNames temp_string
+							if presetIndex != 0 then
 							(
-								camera_to_render.isHidden = false
-								hideByCategory.cameras = false
+								presetFile = presetsArray[presetIndex][2]
+								renderpresets.LoadAll 0 presetFile
+								renderPresetsApplied = true
 							)
-							-- set the render preset
-							temp_string = getUserProperty camera_to_render "BatchCameraRender_render_preset"
-							if isNotUndefined temp_string then
-							(
-								setSilentMode true --set silent to prevent dialogs with gamma warning
-								presetsArray = #()
-								if (maxVersion())[1] >= 11000 then	--run renderPresetMRUList command only if script is running under 3dsmax 2009+
-									presetsArray = renderPresetMRUList
-								presetsNames = for i in presetsArray collect i[1]
-								presetIndex = finditem presetsNames temp_string
-								if presetIndex != 0 then
-								(
-									presetFile = presetsArray[presetIndex][2]
-									renderpresets.LoadAll 0 presetFile
-									renderPresetsApplied = true
-								)
 
-								setSilentMode false
-							)
-							
-							if not preview then
-							(
-								--set frame range
-								temp_string1 = getUserProperty camera_to_render "BatchCameraRender_frames"
-								temp_string2 = getUserProperty camera_to_render "BatchCameraRender_framerange_from"
-								temp_string3 = getUserProperty camera_to_render "BatchCameraRender_framerange_to"
-								temp_string5 = getUserProperty camera_to_render "BatchCameraRender_anim_frame_range"
+							setSilentMode false
+						)
+						
+						if not preview then
+						(
+							--set frame range
+							temp_string1 = getUserProperty camera_to_render "BatchCameraRender_frames"
+							temp_string2 = getUserProperty camera_to_render "BatchCameraRender_framerange_from"
+							temp_string3 = getUserProperty camera_to_render "BatchCameraRender_framerange_to"
+							temp_string5 = getUserProperty camera_to_render "BatchCameraRender_anim_frame_range"
 
-								if isNotUndefined temp_string5 then
-								(
-									rendTimeType = 3
-									temp_frame_range = get_key_range camera_to_render
-									rendStart = temp_frame_range[1].frame
-									rendEnd = temp_frame_range[2].frame
-								)
-								else if isNotUndefined temp_string1 then
-								(	--render_frames
-									rendTimeType = 4
-									rendPickupFrames = temp_string1 as string
-								)
-								else if isNotUndefined temp_string2 then
-								(
-									--single frame
-									--frame range
-									rendTimeType = 3
-									rendStart = temp_string2 as integer
-									rendEnd = temp_string3 as integer
-								)
-							)
-							else
-							rendTimeType = 1
-							
-							rendNThFrame = Frame_Range_Rollout.render_every_nth.value as integer
-							
-							if not preview then
+							if isNotUndefined temp_string5 then
 							(
-								--get and set frame resolution
-								xres_prop = getUserProperty camera_to_render "BatchCameraRender_frame_width"
-								yres_prop = getUserProperty camera_to_render "BatchCameraRender_frame_heigth"
-								if  (isNotUndefined xres_prop) and (isNotUndefined yres_prop) then
-								(
-									renderWidth = xres_prop as integer
-									renderHeight = yres_prop as integer
-								)
+								rendTimeType = 3
+								temp_frame_range = get_key_range camera_to_render
+								rendStart = temp_frame_range[1].frame
+								rendEnd = temp_frame_range[2].frame
 							)
-							else
+							else if isNotUndefined temp_string1 then
+							(	--render_frames
+								rendTimeType = 4
+								rendPickupFrames = temp_string1 as string
+							)
+							else if isNotUndefined temp_string2 then
 							(
-								local xres_prop = 0
-								local yres_prop = 0
-								if (temp_width = loadVarFromIniFile "Output_Size_Rollout" "preview_width") != undefined then
-									xres_prop = (temp_width as integer)
-								else
-									xres_prop = 1000
-
-								image_aspect = getUserProperty camera_to_render "BatchCameraRender_image_aspect"
-								if (isNotUndefined image_aspect) then
-									yres_prop = xres_prop / (image_aspect as float)
-								else
-									yres_prop = xres_prop / 1.333
-								
+								--single frame
+								--frame range
+								rendTimeType = 3
+								rendStart = temp_string2 as integer
+								rendEnd = temp_string3 as integer
+							)
+						)
+						else
+						rendTimeType = 1
+						
+						rendNThFrame = Frame_Range_Rollout.render_every_nth.value as integer
+						
+						if not preview then
+						(
+							--get and set frame resolution
+							xres_prop = getUserProperty camera_to_render "BatchCameraRender_frame_width"
+							yres_prop = getUserProperty camera_to_render "BatchCameraRender_frame_heigth"
+							if  (isNotUndefined xres_prop) and (isNotUndefined yres_prop) then
+							(
 								renderWidth = xres_prop as integer
 								renderHeight = yres_prop as integer
 							)
-							
-							--set render region
-							local use_region = getUserProperty camera_to_render "BatchCameraRender_region_enabled"
-							if (isNotUndefined use_region) and (use_region as BooleanClass) then
-							(
-								setRenderType #region
-								local reg_x = getUserProperty camera_to_render "BatchCameraRender_region_x"
-								local reg_y = getUserProperty camera_to_render "BatchCameraRender_region_y"
-								local reg_w = getUserProperty camera_to_render "BatchCameraRender_region_w"
-								local reg_h = getUserProperty camera_to_render "BatchCameraRender_region_h"
-								if (isNotUndefined reg_x) and (isNotUndefined reg_y) and\
-								(isNotUndefined reg_w) and (isNotUndefined reg_h)	then
-								(
-									local x = (renderWidth / 100.0) * (reg_x as integer)
-									local y = (renderHeight / 100.0) * (reg_y as integer)
-									local w = ((renderWidth / 100.0) * (reg_w as integer)) + x
-									local h = ((renderHeight / 100.0) * (reg_h as integer)) + y
-									viewport.setRegionRect (viewport.activeViewport) (box2 x y w h)
-								)
-							)
-
-							--get and set file name
-							temp_string = getUserProperty camera_to_render "BatchCameraRender_render_output"
-							if (shouldBeSaved()) and (isNotUndefined temp_string) then
-							(
-								--parse file name template here
-								temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
-								--exclude path from full path string
-								temp_path = getFilenamePath temp_string
-								--check if the path exist
-								if (not (doesFileExist temp_path)) then
-								(
-									--if silent_mode is on try to create new path
-									if  Net_Render_Options_Rollout.silent_add_path_mode.checked then
-									(
-										if not makeDir temp_path all:true then
-											throw ("Failed to create path: "+ temp_path) --if path making fails throw exception
-									)
-									else
-									(
-										throw ("Path does not exist: "+ temp_path) --if path making fails throw exception
-									)
-								)
-								rendSaveFile = Render_Output_Rollout.save_file.checked
-								rendOutputFilename = temp_string
-							)
+						)
+						else
+						(
+							local xres_prop = 0
+							local yres_prop = 0
+							if (temp_width = loadVarFromIniFile "Output_Size_Rollout" "preview_width") != undefined then
+								xres_prop = (temp_width as integer)
 							else
-								rendSaveFile = false
+								xres_prop = 1000
 
-							--render elements section
-							local elementsPath = prepare_render_elements camera_to_render
+							image_aspect = getUserProperty camera_to_render "BatchCameraRender_image_aspect"
+							if (isNotUndefined image_aspect) then
+								yres_prop = xres_prop / (image_aspect as float)
+							else
+								yres_prop = xres_prop / 1.333
 							
-							--V-ray settings
-							prepare_vray_settings camera_to_render temp_string elementsPath
-							
-							
-							--get lightstate
-							temp_string1 = getUserProperty camera_to_render "BatchCameraRender_solo_lights"
-							temp_string2 = getUserProperty camera_to_render "BatchCameraRender_on_lights"
-							temp_string3 = getUserProperty camera_to_render "BatchCameraRender_off_lights"
-							if isNotUndefined temp_string1 then
+							renderWidth = xres_prop as integer
+							renderHeight = yres_prop as integer
+						)
+						
+						--set render region
+						local use_region = getUserProperty camera_to_render "BatchCameraRender_region_enabled"
+						if (isNotUndefined use_region) and (use_region as BooleanClass) then
+						(
+							setRenderType #region
+							local reg_x = getUserProperty camera_to_render "BatchCameraRender_region_x"
+							local reg_y = getUserProperty camera_to_render "BatchCameraRender_region_y"
+							local reg_w = getUserProperty camera_to_render "BatchCameraRender_region_w"
+							local reg_h = getUserProperty camera_to_render "BatchCameraRender_region_h"
+							if (isNotUndefined reg_x) and (isNotUndefined reg_y) and\
+							(isNotUndefined reg_w) and (isNotUndefined reg_h)	then
 							(
-								temparray = filterString temp_string1 ","
-								turn_solo_lights_on temparray
+								local x = (renderWidth / 100.0) * (reg_x as integer)
+								local y = (renderHeight / 100.0) * (reg_y as integer)
+								local w = ((renderWidth / 100.0) * (reg_w as integer)) + x
+								local h = ((renderHeight / 100.0) * (reg_h as integer)) + y
+								viewport.setRegionRect (viewport.activeViewport) (box2 x y w h)
+							)
+						)
+
+						--get and set file name
+						temp_string = getUserProperty camera_to_render "BatchCameraRender_render_output"
+						if (shouldBeSaved()) and (isNotUndefined temp_string) then
+						(
+							--parse file name template here
+							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
+							--exclude path from full path string
+							temp_path = getFilenamePath temp_string
+							--check if the path exist
+							if (not (doesFileExist temp_path)) then
+							(
+								--if silent_mode is on try to create new path
+								if  Net_Render_Options_Rollout.silent_add_path_mode.checked then
+								(
+									if not makeDir temp_path all:true then
+										throw ("Failed to create path: "+ temp_path) --if path making fails throw exception
+								)
+								else
+								(
+									throw ("Path does not exist: "+ temp_path) --if path making fails throw exception
+								)
+							)
+							rendSaveFile = Render_Output_Rollout.save_file.checked
+							rendOutputFilename = temp_string
+						)
+						else
+							rendSaveFile = false
+
+						--render elements section
+						local elementsPath = prepare_render_elements camera_to_render
+						
+						--V-ray settings
+						prepare_vray_settings camera_to_render temp_string elementsPath
+						
+						--get lightstate
+						temp_string1 = getUserProperty camera_to_render "BatchCameraRender_solo_lights"
+						temp_string2 = getUserProperty camera_to_render "BatchCameraRender_on_lights"
+						temp_string3 = getUserProperty camera_to_render "BatchCameraRender_off_lights"
+						if isNotUndefined temp_string1 then
+						(
+							temparray = filterString temp_string1 ","
+							turn_solo_lights_on temparray
+							lightStateApplied = true
+						)
+						else --if solo lights are listed then don't process other light setting
+						(
+							if isNotUndefined temp_string3 then --turn off exclude lights first, then turn on include lights
+							(
+								temparray = filterString temp_string3 ","
+								force_lights_off temparray
 								lightStateApplied = true
 							)
-							else --if solo lights are listed then don't process other light setting
+							if isNotUndefined temp_string2 then	--turn on include lights.
 							(
-								if isNotUndefined temp_string3 then --turn off exclude lights first, then turn on include lights
-								(
-									temparray = filterString temp_string3 ","
-									force_lights_off temparray
-									lightStateApplied = true
-								)
-								if isNotUndefined temp_string2 then	--turn on include lights.
-								(
-									temparray = filterString temp_string2 ","
-									force_lights_on temparray
-									lightStateApplied = true
-								)
+								temparray = filterString temp_string2 ","
+								force_lights_on temparray
+								lightStateApplied = true
 							)
-							
-							--set scene state
-							temp_string = getUserProperty camera_to_render "BatchCameraRender_scene_state"
-							if isNotUndefined temp_string then
-							(
-								temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
-								sceneStateMgr.RestoreAllParts temp_string
-							)
-							
-							--scripts setting
+						)
+						
+						--set scene state
+						temp_string = getUserProperty camera_to_render "BatchCameraRender_scene_state"
+						if isNotUndefined temp_string then
+						(
+							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
+							sceneStateMgr.RestoreAllParts temp_string
+						)
+						
+						--scripts setting
 -- 							("prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
 -- 							callbacks.addScript #preRender fileName:"//bombey/work/Scripts/batch render/2010-03-22 appdata version/test_run11.ms" id:#sergo persistent:true
-							callbacks.removeScripts id:#BatchCameraRender
-							--set global variables to be visible in submit and render scripts
-							batchCameraRender_currentcamera = camera_to_render
+						callbacks.removeScripts id:#BatchCameraRender
+						--set global variables to be visible in submit and render scripts
+						batchCameraRender_currentcamera = camera_to_render
 -- 							batchCameraRender_currentsettings = #()
 -- 							for i=7801 to 7844 do
 -- 								append batchCameraRender_currentsettings
-							
-							temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_enabled"
-							if (not preview) and (isNotUndefined temp_string) then
+						
+						temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_enabled"
+						if (not preview) and (isNotUndefined temp_string) then
+						(
+							if (temp_string as BooleanClass) then
 							(
-								if (temp_string as BooleanClass) then
+								temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_script"
+								--check if the file exists
+								callbacks.addScript #preRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
+							)
+						)
+						temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_enabled"
+						if (not preview) and (isNotUndefined temp_string) then
+						(
+							if (temp_string as BooleanClass) then
+							(
+								temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_script"
+								--check if the file exists
+								callbacks.addScript #postRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
+							)
+						)
+						
+						--per camera submit scripts section
+						if  (not preview) and (Scripts_Rollout.enable_percamera_submit.state) then
+						(
+							try
+							(
+								maxscript_file_name = Scripts_Rollout.percamera_submit_script.text
+								if isNotUndefinedOrEmpty maxscript_file_name then
 								(
-									temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_script"
-									--check if the file exists
-									callbacks.addScript #preRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
+									if (doesFileExist maxscript_file_name) then
+										filein maxscript_file_name
 								)
 							)
-							temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_enabled"
-							if (not preview) and (isNotUndefined temp_string) then
+							catch
 							(
-								if (temp_string as BooleanClass) then
-								(
-									temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_script"
-									--check if the file exists
-									callbacks.addScript #postRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
-								)
+								messagebox (getCurrentException()) title:"Submit Script Error"
 							)
-							
-							--per camera submit scripts section
-							if  (not preview) and (Scripts_Rollout.enable_percamera_submit.state) then
-							(
-								try
-								(
-									maxscript_file_name = Scripts_Rollout.percamera_submit_script.text
-									if isNotUndefinedOrEmpty maxscript_file_name then
-									(
-										if (doesFileExist maxscript_file_name) then
-											filein maxscript_file_name
-									)
-								)
-								catch
-								(
-									messagebox (getCurrentException()) title:"Submit Script Error"
-								)
-							)
-							
-							--save render location to last render property
-							if (not preview) then
-								setUserProperty camera_to_render "BatchCameraRender_lastRenderPath" rendOutputFilename
-							--start render
-							if (not preview) and net_render.checked and (not show_net_submit.checked) then
-							(
-								net_render_auto_submit camera_name
-							)
+						)
+						
+						--save render location to last render property
+						if (not preview) then
+							setUserProperty camera_to_render "BatchCameraRender_lastRenderPath" rendOutputFilename
+						--start render
+						if (not preview) and net_render.checked and (not show_net_submit.checked) then
+						(
+							net_render_auto_submit camera_name
+						)
+						else
+						(
+							if (not preview)  then
+								rendUseNet = net_render.checked
 							else
-							(
-								if (not preview)  then
-									rendUseNet = net_render.checked
-								else
-									rendUseNet = false
-								
-								viewport.setCamera camera_to_render
-								max quick render
-							)
+								rendUseNet = false
 							
-							--remove callbacks after render started
-							callbacks.removeScripts id:#BatchCameraRender
-							--restore saved render_preset if render presets was applied during the rendering
-							if renderPresetsApplied then
-							(
-								INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
-								tempRP_file = INIFileDir + "temp_render_preset.rps"
-								if doesFileExist tempRP_file then
-									renderpresets.LoadAll 0 tempRP_file
-							)
-							restoreRenderParams renderParamBuf
-							--restore lights state
-							--light state have to be restored after each camera iteration if it was applied in the loop
-							if lightStateApplied then
-								restore_lighting_state()
-						) -- if close
-					) -- end of for loop
-					DialogMonitorOPS.unRegisterNotification id:#get_render_win
-					DialogMonitorOPS.Enabled = false
-				) -- end of try close
-				catch
+							viewport.setCamera camera_to_render
+							max quick render
+						)
+						
+						--remove callbacks after render started
+						callbacks.removeScripts id:#BatchCameraRender
+						--restore saved render_preset if render presets was applied during the rendering
+						if renderPresetsApplied then
+						(
+							INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
+							tempRP_file = INIFileDir + "temp_render_preset.rps"
+							if doesFileExist tempRP_file then
+								renderpresets.LoadAll 0 tempRP_file
+						)
+						restoreRenderParams renderParamBuf
+						--restore lights state
+						--light state have to be restored after each camera iteration if it was applied in the loop
+						if lightStateApplied then
+							restore_lighting_state()
+					) -- if close
+				) -- end of for loop
+				DialogMonitorOPS.unRegisterNotification id:#get_render_win
+				DialogMonitorOPS.Enabled = false
+			) -- end of try close
+			catch
+			(
+				messagebox (getCurrentException()) title:"Error"
+				restore_lighting_state()
+			)
+		)
+
+		fn quietRender =
+		(
+			SetQuietMode true
+
+			batchCamPreview = false
+			if renderSceneDialog.isOpen() then
+				renderSceneDialog.close()	
+		
+			--increment render try counter to be used in keyword syntax
+			Net_Render_Options_Rollout.Try_Counter.value += 1
+			batchCameraRender_RenderCounter = Net_Render_Options_Rollout.Try_Counter.value
+			renderSceneDialog.close()
+			
+			batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects
+			if (Scripts_Rollout.enable_onsubmit.state) then
+			(
+				maxscript_file_name = Scripts_Rollout.onsubmit_script.text
+				if isNotUndefinedOrEmpty maxscript_file_name then
 				(
-					messagebox (getCurrentException()) title:"Error"
-					restore_lighting_state()
+					if (doesFileExist maxscript_file_name) then
+						filein maxscript_file_name
 				)
+			)
+			do_render false true
+			SetQuietMode false
 		)
 		--#####--
 		--render button event hadler--
@@ -689,21 +715,21 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				renderSceneDialog.close()	
 			
 			--check the render type and suggest to switch to view mode
-			if query_approved and getRenderType() != #view and getRenderType() != #normal then
+			if (not GetQuietMode()) and query_approved and getRenderType() != #view and getRenderType() != #normal then
 			(
 				local message_text = "Render Type set to \"" + (getRenderType() as string) + "\".\n\nWould you like to switch to View mode?"
-				local message_buttons = (dotnetclass "System.Windows.Forms.MessageBoxButtons").YesNoCancel
-				local message_icon = (dotnetclass "System.Windows.Forms.MessageBoxIcon").Question
-				result = (dotnetclass "System.Windows.Forms.MessageBox").show message_text "Caution" message_buttons message_icon
-				if (result == ((dotnetclass "System.Windows.Forms.DialogResult").Yes)) then
+				local message_buttons = (dotnetclass "MessageBoxButtons").YesNoCancel
+				local message_icon = (dotnetclass "MessageBoxIcon").Question
+				result = (dotnetclass "MessageBox").show message_text "Caution" message_buttons message_icon
+				if (result == ((dotnetclass "DialogResult").Yes)) then
 					setRenderType #view
-				else if (result == ((dotnetclass "System.Windows.Forms.DialogResult").No)) then
+				else if (result == ((dotnetclass "DialogResult").No)) then
 					query_approved = true
 				else 
 					query_approved = false
 			)
 			
-			if query_approved and net_render.checked and (not (Render_Output_Rollout.save_file.checked or Vray_Settings_Rollout.save_vray_image_file.checked)) then
+			if (not GetQuietMode()) and query_approved and net_render.checked and (not (Render_Output_Rollout.save_file.checked or Vray_Settings_Rollout.save_vray_image_file.checked)) then
 				query_approved = queryBox  "You are about to submit network rendering with no assigned file.\n\nDo you want to continue?" title:"Warning:No files saved"
 								
 			if query_approved then
@@ -733,7 +759,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 -- 					)
 				)
 				
-				do_render false
+				do_render false false
 
 			)
 			else
@@ -749,7 +775,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			
 			batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects
 
-			do_render true
+			do_render true false
 		)
 		
 		--############
@@ -891,12 +917,12 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		--used to save items' checked state
 		on lv_objects ItemCheck val do
 		(
-			BatchCam_listItem_state[(val.Index+1)] = (val.NewValue == (dotNetClass "System.Windows.Forms.CheckState").Checked )
+			BatchCam_listItem_state[(val.Index+1)] = (val.NewValue == (dotNetClass "CheckState").Checked )
 		)
 
 		on lv_objects ItemChecked val do
 		(
-
+			--todo: save checked state to the camera appdata
 			ui_elements_refresh lv_objects	
 		)
 		
@@ -939,7 +965,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				if (lv_objects.InsertionMark.AppearsAfterItem) then
 					targetIndex += 1
 
-				local draggedItem = args.Data.GetData "System.Windows.Forms.ListViewItem"
+				local draggedItem = args.Data.GetData "ListViewItem"
 
 				local newItem = draggedItem.Clone()
 				for i=0 to (newItem.SubItems.Count-1) do ((newItem.SubItems.Item i).Name = (draggedItem.SubItems.Item i).Name)
@@ -2352,7 +2378,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 	rollout Scene_States_Rollout "Scene State - Render Preset"
 	(
 		label scene_states_list2_label "Scene State" align:#left across:5
-		dotNetControl scene_states_list2 "System.Windows.Forms.ComboBox" width:160 height:21 offset:[-95,20] align:#left
+		dotNetControl scene_states_list2 "ComboBox" width:160 height:21 offset:[-95,20] align:#left
 		dropdownlist render_preset_list "Render Preset" width:160 align:#left offset:[-20,2]
 		button clear_scene_states "Clear" width:45  offset:[2,0] align:#right			
 		button save_as_default  "Save to INI..." width:85 align:#right
@@ -2396,7 +2422,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		on scene_states_list2 KeyUp arg do
 		(
 			tempString = scene_states_list2.text
-			if (arg.KeyCode == (dotnetclass "System.Windows.Forms.Keys").Enter) then
+			if (arg.KeyCode == (dotnetclass "Keys").Enter) then
 			(
 				if (scene_states_list2.FindStringExact tempString) == -1 then
 				(
