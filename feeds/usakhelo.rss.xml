@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BatchCam</title><link>http://usakhelo.github.io/batchcam/</link><description>Batch rendering tool for 3ds max</description><atom:link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 06 Feb 2015 10:20:00 -0500</lastBuildDate><item><title>1.9.15- Region Rendering and Backburner Servers</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.15.html</link><description>&lt;h2&gt;New features of this release:&lt;/h2&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BatchCam</title><link>http://usakhelo.github.io/batchcam/</link><description>Batch rendering tool for 3ds max</description><atom:link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 02 Oct 2015 10:20:00 -0400</lastBuildDate><item><title>1.9.19- Region Rendering and Backburner Servers</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.19.html</link><description>&lt;h2&gt;New features:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Improved performance in cases with lots of cameras in scene. Thanks to &lt;a href="brendancoyle.com"&gt;Brendan Coyle&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Vray RT support added. Vray RT should be production render. Thanks to &lt;a href="responseimage.com"&gt;Scott Ronaldson&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Add &lt;a href="http://www.scriptspot.com/3ds-max/scripts/mfrender"&gt;MFRender&lt;/a&gt; support (beta testers wanted!). Thanks to &lt;a href="http://www.scriptspot.com/users/usaqmuri"&gt;Zura Bezhanishvili&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Drag-n-Drop bugfix&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Download&lt;/h3&gt;
+&lt;p&gt;Since this version is not tested thoroughly I put download link here - &lt;a href="http://usakhelo.github.io/batchcam/compiled/batchcamerarender_1.9.19.ms"&gt;batchcamerarender_1.9.19.ms&lt;/a&gt;&lt;/p&gt;
+&lt;h1&gt;MFRender&lt;/h1&gt;
+&lt;p&gt;There is a great &lt;a href="http://www.scriptspot.com/3ds-max/scripts/mfrender"&gt;script&lt;/a&gt; on (scriptspot.com) that renders max files in batch. Zura suggested me to make that script compatible with BatchCamera, so I've tried to fix it and it looks like it works. Zura went to test it and I've never heard from him since then :) If you feel like you want to test it I'll be happy to provide modified version of MFRender script. I will actually upload that version on scriptspot, but I would like to get permission from original author first.&lt;/p&gt;
+&lt;p&gt;This site is still under develepment so, please, go ahead and comment on &lt;a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render"&gt;ScriptSpot.com&lt;/a&gt;. Some more &lt;code&gt;+&lt;/code&gt;-s on Scriptspot are much appreciated!&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">usakhelo</dc:creator><pubDate>Fri, 02 Oct 2015 10:20:00 -0400</pubDate><guid>tag:usakhelo.github.io,2015-10-02:batchcam/batchcam-1.9.19.html</guid><category>new version</category></item><item><title>1.9.15- Region Rendering and Backburner Servers</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.15.html</link><description>&lt;h2&gt;New features of this release:&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Region render parameter can be specified for each camera&lt;/li&gt;
 &lt;li&gt;Set Viewport button sets viewport camera and resolution and aspect as well&lt;/li&gt;
