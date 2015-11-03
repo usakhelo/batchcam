@@ -8,7 +8,7 @@
 &lt;/ul&gt;
 &lt;h3&gt;Download&lt;/h3&gt;
 &lt;p&gt;Download it here - &lt;a href="http://usakhelo.github.io/batchcam/compiled/batchcamerarender_1.9.19.ms"&gt;batchcamerarender_1.9.19.ms&lt;/a&gt;&lt;/p&gt;
-&lt;h1&gt;MFRender&lt;/h1&gt;
+&lt;h2&gt;MFRender&lt;/h2&gt;
 &lt;p&gt;There is a great &lt;a href="http://www.scriptspot.com/3ds-max/scripts/mfrender"&gt;script&lt;/a&gt; on (scriptspot.com) that renders max files in batch. Zura suggested me to make that script compatible with BatchCamera, so I've tried to fix it and it looks like it works. Zura went to test it and I've never heard from him since then :) If you feel like you want to test it I'll be happy to provide modified version of MFRender script. I will actually upload that version on scriptspot, but I would like to get permission from original author first.&lt;/p&gt;
 &lt;p&gt;This site is still under develepment so, please, go ahead and comment on &lt;a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render"&gt;ScriptSpot.com&lt;/a&gt;. Some more &lt;code&gt;+&lt;/code&gt;-s on Scriptspot are much appreciated!&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">usakhelo</dc:creator><pubDate>Fri, 02 Oct 2015 10:20:00 -0400</pubDate><guid>tag:usakhelo.github.io,2015-10-02:batchcam/batchcam-1.9.19.html</guid><category>new version</category></item><item><title>1.9.15- Region Rendering and Backburner Servers</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.15.html</link><description>&lt;h2&gt;New features of this release:&lt;/h2&gt;
 &lt;ul&gt;
