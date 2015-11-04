@@ -9,7 +9,7 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
 	local spinner = rollout_control
 	
 	--collect selected items
-	selected_items = for i in cameraItems where i.selected collect i
+	local selected_items = cameraItems
 		
 	if selected_items.count == 1 then
 	(
@@ -30,7 +30,7 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
 		prev_value = ""
 		diff_flag = false
 		
-		for i=1 to selected_items.count do
+		for i=1 to selected_items.count while not diff_flag do
 		(
 			obj_name = selected_items[i].text
 			obj_itself = getNodeByName obj_name
@@ -47,7 +47,6 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
 				)
 				else if not diff_flag then	--if values are same and flag hasn't been set
 					spinner.value = execute (temp_string as string) 
--- 					spinner.value = (temp_string as integer) 
 				
 				prev_value = temp_string
 			)
@@ -68,7 +67,7 @@ fn populate_text_fields cameraItems property_name rollout_control =
 	local uiTextField = rollout_control
 	
 	--collect selected items
-	selected_items = for i in cameraItems where i.selected collect i
+	local selected_items = cameraItems
 		
 	if selected_items.count == 1 then
 	(
@@ -88,7 +87,7 @@ fn populate_text_fields cameraItems property_name rollout_control =
 		prev_path = ""
 		path_diff_flag = false
 		
-		for i=1 to selected_items.count do
+		for i=1 to selected_items.count while not path_diff_flag do
 		(
 			obj_name = selected_items[i].text
 			obj_itself = getNodeByName obj_name
@@ -121,7 +120,7 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 (
 	local uiCheckBox  = rollout_control
 	
-	selected_items = for i in cameraItems where i.selected collect i
+	local selected_items = cameraItems
 		
 	if selected_items.count == 1 then
 	(
@@ -143,7 +142,7 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 		prev_state
 		state_diff_flag = false
 		
-		for i=1 to selected_items.count do
+		for i=1 to selected_items.count while not state_diff_flag do
 		(
 			obj_name = selected_items[i].text
 			obj_itself = getNodeByName obj_name
@@ -185,7 +184,7 @@ fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
 	local uiDropDownBox  = rollout_control
 	
 	--collect selected items
-	selected_items = for i in cameraItems where i.selected collect i
+	local selected_items = cameraItems
 	
 	if selected_items.count == 1 then
 	(
@@ -204,7 +203,7 @@ fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
 		prev_state
 		state_diff_flag = false
 		
-		for i=1 to selected_items.count do
+		for i=1 to selected_items.count while not state_diff_flag do
 		(
 			obj_name = selected_items[i].text
 			obj_itself = getNodeByName obj_name
@@ -240,7 +239,7 @@ fn populate_combobox_string_item cameraItems property_name rollout_control =
 	local uiComboBox  = rollout_control
 	
 	--collect selected items
-	selected_items = for i in cameraItems where i.selected collect i
+	local selected_items = cameraItems
 	
 	if selected_items.count == 1 then
 	(
@@ -302,7 +301,7 @@ fn populate_dropdownbox_string_item cameraItems property_name rollout_control =
 	local uiDropDownBox  = rollout_control
 	
 	--collect selected items
-	selected_items = for i in cameraItems where i.selected collect i
+	local selected_items = cameraItems
 	
 	if selected_items.count == 1 then
 	(
@@ -357,7 +356,7 @@ fn populate_dropdownbox_resolution cameraItems rollout_control =
 	local uiDropDownBox  = rollout_control
 	
 	--collect selected items
-	selected_items = for i in cameraItems where i.selected collect i
+	local selected_items = cameraItems
 	
 	if selected_items.count == 1 then
 	(
@@ -427,7 +426,7 @@ fn populate_framerange cameraItems =
 	render_single = Frame_Range_Rollout.render_single
 	
 	--exclude selected items
-	selected_items = #()
+	local selected_items = #()
 	for i in lis do
 		if i.selected then
 			append selected_items i
@@ -544,7 +543,7 @@ fn populate_elements_options cameraItems=
 	elements_state = Render_Output_Rollout.save_elements
 	
 	--exclude selected items
-	selected_items = #()
+	local selected_items = #()
 	for i in lis do
 		if i.selected then
 			append selected_items i
@@ -576,7 +575,7 @@ fn populate_elements_options cameraItems=
 		path_diff_flag = false
 		state_diff_flag = false
 		
-		for i=1 to selected_items.count do
+		for i=1 to selected_items.count while not path_diff_flag do
 		(
 			obj_name = selected_items[i].text
 			obj_itself = getNodeByName obj_name
@@ -643,7 +642,7 @@ fn populate_filename_fields cameraItems=
 	elements_path = Render_Output_Rollout.elements_path
 	
 	--exclude selected items
-	selected_items = #()
+	local selected_items = #()
 	for i in lis do
 		if i.selected then
 			append selected_items i
@@ -793,7 +792,7 @@ fn populate_light_state cameraItems=
 	off_lights = Light_Assignement_Rollout.light_box_forceoff 
 	
 	--exclude selected items
-	selected_items = #()
+	local selected_items = #()
 	for i in lis do
 		if i.selected then
 			append selected_items i
@@ -876,8 +875,6 @@ fn populate_script_rollout selectedItems =
 	populate_checkbox_item selectedItems "prerender_enabled" Scripts_Rollout.enable_prerender
 	populate_text_fields selectedItems "postrender_script" Scripts_Rollout.postrender_script
 	populate_checkbox_item selectedItems "postrender_enabled" Scripts_Rollout.enable_postrender
--- 	populate_text_fields selectedItems "postrender_script" Scripts_Rollout.prerender_script
-
 )
 --separate function to populate ui elements in vray rollout
 fn populate_vray_options selectedItems =
@@ -885,6 +882,7 @@ fn populate_vray_options selectedItems =
 	--populate all vray properties for selected items.
 	--don't know if it's right.
 	--may be it would be more usefull to populate only properties that really exist in selected item's camera
+
 	for vray_property in BatchCam_VrayPropertiesMappingArray do
 	(
 		if vray_property.propertyType == "textfield" then
@@ -904,40 +902,29 @@ fn populate_resolution_options selectedItems =
 	populate_spinner_field selectedItems "image_aspect" Output_Size_Rollout.image_aspect_spinner
 	--display selected resolution
 	populate_dropdownbox_resolution selectedItems Output_Size_Rollout.out_size_list
-	populate_checkbox_item LV_ITEMS "region_enabled" Output_Size_Rollout.use_region
-	populate_spinner_field LV_ITEMS "region_x" Output_Size_Rollout.region_x
-	populate_spinner_field LV_ITEMS "region_y" Output_Size_Rollout.region_y
-	populate_spinner_field LV_ITEMS "region_w" Output_Size_Rollout.region_w
-	populate_spinner_field LV_ITEMS "region_h" Output_Size_Rollout.region_h
+	populate_checkbox_item selectedItems "region_enabled" Output_Size_Rollout.use_region
+	populate_spinner_field selectedItems "region_x" Output_Size_Rollout.region_x
+	populate_spinner_field selectedItems "region_y" Output_Size_Rollout.region_y
+	populate_spinner_field selectedItems "region_w" Output_Size_Rollout.region_w
+	populate_spinner_field selectedItems "region_h" Output_Size_Rollout.region_h
 )
 
 fn populate_scenestate_renderpreset selectedItems =
 (
-	--display scene state in dropdown list
 	populate_combobox_string_item selectedItems "scene_state" Scene_States_Rollout.scene_states_list2
-	--display render preset in dropdown list
 	populate_dropdownbox_string_item selectedItems "render_preset" Scene_States_Rollout.render_preset_list
 )
 
---function to populate ui elements with data from selected list items
---only selected items should be passed to this function - no checking
 fn populate_ui_elements selectedItems=
 (
 	if selectedItems.count > 0 then
 	(
 		populate_resolution_options selectedItems
-		--display scene state and render preset 
 		populate_scenestate_renderpreset selectedItems
-		--get filename
-		--function to populate filename parts
 		populate_filename_fields selectedItems
-		--populate framerandge
 		populate_framerange selectedItems
-		--vray options
 		populate_vray_options selectedItems
-		--script options
 		populate_script_rollout selectedItems
-		--populate light_state
 		populate_light_state selectedItems
 	)
 )

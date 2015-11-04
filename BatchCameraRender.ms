@@ -72,6 +72,8 @@ global batchCameraRender_reset_render_counter
 global batchCameraRender_getUserProperty
 global batchCameraRender_populateScripts
 global batchCameraRender_currentcamera
+PostNotifier
+PostNotifierInstalled = false
 batchCamPreview = false	--if the rendering is preview
 global_found_ini_file_paths = #()
 global_listview_height = 170
@@ -80,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.16"
+VERSION_STRING = "1.9.20"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -138,7 +140,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		dotNetControl lv_objects "ListView" height:global_listview_height	--height:170
 		
 		button toggle_select_all "[Un]Select All" align:#left width:75 across:5
-		button toggle_check_all "[Un]Toggle All" align:#left width:75 offset: [-12,0]
+		button toggle_check_all "[Un]Check All" align:#left width:75 offset: [-12,0]
 		button check_selected "Check Selected" align:#left width:85 offset: [-24,0]
 		button set_viewport "Set Viewport" align:#right width:70 offset: [12,0]
 		button get_viewport "Get Viewport" align:#right width:75 offset: [0,0]
@@ -224,12 +226,10 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		
 		on toggle_select_all pressed do
 		(
-			is_some_selected = (lv_objects.SelectedItems.Count > 0)
+			local is_some_selected = (lv_objects.SelectedItems.Count > 0)
 			
 			if is_some_selected then
-			(
 				lv_objects.SelectedItems.Clear()
-			)
 			else
 			(	
 				lv_objects.BeginUpdate()				
@@ -238,9 +238,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				lv_objects.EndUpdate()
 			)
 			
-
 			lv_objects.HideSelection = false
-			selectedItems = for i=0 to (lv_objects.SelectedItems.Count - 1) collect (lv_objects.SelectedItems.Item i)
+			local selectedItems = for i=0 to (lv_objects.SelectedItems.Count - 1) collect (lv_objects.SelectedItems.Item i)
 			populate_ui_elements selectedItems
 			ui_elements_refresh lv_objects
 		)
@@ -364,6 +363,12 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 
 		fn do_render preview allCameras=
 		(
+			local temp_string
+			local temp_string1
+			local temp_string2
+			local temp_string3
+			local temp_string5
+			
 		--store parameter
 			renderParamBuf = BatchCam_RenderParameterStore()
 			renderParamBuf = storeRenderParams renderParamBuf
@@ -374,9 +379,6 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			LIGHT_LIST = collect_scene_lights()
 			--save lights state
 			store_lighting_state()
-			--scene state saving
-			--there's no current scenestate properties in maxscript
-				--oldscenestate = 
 			
 			--render preset saving
 			INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
@@ -398,10 +400,18 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			--	THIS SECTION SHOULD BE UNDER TRY-CATCH BLOCK
 			try
 			(
+				local firstCamera = true
 				for i in LV_ITEMS while not RenderCancelled do
 				(
 					if allCameras or i.checked then
 					(
+						if isVrayRenderer() and (hasproperty (renderers.current) "V_Ray_settings") then
+						(
+							-- actionMan.executeAction 369690881 "1"
+							if not firstCamera then
+								sleep 4
+							firstCamera = false
+						)
 						--get camera name
 						camera_name = i.text
 						camera_to_render = getNodeByName camera_name
@@ -519,11 +529,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						temp_string = getUserProperty camera_to_render "BatchCameraRender_render_output"
 						if (shouldBeSaved()) and (isNotUndefined temp_string) then
 						(
-							--parse file name template here
 							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
-							--exclude path from full path string
 							temp_path = getFilenamePath temp_string
-							--check if the path exist
 							if (not (doesFileExist temp_path)) then
 							(
 								--if silent_mode is on try to create new path
@@ -543,10 +550,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						else
 							rendSaveFile = false
 
-						--render elements section
 						local elementsPath = prepare_render_elements camera_to_render
 						
-						--V-ray settings
 						prepare_vray_settings camera_to_render temp_string elementsPath
 						
 						--get lightstate
@@ -584,8 +589,6 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						)
 						
 						--scripts setting
--- 							("prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
--- 							callbacks.addScript #preRender fileName:"//bombey/work/Scripts/batch render/2010-03-22 appdata version/test_run11.ms" id:#sergo persistent:true
 						callbacks.removeScripts id:#BatchCameraRender
 						--set global variables to be visible in submit and render scripts
 						batchCameraRender_currentcamera = camera_to_render
@@ -599,18 +602,17 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							if (temp_string as BooleanClass) then
 							(
 								temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_script"
-								--check if the file exists
-								callbacks.addScript #preRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
+								callbacks.addScript #preRender fileName:temp_string id:#BatchCameraRender persistent:true
 							)
 						)
+
 						temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_enabled"
 						if (not preview) and (isNotUndefined temp_string) then
 						(
 							if (temp_string as BooleanClass) then
 							(
 								temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_script"
-								--check if the file exists
-								callbacks.addScript #postRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
+								callbacks.addScript #postRender fileName:temp_string id:#BatchCameraRender persistent:true
 							)
 						)
 						
@@ -820,52 +822,30 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			callbacks.addScript #systemPostReset "batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects" id:#batchcam
 			callbacks.addScript #systemPostReset "batchCameraRender_reset_render_counter()" id:#batchcam
 
-			fn CreateNativeWindowOps =
-			(
-			  source ="
-			  using System;
-			  using System.Windows.Forms;
-			  public class WindowHook : NativeWindow
-			  {
-			    private const int WM_COMMAND = 0x0111;
-			    
-			    public event EventHandler WmCommand;
-			    
-			    protected override void WndProc(ref Message m)
-			    {
-			      switch (m.Msg)
-			      {
-			        case WM_COMMAND:
-			        this.ReleaseHandle();
-			        if (this.WmCommand != null) this.WmCommand(this, EventArgs.Empty);
-			        break;
-			      }
-			      base.WndProc(ref m);
-			    }
-			  }
-			  "
-			  csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-			  compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
 			  
-			  compilerParams.ReferencedAssemblies.AddRange #("System.dll", "System.Windows.Forms.dll")
-			  
-			  compilerParams.GenerateInMemory = true
-			  compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
-			  
-			  compilerResults.CompiledAssembly
-			)  
-
 			if (dotnetclass "WindowHook" == undefined) then
 				CreateNativeWindowOps()         --create dotnet object in memory
 			if (WindowHook == undefined) then
 			(
 				WindowHook = dotnetobject "WindowHook"
-				format "windowhook ready:%\n" WindowHook
+				-- format "windowhook ready:%\n" WindowHook
 			)
 			else
 			(
       	WindowHook.ReleaseHandle()
 		  	dotnet.removeAllEventHandlers WindowHook
+	  	)
+
+	  	if (dotnetclass "PostNotifier" == undefined) then
+				CreatePostNotifier()
+			if (PostNotifier == undefined) then
+			(
+				PostNotifier = dotnetobject "PostNotifier"
+				-- format "PostNotifier ready:%\n" PostNotifier
+			)
+			else
+			(
+		  	dotnet.removeAllEventHandlers PostNotifier
 	  	)
 		)
 
@@ -886,6 +866,10 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
       	WindowHook.ReleaseHandle()
 		  	dotnet.removeAllEventHandlers WindowHook
 	  	)
+	  	if (PostNotifier != undefined) then
+			(
+		  	dotnet.removeAllEventHandlers PostNotifier
+	  	)
 			DialogMonitorOPS.unRegisterNotification id:#get_render_win
 			DialogMonitorOPS.Enabled = false
 		)
@@ -901,16 +885,34 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		--##########--
 		--select item event handler - DOTNET VERSION--
 		--##########--
-		
-		on lv_objects ItemSelectionChanged val  do
+		fn ItemsSelected event args=
 		(
-			--create selected Items array
 			selectedItems = #()
 			for i=0 to (lv_objects.SelectedItems.Count - 1) do
 				append selectedItems (lv_objects.SelectedItems.Item i)
 			
+			LV_ITEMS = selectedItems
+
+			local t = timeStamp()
+			-- print (t)
 			populate_ui_elements selectedItems
+			-- print (timeStamp() - t)
+			-- t = timeStamp()
 			ui_elements_refresh lv_objects
+			-- print (timeStamp() - t)
+		  PostNotifierInstalled = false
+		)
+
+		on lv_objects ItemSelectionChanged val  do
+		(
+			if (not PostNotifierInstalled) do
+			(
+				-- print (timeStamp())
+				dotnet.removeAllEventHandlers PostNotifier
+		    dotnet.addEventHandler PostNotifier "PostEvent" ItemsSelected
+		    PostNotifier.PostNotify()
+		    PostNotifierInstalled = true
+			)
 		)
 
 		--check event handler
@@ -965,7 +967,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				if (lv_objects.InsertionMark.AppearsAfterItem) then
 					targetIndex += 1
 
-				local draggedItem = args.Data.GetData "ListViewItem"
+				local draggedItem = args.Data.GetData (dotNet.getType "System.Windows.Forms.ListViewItem")
 
 				local newItem = draggedItem.Clone()
 				for i=0 to (newItem.SubItems.Count-1) do ((newItem.SubItems.Item i).Name = (draggedItem.SubItems.Item i).Name)
@@ -2602,7 +2604,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				prerender_script.text = val = pathConfig.appendPath val ""
 				
 				set_file_name_property LV_ITEMS "prerender_script" val
-				populate_vray_options LV_ITEMS
+				populate_text_fields LV_ITEMS "prerender_script" Scripts_Rollout.prerender_script
 			)
 			else
 				prerender_script.text = ""
@@ -2634,7 +2636,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				postrender_script.text = val = pathConfig.appendPath val ""
 				
 				set_file_name_property LV_ITEMS "postrender_script" val
-				populate_vray_options LV_ITEMS
+				populate_text_fields LV_ITEMS "postrender_script" Scripts_Rollout.postrender_script
 			)
 			else
 				postrender_script.text = ""

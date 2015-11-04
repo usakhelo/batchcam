@@ -2,10 +2,82 @@
 --FUNCTIONS for batch camera render script
 --########################--
 --
+fn CompileDotNet src =
+(
+	local csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+  local compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+  compilerParams.ReferencedAssemblies.AddRange #("System.dll", "System.Windows.Forms.dll")
+  compilerParams.GenerateInMemory = true
+  local compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(src)
+	if (compilerResults.Errors.Count > 0 ) then
+	(
+		local errs = stringstream ""
+		for i = 0 to (compilerResults.Errors.Count-1) do
+		(
+			err = compilerResults.Errors.Item[i]
+			format "Error:% Line:% Column:% %\n" err.ErrorNumber err.Line err.Column err.ErrorText to:errs 
+		)
+		format "Errors encountered while compiling C# code\n" errs
+		format "%\n" errs
+	)
+)
+
+fn CreateNativeWindowOps =
+(
+  local source ="
+  using System;
+  using System.Windows.Forms;
+  public class WindowHook : NativeWindow
+  {
+    private const int WM_COMMAND = 0x0111;
+    
+    public event EventHandler WmCommand;
+    
+    protected override void WndProc(ref Message m)
+    {
+      switch (m.Msg)
+      {
+        case WM_COMMAND:
+        this.ReleaseHandle();
+        if (this.WmCommand != null) this.WmCommand(this, EventArgs.Empty);
+        break;
+      }
+      base.WndProc(ref m);
+    }
+  }
+  "
+  CompileDotNet source
+)
+
+fn CreatePostNotifier =
+(
+	local source = "
+	using System;
+	using System.Windows.Forms;
+	using System.Threading;
+	public class PostNotifier
+	{
+		public event EventHandler PostEvent;
+		public void PostNotify() {
+			SynchronizationContext.Current.Post(delegate(object x) { if (this.PostEvent != null) this.PostEvent(this, EventArgs.Empty); }, null);
+ 			//SynchronizationContext.Current.Post(delegate(object x) { Application.RaiseIdle(EventArgs.Empty); }, null);
+		}
+	}"
+
+  CompileDotNet source
+)
+
+isVrayRenderer
 fn shouldBeSaved = 
 (
-		result = (not batchCamPreview) and (Render_Output_Rollout.save_file.checked or (Vray_Settings_Rollout.save_vray_image_file.checked and Vray_Settings_Rollout.save_vray_image_file.enabled))
-		result
+	local result = false
+
+	if (isVrayRenderer()) then
+		result = (not batchCamPreview) and (Render_Output_Rollout.save_file.checked or Vray_Settings_Rollout.save_vray_image_file.checked)
+	else
+		result = (not batchCamPreview) and (Render_Output_Rollout.save_file.checked)
+		
+	result
 )
 
 --function adds subitem to list item and makes it style active or inactive
@@ -694,7 +766,9 @@ fn elements_active state =
 	if isVrayRenderer() then 
 	(
 		for control_element in Vray_Settings_Rollout.controls do
+		(
 			control_element.enabled = state
+		)
 		Vray_Settings_Rollout.save_vray_image_file.enabled = Vray_Settings_Rollout.save_separate_render_channels.enabled = Vray_Settings_Rollout.show_vray_vfb.checked and state
 	)
 	else

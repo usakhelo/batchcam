@@ -103,6 +103,10 @@ fn storeRenderParams buffer=
 	if isVrayRenderer() then
 	(
 		vr = renderers.current
+		
+		if (hasproperty vr "V_Ray_settings") then
+			vr = vr.V_Ray_settings
+
 		buffer.oldoutput_saveRawFile = vr.output_saveRawFile
 		buffer.oldoutput_rawFileName = vr.output_rawFileName
 		buffer.oldoutput_on = vr.output_on
@@ -152,6 +156,10 @@ fn restoreRenderParams buffer=
 		if isVrayRenderer() then
 		(
 			vr = renderers.current
+
+			if (hasproperty vr "V_Ray_settings") then
+				vr = vr.V_Ray_settings
+
 			vr.output_saveRawFile = buffer.oldoutput_saveRawFile
 			if buffer.oldoutput_rawFileName != undefined then vr.output_rawFileName = buffer.oldoutput_rawFileName
 			vr.output_on = buffer.oldoutput_on
@@ -307,6 +315,10 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 	if isVrayRenderer() then
 	(
 		vr = renderers.current
+
+		if (hasproperty vr "V_Ray_settings") then
+			vr = vr.V_Ray_settings
+
 		--set vray output
 		if  (Vray_Settings_Rollout.show_vray_vfb.checked) then
 		(
