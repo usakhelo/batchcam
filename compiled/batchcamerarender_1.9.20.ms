@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.19"
+VERSION_STRING = "1.9.20"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -196,8 +196,14 @@ fn CreatePostNotifier =
 isVrayRenderer
 fn shouldBeSaved = 
 (
-		result = (not batchCamPreview) and ((isVrayRenderer()) and (Render_Output_Rollout.save_file.checked or Vray_Settings_Rollout.save_vray_image_file.checked))
-		result
+	local result = false
+
+	if (isVrayRenderer()) then
+		result = (not batchCamPreview) and (Render_Output_Rollout.save_file.checked or Vray_Settings_Rollout.save_vray_image_file.checked)
+	else
+		result = (not batchCamPreview) and (Render_Output_Rollout.save_file.checked)
+		
+	result
 )
 
 --function adds subitem to list item and makes it style active or inactive
@@ -2453,8 +2459,6 @@ fn populate_script_rollout selectedItems =
 	populate_checkbox_item selectedItems "prerender_enabled" Scripts_Rollout.enable_prerender
 	populate_text_fields selectedItems "postrender_script" Scripts_Rollout.postrender_script
 	populate_checkbox_item selectedItems "postrender_enabled" Scripts_Rollout.enable_postrender
--- 	populate_text_fields selectedItems "postrender_script" Scripts_Rollout.prerender_script
-
 )
 --separate function to populate ui elements in vray rollout
 fn populate_vray_options selectedItems =
@@ -2462,11 +2466,6 @@ fn populate_vray_options selectedItems =
 	--populate all vray properties for selected items.
 	--don't know if it's right.
 	--may be it would be more usefull to populate only properties that really exist in selected item's camera
-
-	local selectedItems = #()
-	local listiview = batchCameraRender_mainRollOut.lv_objects
-	for i=0 to (listiview.SelectedItems.Count - 1) do
-		append selectedItems (listiview.SelectedItems.Item i)
 
 	for vray_property in BatchCam_VrayPropertiesMappingArray do
 	(
@@ -3800,6 +3799,12 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 
 		fn do_render preview allCameras=
 		(
+			local temp_string
+			local temp_string1
+			local temp_string2
+			local temp_string3
+			local temp_string5
+			
 		--store parameter
 			renderParamBuf = BatchCam_RenderParameterStore()
 			renderParamBuf = storeRenderParams renderParamBuf
@@ -3810,9 +3815,6 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 			LIGHT_LIST = collect_scene_lights()
 			--save lights state
 			store_lighting_state()
-			--scene state saving
-			--there's no current scenestate properties in maxscript
-				--oldscenestate = 
 			
 			--render preset saving
 			INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
@@ -3963,11 +3965,8 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 						temp_string = getUserProperty camera_to_render "BatchCameraRender_render_output"
 						if (shouldBeSaved()) and (isNotUndefined temp_string) then
 						(
-							--parse file name template here
 							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
-							--exclude path from full path string
 							temp_path = getFilenamePath temp_string
-							--check if the path exist
 							if (not (doesFileExist temp_path)) then
 							(
 								--if silent_mode is on try to create new path
@@ -3987,10 +3986,8 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 						else
 							rendSaveFile = false
 
-						--render elements section
 						local elementsPath = prepare_render_elements camera_to_render
 						
-						--V-ray settings
 						prepare_vray_settings camera_to_render temp_string elementsPath
 						
 						--get lightstate
@@ -4028,8 +4025,6 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 						)
 						
 						--scripts setting
--- 							("prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
--- 							callbacks.addScript #preRender fileName:"//bombey/work/Scripts/batch render/2010-03-22 appdata version/test_run11.ms" id:#sergo persistent:true
 						callbacks.removeScripts id:#BatchCameraRender
 						--set global variables to be visible in submit and render scripts
 						batchCameraRender_currentcamera = camera_to_render
@@ -4043,18 +4038,17 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 							if (temp_string as BooleanClass) then
 							(
 								temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_script"
-								--check if the file exists
-								callbacks.addScript #preRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
+								callbacks.addScript #preRender fileName:temp_string id:#BatchCameraRender persistent:true
 							)
 						)
+
 						temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_enabled"
 						if (not preview) and (isNotUndefined temp_string) then
 						(
 							if (temp_string as BooleanClass) then
 							(
 								temp_string = getUserProperty camera_to_render "BatchCameraRender_postrender_script"
-								--check if the file exists
-								callbacks.addScript #postRenderFrame fileName:temp_string id:#BatchCameraRender persistent:true
+								callbacks.addScript #postRender fileName:temp_string id:#BatchCameraRender persistent:true
 							)
 						)
 						
@@ -4333,6 +4327,8 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 			for i=0 to (lv_objects.SelectedItems.Count - 1) do
 				append selectedItems (lv_objects.SelectedItems.Item i)
 			
+			LV_ITEMS = selectedItems
+
 			local t = timeStamp()
 			-- print (t)
 			populate_ui_elements selectedItems
@@ -6044,7 +6040,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 				prerender_script.text = val = pathConfig.appendPath val ""
 				
 				set_file_name_property LV_ITEMS "prerender_script" val
-				populate_vray_options LV_ITEMS
+				populate_text_fields LV_ITEMS "prerender_script" Scripts_Rollout.prerender_script
 			)
 			else
 				prerender_script.text = ""
@@ -6076,7 +6072,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 				postrender_script.text = val = pathConfig.appendPath val ""
 				
 				set_file_name_property LV_ITEMS "postrender_script" val
-				populate_vray_options LV_ITEMS
+				populate_text_fields LV_ITEMS "postrender_script" Scripts_Rollout.postrender_script
 			)
 			else
 				postrender_script.text = ""
