@@ -4,7 +4,7 @@
 &lt;li&gt;Improved performance in cases with lots of cameras in scene. Thanks to &lt;a href="http://www.brendancoyle.com"&gt;Brendan Coyle&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Vray RT support added. Vray RT should be production render. Thanks to &lt;a href="http://www.responseimage.com"&gt;Scott Ronaldson&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Add &lt;a href="http://www.scriptspot.com/3ds-max/scripts/mfrender"&gt;MFRender&lt;/a&gt; support (beta testers wanted!). Thanks to &lt;a href="http://www.scriptspot.com/users/usaqmuri"&gt;Zura Bezhanishvili&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Bugfix - Error poped up sometimes during drag-n-drop&lt;/li&gt;
+&lt;li&gt;Bugfix - Error was popping up sometimes during drag-n-drop&lt;/li&gt;
 &lt;li&gt;Bugfix - Render elements didn't render in certain conditions&lt;/li&gt;
 &lt;li&gt;Bugfix - Pre-render/post-render scripts didn't work on network rendering&lt;/li&gt;
 &lt;/ul&gt;
