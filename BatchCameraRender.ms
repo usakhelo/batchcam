@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.20"
+VERSION_STRING = "1.9.21"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -225,46 +225,48 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		)
 		
 		on toggle_select_all pressed do
+    (
+      local listItems = for i=0 to (lv_objects.Items.Count - 1) collect (lv_objects.Items.Item i)
+      local is_some_selected = (lv_objects.SelectedItems.Count > 0)
+     
+      if is_some_selected then
+        lv_objects.SelectedItems.Clear()
+      else
+      (             
+        lv_objects.BeginUpdate()                                                           
+        for i in listItems do
+          i.selected = true
+        lv_objects.EndUpdate()
+      )
+     
+      lv_objects.HideSelection = false
+      local selectedItems = for i=0 to (lv_objects.SelectedItems.Count - 1) collect (lv_objects.SelectedItems.Item i)
+      populate_ui_elements selectedItems
+      ui_elements_refresh lv_objects
+    )
+
+    on toggle_check_all pressed do
 		(
-			local is_some_selected = (lv_objects.SelectedItems.Count > 0)
-			
-			if is_some_selected then
-				lv_objects.SelectedItems.Clear()
-			else
-			(	
-				lv_objects.BeginUpdate()				
-				for i in LV_ITEMS do
-					i.selected = true
-				lv_objects.EndUpdate()
-			)
-			
-			lv_objects.HideSelection = false
-			local selectedItems = for i=0 to (lv_objects.SelectedItems.Count - 1) collect (lv_objects.SelectedItems.Item i)
-			populate_ui_elements selectedItems
-			ui_elements_refresh lv_objects
+		  local listItems = for i=0 to (lv_objects.Items.Count - 1) collect (lv_objects.Items.Item i)
+		  is_some_checked = false
+		  for i in listItems do
+		  (
+		    if i.checked then is_some_checked = true
+		  )
+		 
+		  if is_some_checked then
+		  (
+		    for i in listItems do
+		      i.checked = false
+		  )
+		  else
+		  (                                                             
+		    for i in listItems do
+		      i.checked = true
+		  )
+		  ui_elements_refresh lv_objects
 		)
-		
-		on toggle_check_all pressed do
-		(
-			is_some_checked = false
-			for i in LV_ITEMS do
-			(
-				if i.checked then is_some_checked = true
-			)
-			
-			if is_some_checked then
-			(
-				for i in LV_ITEMS do
-					i.checked = false
-			)
-			else
-			(				
-				for i in LV_ITEMS do
-					i.checked = true
-			)
-			ui_elements_refresh lv_objects
-		)
-		
+
 		on check_selected pressed do
 		(
 			for i in LV_ITEMS do
@@ -315,21 +317,32 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		--function to select active viewport camera in script's list
 		on get_viewport pressed do
 		(
-			camera_obj = undefined
-			if viewport.getType() == #view_camera then
-			(
-				camera_obj = viewport.getCamera()
-				camera_name = camera_obj.name
-				list_names = for item in LV_ITEMS collect item.text	--find camera in list items
-				index = findItem list_names camera_name
-				for item in LV_ITEMS do item.selected = false
-				LV_ITEMS[index].selected = true	--select item
-				LV_ITEMS[index].EnsureVisible()
-				
-				populate_ui_elements #(LV_ITEMS[index])
-				
-				ui_elements_refresh lv_objects
-			)
+		  if viewport.getType() == #view_camera then
+		  (
+		    local camera_obj = viewport.getCamera()
+		    local camera_name = camera_obj.name
+
+		    local listItem = undefined
+		    local listItems = lv_objects.Items.GetEnumerator()
+		    while listItems.MoveNext() do
+		    (
+		      if (listItems.Current.text == camera_name) then
+		      (
+		        listItem = listItems.Current
+		        listItem.selected = true
+		        listItem.EnsureVisible()
+		      )
+		      else
+		      (
+		        listItems.Current.selected = false
+		      )
+		    )
+		   
+		    if (listItem != undfined) then
+		      populate_ui_elements #(listItem)
+
+		    ui_elements_refresh lv_objects
+		  )
 		)
 
 		fn onWmCommand ev args =
