@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BatchCam</title><link>http://usakhelo.github.io/batchcam/</link><description>Batch rendering tool for 3ds max</description><atom:link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.rss.xml" rel="self"></atom:link><lastBuildDate>Fri, 02 Oct 2015 10:20:00 -0400</lastBuildDate><item><title>1.9.20 Vray-RT, MFRender, Performance</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.20.html</link><description>&lt;h2&gt;New features:&lt;/h2&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BatchCam</title><link>http://usakhelo.github.io/batchcam/</link><description>Batch rendering tool for 3ds max</description><atom:link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 18 Apr 2016 10:20:00 -0400</lastBuildDate><item><title>1.9.21 Bug fixes</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.21.html</link><description>&lt;h2&gt;Bug fixes:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Bugfix - Select All and Check All buttons didn't work properly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Download&lt;/h3&gt;
+&lt;p&gt;Download it here - &lt;a href="{filename}../compiled/batchcamerarender_1.9.21.ms"&gt;batchcamerarender_1.9.21.ms&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This site is still under develepment so, please, go ahead and comment on &lt;a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render"&gt;ScriptSpot.com&lt;/a&gt;. Some more &lt;code&gt;+&lt;/code&gt;-s on Scriptspot are much appreciated!&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">usakhelo</dc:creator><pubDate>Mon, 18 Apr 2016 10:20:00 -0400</pubDate><guid>tag:usakhelo.github.io,2016-04-18:batchcam/batchcam-1.9.21.html</guid><category>new version</category></item><item><title>1.9.20 Vray-RT, MFRender, Performance</title><link>http://usakhelo.github.io/batchcam/batchcam-1.9.20.html</link><description>&lt;h2&gt;New features:&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Improved performance in cases with lots of cameras in scene. Thanks to &lt;a href="http://www.brendancoyle.com"&gt;Brendan Coyle&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Vray RT support added. Vray RT should be production render. Thanks to &lt;a href="http://www.responseimage.com"&gt;Scott Ronaldson&lt;/a&gt;&lt;/li&gt;
