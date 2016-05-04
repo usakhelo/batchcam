@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>BatchCam</title><link href="http://usakhelo.github.io/batchcam/" rel="alternate"></link><link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.atom.xml" rel="self"></link><id>http://usakhelo.github.io/batchcam/</id><updated>2016-04-18T10:20:00-04:00</updated><entry><title>1.9.21 Bug fixes</title><link href="http://usakhelo.github.io/batchcam/batchcam-1.9.21.html" rel="alternate"></link><updated>2016-04-18T10:20:00-04:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2016-04-18:batchcam/batchcam-1.9.21.html</id><summary type="html">&lt;h2&gt;Bug fixes:&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>BatchCam</title><link href="http://usakhelo.github.io/batchcam/" rel="alternate"></link><link href="http://usakhelo.github.io/batchcam/feeds%5Cusakhelo.atom.xml" rel="self"></link><id>http://usakhelo.github.io/batchcam/</id><updated>2016-05-03T10:20:00-04:00</updated><entry><title>1.9.22 Bug fixes</title><link href="http://usakhelo.github.io/batchcam/batchcam-1.9.22.html" rel="alternate"></link><updated>2016-05-03T10:20:00-04:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2016-05-03:batchcam/batchcam-1.9.22.html</id><summary type="html">&lt;h2&gt;Bug fixes:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Bugfix - Did not send to net render after cancelling during local rendering.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Download&lt;/h3&gt;
+&lt;p&gt;Download it here - &lt;a href="http://usakhelo.github.io/batchcam/compiled/batchcamerarender_1.9.22.ms"&gt;batchcamerarender_1.9.22.ms&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This site is still under develepment so, please, go ahead and comment on &lt;a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render"&gt;ScriptSpot.com&lt;/a&gt;. Some more &lt;code&gt;+&lt;/code&gt;-s on Scriptspot are much appreciated!&lt;/p&gt;</summary><category term="new version"></category></entry><entry><title>1.9.2 Bug fixes</title><link href="http://usakhelo.github.io/batchcam/batchcam-1.9.21.html" rel="alternate"></link><updated>2016-04-18T10:20:00-04:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2016-04-18:batchcam/batchcam-1.9.21.html</id><summary type="html">&lt;h2&gt;Bug fixes:&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Bugfix - Select All and Check All buttons didn't work properly.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3&gt;Download&lt;/h3&gt;
-&lt;p&gt;Download it here - &lt;a href="{filename}../compiled/batchcamerarender_1.9.21.ms"&gt;batchcamerarender_1.9.21.ms&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Download it here - &lt;a href="http://usakhelo.github.io/batchcam/compiled/batchcamerarender_1.9.21.ms"&gt;batchcamerarender_1.9.21.ms&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;This site is still under develepment so, please, go ahead and comment on &lt;a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render"&gt;ScriptSpot.com&lt;/a&gt;. Some more &lt;code&gt;+&lt;/code&gt;-s on Scriptspot are much appreciated!&lt;/p&gt;</summary><category term="new version"></category></entry><entry><title>1.9.20 Vray-RT, MFRender, Performance</title><link href="http://usakhelo.github.io/batchcam/batchcam-1.9.20.html" rel="alternate"></link><updated>2015-10-02T10:20:00-04:00</updated><author><name>usakhelo</name></author><id>tag:usakhelo.github.io,2015-10-02:batchcam/batchcam-1.9.20.html</id><summary type="html">&lt;h2&gt;New features:&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;Improved performance in cases with lots of cameras in scene. Thanks to &lt;a href="http://www.brendancoyle.com"&gt;Brendan Coyle&lt;/a&gt;&lt;/li&gt;
