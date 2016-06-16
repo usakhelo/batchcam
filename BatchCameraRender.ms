@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.21"
+VERSION_STRING = "1.9.22"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -402,10 +402,10 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			renderPresetsApplied = false
 			lightStateApplied = false
 			
+			RenderCancelled = false
 			--if not netrender then set cancellation detection handler here
 			if (not net_render.checked) do
 			(
-				RenderCancelled = false
 				DialogMonitorOPS.unRegisterNotification id:#get_render_win
 				DialogMonitorOPS.RegisterNotification DMNotification id:#get_render_win
 				DialogMonitorOPS.Enabled = true
