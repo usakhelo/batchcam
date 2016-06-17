@@ -13,9 +13,7 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
 		
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 
 		--fill elements path field
@@ -32,8 +30,7 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
 		
 		for i=1 to selected_items.count while not diff_flag do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 			if isNotUndefined temp_string then
 			(
@@ -71,9 +68,7 @@ fn populate_text_fields cameraItems property_name rollout_control =
 		
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 
 		--fill elements path field
@@ -89,8 +84,7 @@ fn populate_text_fields cameraItems property_name rollout_control =
 		
 		for i=1 to selected_items.count while not path_diff_flag do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 			if isNotUndefined temp_string then
 			(
@@ -124,10 +118,7 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 		
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
-		
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 		if isNotUndefined temp_string then
 			uiCheckBox.state = (temp_string as booleanclass)
@@ -144,10 +135,8 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 		
 		for i=1 to selected_items.count while not state_diff_flag do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
-
 			--populate checkbox state for multiple items checked
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 			if isNotUndefined temp_string then
 			(
@@ -188,10 +177,7 @@ fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
 	
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
-		
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 		if (isNotUndefined temp_string) then
 			uiDropDownBox.selection  = (temp_string as integer)
@@ -205,10 +191,8 @@ fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
 		
 		for i=1 to selected_items.count while not state_diff_flag do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
-
 			--populate checkbox state for multiple items checked
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 			if (isNotUndefined temp_string) then
 			(
@@ -243,10 +227,7 @@ fn populate_combobox_string_item cameraItems property_name rollout_control =
 	
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
-		
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 		if (isNotUndefined temp_string) then
 		(
@@ -268,9 +249,7 @@ fn populate_combobox_string_item cameraItems property_name rollout_control =
 		
 		for i=1 to selected_items.count while (not state_diff_flag) do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
-			
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 			temp_string = temp_string as string
 
@@ -305,10 +284,7 @@ fn populate_dropdownbox_string_item cameraItems property_name rollout_control =
 	
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
-		
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 		if (isNotUndefined temp_string) then
 			uiDropDownBox.selection  = finditem (uiDropDownBox.items) temp_string
@@ -322,10 +298,8 @@ fn populate_dropdownbox_string_item cameraItems property_name rollout_control =
 		
 		for i=1 to selected_items.count while (not state_diff_flag) do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
-
 			--populate checkbox state for multiple items checked
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself ("BatchCameraRender_" + property_name)
 			if (isNotUndefined temp_string) then
 			(
@@ -360,10 +334,7 @@ fn populate_dropdownbox_resolution cameraItems rollout_control =
 	
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
-		
+		obj_itself = (selected_items[1]).tag.value
 		temp_width = getUserProperty obj_itself "BatchCameraRender_frame_width"
 		temp_height = getUserProperty obj_itself "BatchCameraRender_frame_heigth"
 		temp_string = (temp_width as string) + " x " + (temp_height as string)
@@ -379,10 +350,8 @@ fn populate_dropdownbox_resolution cameraItems rollout_control =
 		
 		for i=1 to selected_items.count while (not state_diff_flag) do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
-
 			--populate checkbox state for multiple items checked
+			obj_itself = (selected_items[i]).tag.value
 			temp_width = getUserProperty obj_itself "BatchCameraRender_frame_width"
 			temp_height = getUserProperty obj_itself "BatchCameraRender_frame_heigth"
 			temp_string = (temp_width as string) + " x " + (temp_height as string)
@@ -433,10 +402,7 @@ fn populate_framerange cameraItems =
 		
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
-		
+		obj_itself = (selected_items[1]).tag.value
 		temp_string1 = getUserProperty obj_itself "BatchCameraRender_frames"
 		temp_string2 = getUserProperty obj_itself "BatchCameraRender_framerange_from"
 		temp_string5 = getUserProperty obj_itself "BatchCameraRender_anim_frame_range"
@@ -550,9 +516,7 @@ fn populate_elements_options cameraItems=
 		
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself "BatchCameraRender_elements_output"
 
 		--fill elements path field
@@ -577,8 +541,7 @@ fn populate_elements_options cameraItems=
 		
 		for i=1 to selected_items.count while not path_diff_flag do
 		(
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself "BatchCameraRender_elements_output"
 			if (isNotUndefined temp_string) then
 			(
@@ -649,15 +612,13 @@ fn populate_filename_fields cameraItems=
 		
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
+		obj_itself = (selected_items[1]).tag.value
 		temp_string = getUserProperty obj_itself "BatchCameraRender_render_output"
 		
 		if (isNotUndefined temp_string) then
 		(
 			--put parsed string in full text textfield
-			result_file_name.text = parse_file_name_template temp_string (compose_parsing_dictionary obj_name) 
+			result_file_name.text = parse_file_name_template temp_string (compose_parsing_dictionary obj_itself) 
 			file_name.text = filenameFromPath temp_string
 			file_path.text = getFilenamePath temp_string
 		)
@@ -684,8 +645,7 @@ fn populate_filename_fields cameraItems=
 		
 		for i=1 to selected_items.count do
 		(			
-			obj_name = selected_items[i].text
-			obj_itself = getNodeByName obj_name
+			obj_itself = (selected_items[i]).tag.value
 			temp_string = getUserProperty obj_itself "BatchCameraRender_render_output"
 			if (isNotUndefined temp_string) then
 			(
@@ -693,7 +653,7 @@ fn populate_filename_fields cameraItems=
 				--show only similar parts of the filename
 				
 				-- for the full path textfield consider parsed path string
-				parsed_path = parse_file_name_template temp_string (compose_parsing_dictionary obj_name) 
+				parsed_path = parse_file_name_template temp_string (compose_parsing_dictionary obj_itself) 
 				
 				--init previous values for the first time
 				if i==1 then 
@@ -799,10 +759,7 @@ fn populate_light_state cameraItems=
 		
 	if selected_items.count == 1 then
 	(
-		i = selected_items[1]
-		obj_name = i.text
-		obj_itself = getNodeByName obj_name
-		
+		obj_itself = (selected_items[1]).tag.value
 		temp_string1 = getUserProperty obj_itself "BatchCameraRender_solo_lights"
 		temp_string2 = getUserProperty obj_itself "BatchCameraRender_on_lights"
 		temp_string3 = getUserProperty obj_itself "BatchCameraRender_off_lights"

@@ -117,7 +117,18 @@ fn clear_sub_item listItem subitem_name=
 
 fn get_camera_list = 
 (
-	camera_array = for obj in cameras where iskindof obj camera collect obj
+	local camera_array = #()
+	local camera_list = for obj in cameras where iskindof obj camera collect obj
+	for cam in camera_list do
+	(
+		append camera_array cam
+		for attr in cam.baseobject.custattributes do
+		(
+			if attr.name == "BatchCamAttr" then
+				append camera_array (attr)
+		)
+	)
+
 	camera_array
 )
 
@@ -307,10 +318,10 @@ fn propName2Id property_name =
 )
 
 -- setUserProp function wrapper to set dirty flag everytime user properties are affected by script
-fn setUserProperty obj_itself property_name property_value=
+fn setUserProperty list_item property_name property_value=
 (
 -- 	format "obj_itself:% property_name:% property_value:%\n" obj_itself property_name property_value
-	setAppData obj_itself (propName2Id property_name) (property_value as string)
+	setAppData (list_item.tag.value) (propName2Id property_name) (property_value as string)
 	setSaveRequired true --set dirt flag after setting each user property
 )
 
@@ -520,7 +531,7 @@ fn compose_global_dictionary =
 )
 
 --function to compute camera-related keywords
-fn compose_parsing_dictionary camera_name extraItems: = 
+fn compose_parsing_dictionary camera_obj_itself extraItems: = 
 (
 	--compose parsing dictionary for given camera
 	local parsing_dictionary = #()
@@ -539,8 +550,7 @@ fn compose_parsing_dictionary camera_name extraItems: =
 		)
 	)
 	--camername keyword
-	append parsing_dictionary #("cameraname", (camera_name as string))
-	camera_obj_itself = getNodeByName camera_name
+	append parsing_dictionary #("cameraname", ((camera_obj_itself.name) as string))
 	--scenestate keyword
 	append parsing_dictionary #("scenestate", ((batchCameraRender_getUserProperty camera_obj_itself "BatchCameraRender_scene_state") as string))
 	--renderpreset keyword
@@ -556,11 +566,11 @@ fn compose_parsing_dictionary camera_name extraItems: =
 )
 
 --function to compute camera-related keywords. Computes render output. Should not be used in output path properties.
-fn compose_full_parsing_dictionary camera_name extraItems: = 
+fn compose_full_parsing_dictionary camera_obj_itself extraItems: = 
 (
 	local parsing_dictionary = #()
 	
-	join parsing_dictionary (compose_parsing_dictionary camera_name)
+	join parsing_dictionary (compose_parsing_dictionary camera_obj_itself)
 	
 	--append extra items first. they should not be the same as the ones computed in this function
 	if extraItems != unsupplied then
@@ -572,8 +582,6 @@ fn compose_full_parsing_dictionary camera_name extraItems: =
 		)
 	)
 	
-	--get mainoutput from the camera
-	camera_obj_itself = getNodeByName camera_name
 	mainoutput = batchCameraRender_getUserProperty camera_obj_itself "BatchCameraRender_render_output"
 	if isNotUndefined mainoutput then
 		mainoutput = parse_file_name_template mainoutput parsing_dictionary	--parse it by using usual dictionary
@@ -746,11 +754,15 @@ fn elements_active state =
 	(
 		Net_Render_Options_Rollout.save_all_as_default.enabled = true
 		batchCameraRender_mainRollOut.copy_button.enabled = true
+		batchCameraRender_mainRollOut.remove_button.enabled = true
+		batchCameraRender_mainRollOut.add_button.enabled = true
 	)
 	else
 	(
 		Net_Render_Options_Rollout.save_all_as_default.enabled = false
 		batchCameraRender_mainRollOut.copy_button.enabled = false
+		batchCameraRender_mainRollOut.remove_button.enabled = false
+		batchCameraRender_mainRollOut.add_button.enabled = false
 	)
 	
 	if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count > 0) then
@@ -807,10 +819,12 @@ fn ui_elements_refresh listview_obj =
 		--and all other elements too
 		for control_element in batchCameraRender_mainRollOut.controls do
 		(
-			if control_element.name == "Refresh" then
-				control_element.enabled = true
-			else
-				control_element.enabled = false
+			case (control_element.name) of
+			(
+				"Refresh":	control_element.enabled = true
+				-- "ADD_BUTTON":			control_element.enabled = true
+				default: 		control_element.enabled = false
+			)
 		)
 	)
 	else	--if there is something...
@@ -846,7 +860,7 @@ fn leadingZero num digitCount=
 )
 
 --function to submit current scene to backburner manager
-fn net_render_auto_submit camera_name =
+fn net_render_auto_submit camera_obj =
 (
 	batchManager = NetRender.GetManager() --get NetRender Interface
 	--batchManager.connect #manual <manager IP address> [port:<integer>] 
@@ -862,7 +876,7 @@ fn net_render_auto_submit camera_name =
 	else
 	(
 		batchJob = batchManager.NewJob()
-		batchJob.renderCamera = camera_name
+		batchJob.renderCamera = camera_obj.name
 		--if choosen platform is not default reflect this in the job name
 		--since connection to one platform doesn't allow to see existing jobs from another platform this helps to avoid submitting jobs with same name on different platforms
 		platform_string = ""
@@ -874,7 +888,7 @@ fn net_render_auto_submit camera_name =
 		if (isNotUndefinedOrEmpty jobNamePattern) then
 		(
 -- 			print "test2"
-			jobName = parse_file_name_template jobNamePattern (compose_full_parsing_dictionary camera_name)
+			jobName = parse_file_name_template jobNamePattern (compose_full_parsing_dictionary camera_obj)
 -- 			format "jobName: %\n" jobName
 		)
 		else
@@ -1066,6 +1080,7 @@ fn fill_ListView listview_obj camera_list =
 	for camera_obj in camera_list do
 	(
 		li = dotNetObject "System.Windows.Forms.ListViewItem" camera_obj.name
+		li.tag = dotNetMXSValue camera_obj
 		li.UseItemStyleForSubItems = false
 		sub_li = undefined --subitem variable
 		--get framerange

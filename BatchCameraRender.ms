@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -- BatchCameraRender.ms
 -- By Sergo Pogosyan (www.sergepogosyan.com, contact@sergepogosyan.com)
 -- Created On: 2009-05-25
--- tested using Max 2009, Max 2010, Max 2011, Max 2012
+-- tested using Max 2009, Max 2010, Max 2011, Max 2012, Max 2016
 -------------------------------------------------------------------------------
 -- Description:
 -- macroscript aims to replace builtin batch render
@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.9.22"
+VERSION_STRING = "1.10"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -134,9 +134,12 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 
 	rollout batchCameraRender_mainRollOut "Camera Manager Settings"
 	(
-		button refresh "Refresh" align:#left width:65 across:3
-		button copy_button "Copy" align:#right offset:[85,0] width:65
-		button paste_button "Paste" align:#right width:65
+		button add_button "Add" align:#left width:65 across:5
+		button remove_button "Remove" align:#left offset:[-24,0] width:65
+		button copy_button "Copy" align:#right offset:[48,0] width:65
+		button paste_button "Paste" align:#right offset:[24,0] width:65
+		button refresh "Refresh" align:#right width:65
+
 		dotNetControl lv_objects "ListView" height:global_listview_height	--height:170
 		
 		button toggle_select_all "[Un]Select All" align:#left width:75 across:5
@@ -161,6 +164,27 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			BatchCameraRender_reload_cameras lv_objects
 		)
 		
+		on add_button pressed do
+		(
+			local batchcam_custattr = attributes BatchCamAttr version:1
+			(
+			)
+			
+			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
+			(
+				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
+				camera_obj = selected_item.tag.value
+				
+				if (camera_obj != undefined) and (superclassof camera_obj == camera) then
+				(
+					custattributes.add camera_obj batchcam_custattr #unique
+
+					BatchCameraRender_reload_cameras lv_objects
+				)
+			)
+
+		)
+
 		on copy_button pressed do
 		(
 			if BatchCamRenderParamsBuffer == undefined then
@@ -169,7 +193,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_obj = getNodeByName (selected_item.text)
+				camera_obj = selected_item.tag.value
 				
 				if camera_obj != undefined then
 				(
@@ -193,16 +217,11 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 					for i=1 to batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count do
 					(
 						selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item (i-1))
-						camera_obj = getNodeByName (selected_item.text)
-						
-						if camera_obj != undefined then
+						propertyNames = getPropNames BatchCamRenderParamsBuffer
+						for propertyName in propertyNames do
 						(
-							propertyNames = getPropNames BatchCamRenderParamsBuffer
-							for propertyName in propertyNames do
-							(
-								prop_value = getProperty BatchCamRenderParamsBuffer propertyName
-								setUserProperty camera_obj (propertyName as string) prop_value
-							)
+							prop_value = getProperty BatchCamRenderParamsBuffer propertyName
+							setUserProperty selected_item (propertyName as string) prop_value
 						)
 					)
 					BatchCameraRender_reload_cameras lv_objects
@@ -299,7 +318,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 					camera_name = item.text
 			)
 			camera_obj = getNodeByName camera_name
-			if (findString ((classof camera_obj) as string) "camera")  != undefined then	--set viewport camera
+			if (superclassof camera_obj == camera)  != undefined then	--set viewport camera
 				viewport.setCamera camera_obj
 
 			local xres_prop = getUserProperty camera_obj "BatchCameraRender_frame_width"
@@ -326,7 +345,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		    local listItems = lv_objects.Items.GetEnumerator()
 		    while listItems.MoveNext() do
 		    (
-		      if (listItems.Current.text == camera_name) then
+		      if (listItems.Current.tag.value.name == camera_name) then
 		      (
 		        listItem = listItems.Current
 		        listItem.selected = true
@@ -426,8 +445,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							firstCamera = false
 						)
 						--get camera name
-						camera_name = i.text
-						camera_to_render = getNodeByName camera_name
+						camera_to_render = i.tag.value
 						--unhide camera objects
 						if (camera_to_render.isHiddenInVpt) then
 						(
@@ -542,7 +560,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						temp_string = getUserProperty camera_to_render "BatchCameraRender_render_output"
 						if (shouldBeSaved()) and (isNotUndefined temp_string) then
 						(
-							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
+							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_to_render)
 							temp_path = getFilenamePath temp_string
 							if (not (doesFileExist temp_path)) then
 							(
@@ -597,7 +615,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						temp_string = getUserProperty camera_to_render "BatchCameraRender_scene_state"
 						if isNotUndefined temp_string then
 						(
-							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_name)
+							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_to_render)
 							sceneStateMgr.RestoreAllParts temp_string
 						)
 						
@@ -653,7 +671,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						--start render
 						if (not preview) and net_render.checked and (not show_net_submit.checked) then
 						(
-							net_render_auto_submit camera_name
+							net_render_auto_submit camera_to_render
 						)
 						else
 						(
@@ -992,9 +1010,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				for i = 0 to lv_objects.Items.Count-1 do
 				(
 					local listItem = lv_objects.Items.Item i
-					local obj_name = listItem.text
-					local obj_itself = getNodeByName obj_name
-					setUserProperty obj_itself ("BatchCameraRender_item_index") (listItem.index as string)
+					setUserProperty listItem ("BatchCameraRender_item_index") (listItem.index as string)
 				)
 				LV_ITEMS = for i=0 to (lv_objects.Items.Count - 1) collect (lv_objects.Items.Item i)
 			)
@@ -1059,7 +1075,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				obj_itself = getNodeByName (selected_item.text)
+				obj_itself = selected_item.tag.value
 				
 				property_names = BatchCam_CommonPropertiesNames + BatchCam_ScriptsPropertiesNames + BatchCam_VrayPropertiesNames
 
@@ -1451,7 +1467,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_object = getNodeByName (selected_item.text)
+				camera_object = selected_item.tag.value
 				
 				property_names = #(	"BatchCameraRender_frame_width", \
 												"BatchCameraRender_frame_heigth", \
@@ -1508,11 +1524,9 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			(
 				if i.selected then
 				(
-					obj_name = i.text
-					obj_itself = getNodeByName obj_name
-					setUserProperty obj_itself "BatchCameraRender_frame_width" undefined
-					setUserProperty obj_itself "BatchCameraRender_frame_heigth" undefined
-					setUserProperty obj_itself "BatchCameraRender_image_aspect" undefined
+					setUserProperty i "BatchCameraRender_frame_width" undefined
+					setUserProperty i "BatchCameraRender_frame_heigth" undefined
+					setUserProperty i "BatchCameraRender_image_aspect" undefined
 					clear_sub_item i "resolution"
 					clear_sub_item i "image_aspect"
 				)
@@ -1669,7 +1683,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_object = getNodeByName (selected_item.text)
+				camera_object = selected_item.tag.value
 				
 				property_names = #(	\
 												"BatchCameraRender_render_output", \
@@ -1768,7 +1782,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				parsed_path = parse_file_name_template temp_path (compose_parsing_dictionary (selected_item.text))
+				parsed_path = parse_file_name_template temp_path (compose_parsing_dictionary (selected_item.tag.value))
 				temp_path  = parsed_path
 			)
 		
@@ -1816,13 +1830,11 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			(
 				if i.selected then
 				(
-					obj_name = i.text
-					obj_itself = getNodeByName obj_name
-					setUserProperty obj_itself "BatchCameraRender_render_output" undefined
+					setUserProperty i "BatchCameraRender_render_output" undefined
 					clear_sub_item i "path"					
-					setUserProperty obj_itself "BatchCameraRender_elements_state" undefined
+					setUserProperty i "BatchCameraRender_elements_state" undefined
 					clear_sub_item i "elements_state"					
-					setUserProperty obj_itself "BatchCameraRender_elements_output" undefined
+					setUserProperty i "BatchCameraRender_elements_output" undefined
 					clear_sub_item i "elements_path"
 				)
 			)
@@ -1869,9 +1881,9 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			button save_as_default  "Save to INI..." width:85 align:#right
 			
 			radiobuttons rendType2 labels:#("Range") columns:1 default:0 align:#left across:6
-			spinner render_from  range:[0,10000,0] type:#integer width:70 align:#left offset: [-10,0] enabled:false
+			spinner render_from  range:[-10000,10000,0] type:#integer width:70 align:#left offset: [-10,0] enabled:false
 			label label1 "To" align:#left offset: [-9,0]
-			spinner render_to  range:[0,10000,10] type:#integer width:70 align:#left offset: [-65,0] enabled:false
+			spinner render_to  range:[-10000,10000,10] type:#integer width:70 align:#left offset: [-65,0] enabled:false
 			label label2 "Every Nth Frame:(not saving)" align:#right offset: [0,0]
 			spinner render_every_nth range:[1,10000,0] type:#integer width:70 align:#right offset: [0,0] enabled:false
 			
@@ -1887,7 +1899,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_object = getNodeByName (selected_item.text)
+				camera_object = selected_item.tag.value
 				
 				property_names = #(	\
 												"BatchCameraRender_frames", \
@@ -2034,10 +2046,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			(
 				if i.selected then
 				(
-					obj_name = i.text
-					obj_itself = getNodeByName obj_name
-					setUserProperty obj_itself "BatchCameraRender_framerange_from" undefined
-					setUserProperty obj_itself "BatchCameraRender_framerange_to" undefined
+					setUserProperty i "BatchCameraRender_framerange_from" undefined
+					setUserProperty i "BatchCameraRender_framerange_to" undefined
 					clear_sub_item i "Frames"
 				)
 			)
@@ -2102,7 +2112,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_object = getNodeByName (selected_item.text)
+				camera_object = selected_item.tag.value
 				
 				property_names = #(	\
 											"BatchCameraRender_irmap_mode", \
@@ -2270,11 +2280,9 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			(
 				if i.selected then
 				(
-					obj_name = i.text
-					obj_itself = getNodeByName obj_name
 					for property_name in BatchCam_VrayPropertiesNames do
 					(
-						setUserProperty obj_itself ("BatchCameraRender_" + property_name) undefined
+						setUserProperty i ("BatchCameraRender_" + property_name) undefined
 						clear_sub_item i property_name
 					)
 				)
@@ -2403,7 +2411,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_object = getNodeByName (selected_item.text)
+				camera_object = selected_item.tag.value
 				
 				property_names = #(	\
 											"BatchCameraRender_scene_state", \
@@ -2455,10 +2463,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			(
 				if i.selected then
 				(
-					obj_name = i.text
-					obj_itself = getNodeByName obj_name
-					setUserProperty obj_itself "BatchCameraRender_scene_state" undefined
-					setUserProperty obj_itself "BatchCameraRender_render_preset" undefined
+					setUserProperty i "BatchCameraRender_scene_state" undefined
+					setUserProperty i "BatchCameraRender_render_preset" undefined
 					clear_sub_item i "scene_state"
 					clear_sub_item i "render_preset"
 					scene_states_list2.SelectedIndex = 0
@@ -2578,7 +2584,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_object = getNodeByName (selected_item.text)
+				camera_object = selected_item.tag.value
 				
 				property_names = #(	\
 											"BatchCameraRender_prerender_script", \
@@ -2698,7 +2704,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
 				selected_item = (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item 0)
-				camera_object = getNodeByName (selected_item.text)
+				camera_object = selected_item.tag.value
 				
 				property_names = #(	\
 											"BatchCameraRender_solo_lights", \
@@ -2783,7 +2789,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 	rollout aboutRoll "About"
 	(
 		label lb_about ""
-		label lb_author "(C) 2009-2012, Sergo Pogosyan"
+		label lb_author "(C) 2009-2016, Sergo Pogosyan"
 		hyperLink lb_email "contact@sergepogosyan.com" address:"mailto:contact@sergepogosyan.com" align:#center
 		hyperLink lb_homepage "www.sergepogosyan.com" address:"http://www.sergepogosyan.com" align:#center
 		edittext license_text "" height:180 align:#center labelOnTop:true readOnly:true text:\
