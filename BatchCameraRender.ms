@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.10"
+VERSION_STRING = "1.10b"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -164,6 +164,21 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			BatchCameraRender_reload_cameras lv_objects
 		)
 		
+		on remove_button pressed do
+		(
+			local selectItems = batchCameraRender_mainRollOut.lv_objects.SelectedItems.GetEnumerator()
+			while selectItems.MoveNext() do
+	    (
+	      if (superclassof (selectItems.Current.tag.value) != camera) then
+	      (
+	      	local camObj = getCameraFromCA (selectItems.Current.tag.value)
+	        local custDef = (custAttributes.getDef (selectItems.Current.tag.value) baseObject:true)
+	        custattributes.delete camObj custDef
+        )
+      )
+			BatchCameraRender_reload_cameras lv_objects
+		)
+
 		on add_button pressed do
 		(
 			local batchcam_custattr = attributes BatchCamAttr version:1
@@ -404,23 +419,23 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		--store parameter
 			renderParamBuf = BatchCam_RenderParameterStore()
 			renderParamBuf = storeRenderParams renderParamBuf
-				
+
 			rendUseActiveView = true
-			
+
 			--refill light_list in case some lights were removed or added during script running state
 			LIGHT_LIST = collect_scene_lights()
 			--save lights state
 			store_lighting_state()
-			
+
 			--render preset saving
 			INIFileDir = ((getdir #plugcfg) + "\\BatchCameraRender\\")
 			if (getDirectories INIFileDir).count == 0 then makeDir INIFileDir
 			tempRP_file = INIFileDir + "temp_render_preset.rps"
 			renderpresets.SaveAll 0 tempRP_file
-			
+
 			renderPresetsApplied = false
 			lightStateApplied = false
-			
+
 			RenderCancelled = false
 			--if not netrender then set cancellation detection handler here
 			if (not net_render.checked) do
@@ -430,12 +445,12 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				DialogMonitorOPS.Enabled = true
 			)
 			--	THIS SECTION SHOULD BE UNDER TRY-CATCH BLOCK
-			try
+			-- try
 			(
 				local firstCamera = true
-				for i in LV_ITEMS while not RenderCancelled do
+				for item in LV_ITEMS while not RenderCancelled do
 				(
-					if allCameras or i.checked then
+					if allCameras or item.checked then
 					(
 						if isVrayRenderer() and (hasproperty (renderers.current) "V_Ray_settings") then
 						(
@@ -445,11 +460,17 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							firstCamera = false
 						)
 						--get camera name
-						camera_to_render = i.tag.value
+						local camera_to_render = item.tag.value
+						local cam_obj = undefined
+						if (superclassof camera_to_render == camera) then
+							cam_obj = camera_to_render
+						else
+							cam_obj = getCameraFromCA camera_to_render
+
 						--unhide camera objects
-						if (camera_to_render.isHiddenInVpt) then
+						if (cam_obj.isHiddenInVpt) then
 						(
-							camera_to_render.isHidden = false
+							cam_obj.isHidden = false
 							hideByCategory.cameras = false
 						)
 						-- set the render preset
@@ -483,7 +504,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							if isNotUndefined temp_string5 then
 							(
 								rendTimeType = 3
-								temp_frame_range = get_key_range camera_to_render
+								temp_frame_range = get_key_range cam_obj
 								rendStart = temp_frame_range[1].frame
 								rendEnd = temp_frame_range[2].frame
 							)
@@ -622,7 +643,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						--scripts setting
 						callbacks.removeScripts id:#BatchCameraRender
 						--set global variables to be visible in submit and render scripts
-						batchCameraRender_currentcamera = camera_to_render
+						batchCameraRender_currentcamera = cam_obj
 -- 							batchCameraRender_currentsettings = #()
 -- 							for i=7801 to 7844 do
 -- 								append batchCameraRender_currentsettings
@@ -667,11 +688,11 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						
 						--save render location to last render property
 						if (not preview) then
-							setUserProperty camera_to_render "BatchCameraRender_lastRenderPath" rendOutputFilename
+							setUserProperty item "BatchCameraRender_lastRenderPath" rendOutputFilename
 						--start render
 						if (not preview) and net_render.checked and (not show_net_submit.checked) then
 						(
-							net_render_auto_submit camera_to_render
+							net_render_auto_submit cam_obj
 						)
 						else
 						(
@@ -680,7 +701,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							else
 								rendUseNet = false
 							
-							viewport.setCamera camera_to_render
+							viewport.setCamera cam_obj
 							max quick render
 						)
 						
@@ -704,11 +725,11 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				DialogMonitorOPS.unRegisterNotification id:#get_render_win
 				DialogMonitorOPS.Enabled = false
 			) -- end of try close
-			catch
-			(
-				messagebox (getCurrentException()) title:"Error"
-				restore_lighting_state()
-			)
+			-- catch
+			-- (
+			-- 	messagebox (getCurrentException()) title:"Error"
+			-- 	restore_lighting_state()
+			-- )
 		)
 
 		fn quietRender =

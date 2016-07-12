@@ -598,7 +598,6 @@ fn populate_filename_fields cameraItems=
 	--if differs then enter "varies" text
 	--go to next item
 	
-	lis = cameraItems
 	result_file_name = Render_Output_Rollout.result_file_name
 	file_name = Render_Output_Rollout.file_name
 	file_path = Render_Output_Rollout.file_path
@@ -606,7 +605,7 @@ fn populate_filename_fields cameraItems=
 	
 	--exclude selected items
 	local selected_items = #()
-	for i in lis do
+	for i in cameraItems do
 		if i.selected then
 			append selected_items i
 		

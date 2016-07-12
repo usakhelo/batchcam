@@ -365,6 +365,53 @@ fn getRootNodeData property_name =
 	data_string = batchCameraRender_getUserProperty rootNode property_name	--user standard function to add default settings ability to rootnode data
 	data_string
 )
+
+fn getCameraFromCA ca_obj =
+(
+	local cam_obj = undefined
+	if (superclassof ca_obj == AttributeDef) then
+	(
+		local base_obj = custattributes.getowner ca_obj
+		local dep_objs = refs.dependentNodes base_obj
+		if (dep_objs.count > 0) then
+		(
+			local temp_cam = dep_objs[1]
+			if (superclassof temp_cam == camera) then
+			cam_obj = temp_cam
+		)
+	)
+	else
+	(
+		cam_obj = ca_obj
+	)
+	cam_obj
+)
+
+fn getPresetName preset_obj =
+(
+	local result_name = undefined
+	if (superclassof preset_obj == camera) then
+	(
+		result_name = preset_obj.name
+	)
+	else
+	(
+		local cam_obj = getCameraFromCA preset_obj
+		local preset_index = 0
+		local found_obj = undefined
+		for obj in cam_obj.baseobject.custattributes while found_obj == undefined do
+		(
+			preset_index += 1
+			local num_str = formattedPrint preset_index format:"03d"
+			if (obj == preset_obj) then
+			(
+				result_name = cam_obj.name + "_preset_" + num_str
+			)
+		)
+	)
+	result_name
+)
+
 --parser function
 --replaces special keywords in string with values from argument dictionary
 --dictionary syntax is (keyword, value)
@@ -531,7 +578,7 @@ fn compose_global_dictionary =
 )
 
 --function to compute camera-related keywords
-fn compose_parsing_dictionary camera_obj_itself extraItems: = 
+fn compose_parsing_dictionary camera_obj extraItems: = 
 (
 	--compose parsing dictionary for given camera
 	local parsing_dictionary = #()
@@ -550,14 +597,17 @@ fn compose_parsing_dictionary camera_obj_itself extraItems: =
 		)
 	)
 	--camername keyword
-	append parsing_dictionary #("cameraname", ((camera_obj_itself.name) as string))
+	local preset_name = getPresetName camera_obj
+	append parsing_dictionary #("presetname", preset_name)
+	local cam_obj = getCameraFromCA camera_obj
+	append parsing_dictionary #("cameraname", ((cam_obj.name) as string))
 	--scenestate keyword
-	append parsing_dictionary #("scenestate", ((batchCameraRender_getUserProperty camera_obj_itself "BatchCameraRender_scene_state") as string))
+	append parsing_dictionary #("scenestate", ((batchCameraRender_getUserProperty camera_obj "BatchCameraRender_scene_state") as string))
 	--renderpreset keyword
-	append parsing_dictionary #("renderpreset", ((batchCameraRender_getUserProperty camera_obj_itself "BatchCameraRender_render_preset") as string))
+	append parsing_dictionary #("renderpreset", ((batchCameraRender_getUserProperty camera_obj "BatchCameraRender_render_preset") as string))
 	--resolution keyword
-	xres_prop = batchCameraRender_getUserProperty camera_obj_itself "BatchCameraRender_frame_width"
-	yres_prop = batchCameraRender_getUserProperty camera_obj_itself "BatchCameraRender_frame_heigth"
+	xres_prop = batchCameraRender_getUserProperty camera_obj "BatchCameraRender_frame_width"
+	yres_prop = batchCameraRender_getUserProperty camera_obj "BatchCameraRender_frame_heigth"
 	resolution_string = (xres_prop as string + "x" + yres_prop as string )
 	append parsing_dictionary #("resolution", resolution_string)
 
@@ -566,11 +616,11 @@ fn compose_parsing_dictionary camera_obj_itself extraItems: =
 )
 
 --function to compute camera-related keywords. Computes render output. Should not be used in output path properties.
-fn compose_full_parsing_dictionary camera_obj_itself extraItems: = 
+fn compose_full_parsing_dictionary camera_obj extraItems: = 
 (
 	local parsing_dictionary = #()
 	
-	join parsing_dictionary (compose_parsing_dictionary camera_obj_itself)
+	join parsing_dictionary (compose_parsing_dictionary camera_obj)
 	
 	--append extra items first. they should not be the same as the ones computed in this function
 	if extraItems != unsupplied then
@@ -582,7 +632,7 @@ fn compose_full_parsing_dictionary camera_obj_itself extraItems: =
 		)
 	)
 	
-	mainoutput = batchCameraRender_getUserProperty camera_obj_itself "BatchCameraRender_render_output"
+	mainoutput = batchCameraRender_getUserProperty camera_obj "BatchCameraRender_render_output"
 	if isNotUndefined mainoutput then
 		mainoutput = parse_file_name_template mainoutput parsing_dictionary	--parse it by using usual dictionary
 	else
@@ -754,21 +804,25 @@ fn elements_active state =
 	(
 		Net_Render_Options_Rollout.save_all_as_default.enabled = true
 		batchCameraRender_mainRollOut.copy_button.enabled = true
-		batchCameraRender_mainRollOut.remove_button.enabled = true
-		batchCameraRender_mainRollOut.add_button.enabled = true
+		batchCameraRender_mainRollOut.add_button.enabled = ((superclassof (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Item[0].tag.value) == camera))
 	)
 	else
 	(
 		Net_Render_Options_Rollout.save_all_as_default.enabled = false
 		batchCameraRender_mainRollOut.copy_button.enabled = false
-		batchCameraRender_mainRollOut.remove_button.enabled = false
 		batchCameraRender_mainRollOut.add_button.enabled = false
 	)
 	
 	if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count > 0) then
+	(
 		batchCameraRender_mainRollOut.paste_button.enabled = (BatchCamRenderParamsBuffer != undefined)
+		batchCameraRender_mainRollOut.remove_button.enabled = true
+	)
 	else
+	(
 		batchCameraRender_mainRollOut.paste_button.enabled = false	
+		batchCameraRender_mainRollOut.remove_button.enabled = false
+	)
 
 	--output section
 	for control_element in Render_Output_Rollout.controls do
@@ -938,7 +992,7 @@ fn net_render_auto_submit camera_obj =
 	-- render_servers = batchManager.GetServers filter:#index key:2
 	render_servers = batchManager.GetServers()
 	local servernames = for i in render_servers collect i.name
-	format "servernames:%\n" servernames
+	-- format "servernames:%\n" servernames
 	batchJob.Submit Servers:render_servers
 	-- batchJob.Submit Servers:#(render_servers[1])
 	batchManager.Disconnect()
@@ -1017,12 +1071,17 @@ fn get_key_range camera_obj=
 	result
 )
 
-fn fill_scripts_columns listview_obj camera_list =
+fn fill_scripts_columns listview_obj =
 (
-	for camera_obj in camera_list do
+	-- for camera_obj in camera_list do
+	-- (
+	-- 	listItem = listview_obj.FindItemWithText camera_obj.name
+	local item_count = listview_obj.Items.count
+	for i=0 to item_count - 1 do
 	(
-		listItem = listview_obj.FindItemWithText camera_obj.name
-		sub_item = undefined  --subitem variable
+		local listItem = listview_obj.Items.Item[i]
+		local camera_obj = listitem.tag.value
+		-- sub_item = undefined  --subitem variable
 		
 		for property_name in BatchCam_ScriptsPropertiesNames do
 		(
@@ -1040,12 +1099,13 @@ fn fill_scripts_columns listview_obj camera_list =
 	--end of adding vray columns to list view
 )
 
-fn fill_vray_columns listview_obj camera_list =
+fn fill_vray_columns listview_obj =
 (
-	for camera_obj in camera_list do
+	local item_count = listview_obj.Items.count
+	for i=0 to item_count - 1 do
 	(
-		listItem = listview_obj.FindItemWithText camera_obj.name
-		sub_item = undefined  --subitem variable
+		local listItem = listview_obj.Items.Item[i]
+		local camera_obj = listitem.tag.value
 		
 		for property_name in BatchCam_VrayPropertiesNames do
 		(
@@ -1077,9 +1137,11 @@ fn fill_ListView listview_obj camera_list =
 	ItemsArray = #() --array to collect the list items
 	ItemsIndexArray = #() --array to collect the list items
 	
+	-- local preset_index = 0
 	for camera_obj in camera_list do
 	(
-		li = dotNetObject "System.Windows.Forms.ListViewItem" camera_obj.name
+		local preset_name = getPresetName camera_obj
+		li = dotNetObject "System.Windows.Forms.ListViewItem" preset_name
 		li.tag = dotNetMXSValue camera_obj
 		li.UseItemStyleForSubItems = false
 		sub_li = undefined --subitem variable
@@ -1261,8 +1323,8 @@ fn init_ListView listview_obj camera_list =
 	(
 		listview_obj.Items.Clear()
 		fill_ListView listview_obj camera_list
-		fill_vray_columns listview_obj camera_list
-		fill_scripts_columns listview_obj camera_list
+		fill_vray_columns listview_obj
+		fill_scripts_columns listview_obj
 		
 		listview_obj.AutoResizeColumns (dotNetClass "System.Windows.Forms.ColumnHeaderAutoResizeStyle").HeaderSize
 		listview_obj.Refresh()
