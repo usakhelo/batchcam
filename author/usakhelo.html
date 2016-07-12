@@ -56,6 +56,11 @@
             <li class="list-group-item"><h4><span class="icon-label"><a href="../">News</a></span></h4>
                 <ul class="list-group" id="recentposts">
                     <li class="list-group-item">
+                        <a href="../batchcam-1.10b.html#content">
+                            1.10b Multiple presets for each camera
+                        </a>
+                    </li>
+                    <li class="list-group-item">
                         <a href="../batchcam-1.9.22.html#content">
                             1.9.22 Bug fixes
                         </a>
@@ -75,11 +80,6 @@
                             1.9.15- Region Rendering and Backburner Servers
                         </a>
                     </li>
-                    <li class="list-group-item">
-                        <a href="../roadmap.html#content">
-                            Script Development Roadmap
-                        </a>
-                    </li>
                 </ul>
             </li>
 
@@ -97,6 +97,33 @@
 
         <div class="col-sm-9" role="main">
 
+            <article>
+                <h2><a href="../batchcam-1.10b.html">1.10b Multiple presets for each camera</a></h2>
+                    <div class="well well-sm">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-07-11T10:20:00"> Mon 11 July 2016</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="../tag/new-version.html">new version</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                <div class="entry-content"><p><img alt="screengrab" src="../images/1.10b_multi_presets.jpg" /></p>
+<p>This is long-awaited version of the script supporting multiple presets per camera. Now you can select camera preset and press Add button. New preset will be added with the same camera. New presets are named as follows: <code>camera_name_preset_001</code>. Names cannot be changed and numbers are changing if presets are deleted, e.g. if you add two presets and then remove first one the one that stays will have 001 at the end.</p>
+<p>Other thing to consider is that additional presets are tied to camera, so if you delete the camera all its presets will be gone. If you clone the camera that clonned camera will have additional presets as well.</p>
+<p>New keyword was added to support new preset names - %preset_name%. You can use it instead of %camera_name% which gives you the same camera name for each additional preset. %preset_name% keyword will be replaced with current preset name if you use it as a file name for example.</p>
+<p>This is early version of the script, I didn't test it thoroughly, so use it on your own risk :) It should work I believe.</p>
+<h3>Download</h3>
+<p>Download it here - <a href="../compiled/batchcamerarender_1.10b.ms">batchcamerarender_1.10b.ms</a></p>
+<p>This site is still under develepment so, please, go ahead and comment on <a href="http://www.scriptspot.com/3ds-max/scripts/batch-camera-render">ScriptSpot.com</a>. Some more <code>+</code>-s on Scriptspot are much appreciated!</p>
+                    <!-- <a class="btn btn-default btn-xs" href="../batchcam-1.10b.html">more ...</a> -->
+                </div>
+            </article>
+            <hr/>
             <article>
                 <h2><a href="../batchcam-1.9.22.html">1.9.22 Bug fixes</a></h2>
                     <div class="well well-sm">
