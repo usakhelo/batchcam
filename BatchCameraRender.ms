@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.10b"
+VERSION_STRING = "1.10.2b"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -202,8 +202,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 
 		on copy_button pressed do
 		(
-			if BatchCamRenderParamsBuffer == undefined then
-				BatchCamRenderParamsBuffer = BatchCameraRenderParamsStruct()
+			BatchCamRenderParamsBuffer = BatchCameraRenderParamsStruct()
 			
 			if (batchCameraRender_mainRollOut.lv_objects.SelectedItems.Count == 1) then
 			(
@@ -1014,7 +1013,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		(
 			local targetIndex = lv_objects.InsertionMark.Index
 
-		if (targetIndex != -1) then
+			if (targetIndex != -1) then
 			(
 				if (lv_objects.InsertionMark.AppearsAfterItem) then
 					targetIndex += 1
@@ -1034,6 +1033,10 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 					setUserProperty listItem ("BatchCameraRender_item_index") (listItem.index as string)
 				)
 				LV_ITEMS = for i=0 to (lv_objects.Items.Count - 1) collect (lv_objects.Items.Item i)
+				for i=1 to LV_ITEMS.count do
+				(
+					BatchCam_listItem_state[i] = LV_ITEMS[i].checked
+				)
 			)
 		)
 
@@ -1443,8 +1446,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		checkbutton lock_aspect "Lock" width:30 align:#left offset: [2,-3]
 		
 		checkbutton use_region "Region" align:#left width:40 offset:[10,-3]
-		spinner region_x "X:" range:[0,100,0] type:#integer align:#left width:80 offset: [-10,0]
-		spinner region_y "Y:" range:[0,100,0] type:#integer align:#left width:80 offset: [0,0]
+		spinner region_x "X:" range:[0,100,0] type:#float align:#left width:80 offset: [-10,0]
+		spinner region_y "Y:" range:[0,100,0] type:#float align:#left width:80 offset: [0,0]
 
 		label label3 "Height:" align:#left across:10
 		spinner frame_height range:[1,100000,480] type:#integer width:60 align:#left offset: [-13,0]
@@ -1456,8 +1459,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		button set_region_to_max "Set" width:30 align:#left offset: [-30,-2]
 		button get_region_from_max "Get" width:30 align:#left offset: [-42,-2]
 
-		spinner region_w "W:" range:[0,100,0] type:#integer align:#left width:92 offset: [-53, 0]
-		spinner region_h "H:" range:[0,100,0] type:#integer align:#left width:85 offset: [-22,0]
+		spinner region_w "W:" range:[0,100,0] type:#float align:#left width:92 offset: [-53, 0]
+		spinner region_h "H:" range:[0,100,0] type:#float align:#left width:85 offset: [-22,0]
 		
 		on Output_Size_Rollout open do
 		(
@@ -1548,6 +1551,12 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 					setUserProperty i "BatchCameraRender_frame_width" undefined
 					setUserProperty i "BatchCameraRender_frame_heigth" undefined
 					setUserProperty i "BatchCameraRender_image_aspect" undefined
+					setUserProperty i "BatchCameraRender_region_x" undefined
+					setUserProperty i "BatchCameraRender_region_y" undefined
+					setUserProperty i "BatchCameraRender_region_w" undefined
+					setUserProperty i "BatchCameraRender_region_h" undefined
+					setUserProperty i "BatchCameraRender_region_enabled" undefined
+					
 					clear_sub_item i "resolution"
 					clear_sub_item i "image_aspect"
 				)
@@ -1622,16 +1631,24 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 
 		on set_region_to_max pressed do
 		(
+			set_resolution_to_max.pressed()
+			local width = renderWidth
+			local height = renderHeight
+			if (not frame_width.indeterminate) and (not frame_height.indeterminate) then
+			(
+				width = frame_width.value
+				height = frame_height.value
+			)
 			if (not region_x.indeterminate) and (not region_y.indeterminate) and\
 			(not region_w.indeterminate) and (not region_w.indeterminate) and\
 			(not frame_width.indeterminate) and (not frame_height.indeterminate) then
 			(
 				setRenderType #region
 				--convert percentage to viewport sizes
-				local x = (renderWidth / 100.0) * region_x.value
-				local y = (renderHeight / 100.0) * region_y.value
-				local w = ((renderWidth / 100.0) * region_w.value) + x
-				local h = ((renderHeight / 100.0) * region_h.value) + y
+				local x = (width / 100.0) * (region_x.value as float)
+				local y = (height / 100.0) * (region_y.value as float)
+				local w = ((width / 100.0) * ((region_w.value - region_x.value) as float))
+				local h = ((height / 100.0) * ((region_h.value - region_y.value) as float))
 				viewport.setRegionRect (viewport.activeViewport) (box2 x y w h) 
 				if (((maxVersion())[1] / 1000) > 10) then
 					EditRenderRegion.UpdateRegion()
@@ -1643,15 +1660,22 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			local region_box = viewport.getRegionRect (viewport.activeViewport)
 			local width = renderWidth
 			local height = renderHeight
+			local width_ratio = 1.0, height_ratio = 1.0
 			if (not frame_width.indeterminate) and (not frame_height.indeterminate) then
 			(
 				width = frame_width.value
 				height = frame_height.value
+				width_ratio = renderWidth as float / (frame_width.value as float)
+				height_ratio = renderHeight as float / (frame_height.value as float)
 			)
-			local x = ((region_box.x as float) / width) * 100
-			local y = ((region_box.y as float) / height) * 100
-			local w = (((region_box.x + region_box.w) as float) / width) * 100
-			local h = (((region_box.y + region_box.h) as float) / height) * 100
+			local box_x = (region_box.x as float) / width_ratio
+			local box_y = (region_box.y as float) / width_ratio
+			local box_w = (region_box.w as float) / height_ratio
+			local box_h = (region_box.h as float) / height_ratio
+			local x = (box_x / width) * 100
+			local y = (box_y / height) * 100
+			local w = (((box_x + box_w) as float) / width) * 100
+			local h = (((box_y + box_h) as float) / height) * 100
 
 			set_named_integer_property_no_listview LV_ITEMS "region_x" x
 			set_named_integer_property_no_listview LV_ITEMS "region_y" y
@@ -2095,6 +2119,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 
 			checkbox save_separate_render_channels "Save Vray Separate Channels (No effect if Enable Elements is off)" offset:[0,0] align:#left enabled:false
 			checkbox save_vray_output "Save Vray Output (includes VFB color corrections)" offset:[0,0] align:#left enabled:false
+			checkbox distr_rendering "Distributed Rendering" offset:[0,0] align:#left enabled:false
 		)
 		
 		group "Misc. Settings"
@@ -2332,6 +2357,9 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		on save_vray_output changed state do
 			saveVar2IniFile "Vray_Settings_Rollout" "save_vray_output" state
 	
+		on distr_rendering changed state do
+			saveVar2IniFile "Vray_Settings_Rollout" "vray_distributed_rendering" state
+	
 		on vray_extension_list selected index do
 			saveVar2IniFile "Vray_Settings_Rollout" "vray_extension" index
 		
@@ -2383,7 +2411,15 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				save_vray_output.checked = false
 				saveVar2IniFile "Vray_Settings_Rollout" "save_vray_output" false
 			)
-						
+
+			if (temp_state = loadVarFromIniFile "Vray_Settings_Rollout" "vray_distributed_rendering") != undefined then
+				distr_rendering.checked = (temp_state as booleanClass)  
+			else
+			(
+				distr_rendering.checked = false
+				saveVar2IniFile "Vray_Settings_Rollout" "vray_distributed_rendering" false
+			)
+
 			if (temp_state = loadVarFromIniFile "Vray_Settings_Rollout" "show_vray_vfb")  != undefined then
 				show_vray_vfb.checked = (temp_state as booleanClass)  
 			else

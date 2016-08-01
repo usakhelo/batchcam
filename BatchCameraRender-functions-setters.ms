@@ -7,15 +7,10 @@
 fn set_file_name_property cameraItems property_name fullfilename=
 (
 	fullfilename = trimLeadTrailSpaces fullfilename	
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
--- 			fullfilename = pathConfig.convertPathToAbsolute fullfilename
 			setUserProperty i ("BatchCameraRender_" + property_name) (fullfilename as string)
 			set_sub_item i (fullfilename as string) property_name
 		)
@@ -29,9 +24,6 @@ fn set_checkbox_property cameraItems property_name checkbox_value =
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			setUserProperty i ("BatchCameraRender_" + property_name) (checkbox_value as string)
 			set_sub_item i (checkbox_value as string) property_name
 		)
@@ -45,9 +37,6 @@ fn set_checkbox_property_no_listview cameraItems property_name checkbox_value =
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			setUserProperty i ("BatchCameraRender_" + property_name) (checkbox_value as string)
 		)
 	)
@@ -60,9 +49,6 @@ fn set_string_property cameraItems property_name string_value =
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			setUserProperty i ("BatchCameraRender_" + property_name) (string_value as string)
 			set_sub_item i (string_value as string) property_name
 		)
@@ -76,9 +62,6 @@ fn set_named_integer_property cameraItems property_name integer_value value_name
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			setUserProperty i ("BatchCameraRender_" + property_name) (integer_value as string)
 			set_sub_item i (value_name as string) property_name
 		)
@@ -92,11 +75,7 @@ fn set_named_integer_property_no_listview cameraItems property_name integer_valu
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			setUserProperty i ("BatchCameraRender_" + property_name) (integer_value as string)
-			-- set_sub_item i (value_name as string) property_name
 		)
 	)
 )
@@ -104,13 +83,10 @@ fn set_named_integer_property_no_listview cameraItems property_name integer_valu
 --function to set frame size to selected cameras in listitems
 fn set_resolution cameraItems width height =
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
 			x_res = width as integer
 			y_res = height as integer
 			setUserProperty i "BatchCameraRender_frame_width" x_res
@@ -126,7 +102,6 @@ fn set_resolution cameraItems width height =
 --function to set frame size to selected cameras in listitems
 fn set_resolution_by_ratio cameraItems x_ratio y_ratio =
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
@@ -151,7 +126,6 @@ fn set_resolution_by_ratio cameraItems x_ratio y_ratio =
 --function to set frame size to selected cameras in listitems
 fn set_aspect_ratio cameraItems image_aspect =
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
@@ -259,14 +233,10 @@ fn set_resolution_height cameraItems height =
 
 fn set_render_output cameraItems fullfilename=
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			fullfilename = pathConfig.convertPathToAbsolute fullfilename
 			setUserProperty i "BatchCameraRender_render_output" (fullfilename as string)
 			set_sub_item i (fullfilename as string) "path"
@@ -280,9 +250,6 @@ fn set_elements_state cameraItems elements_state=
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			setUserProperty i "BatchCameraRender_elements_state" (elements_state as string)
 			set_sub_item i (elements_state as string) "elements_state"
 		)
@@ -295,11 +262,7 @@ fn set_elements_path cameraItems elementsPath=
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
-			
 			elementsPath = trimLeadTrailSpaces elementsPath
--- 			elementsPath = pathConfig.convertPathToRelativeTo elementsPath ""
 			if not (pathConfig.isLegalPath elementsPath) then 
 				elementsPath="" 
 			else
@@ -313,7 +276,6 @@ fn set_elements_path cameraItems elementsPath=
 
 fn set_render_folder cameraItems foldername=
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
@@ -341,7 +303,6 @@ fn set_render_folder cameraItems foldername=
 
 fn set_render_file cameraItems file_name_only=
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
@@ -357,7 +318,6 @@ fn set_render_file cameraItems file_name_only=
 				temp_path = getFilenamePath temp_string	--exclude path from full name
 
 				temp_fullname = pathConfig.appendPath temp_path temp_name	--create new full name with path and file name from function argument
--- 				temp_fullname = pathConfig.convertPathToAbsolute temp_fullname
 				
 				setUserProperty i "BatchCameraRender_render_output" (temp_fullname as string)
 				set_sub_item i (temp_fullname as string) "path"
@@ -370,13 +330,10 @@ fn set_render_file cameraItems file_name_only=
 --Frame range
 fn set_frame_range cameraItems frame_from frame_to=
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
 			frame_from = frame_from as integer
 			frame_to = frame_to as integer
 			setUserProperty i "BatchCameraRender_anim_frame_range" undefined
@@ -391,13 +348,10 @@ fn set_frame_range cameraItems frame_from frame_to=
 --Single frame
 fn set_frame_single cameraItems frame_num =
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
 			frame_from = frame_num as integer
 			frame_to = frame_num as integer
 			setUserProperty i "BatchCameraRender_anim_frame_range" undefined
@@ -412,13 +366,10 @@ fn set_frame_single cameraItems frame_num =
 --animated frame range
 fn set_anim_frame_range cameraItems =
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
 			obj_itself = i.tag.value
 			if (superclassof obj_itself == camera) then
 			(
@@ -441,13 +392,10 @@ fn set_anim_frame_range cameraItems =
 --set frames string to render individual frames
 fn set_frames cameraItems frames =
 (
-	--cameraItems - listItems in activeX control
 	for i in cameraItems do
 	(
 		if i.selected then
 		(
-			-- obj_name = i.text
-			-- obj_itself = getNodeByName obj_name
 			setUserProperty i "BatchCameraRender_anim_frame_range" undefined
 			setUserProperty i "BatchCameraRender_frames" frames  as string
 			setUserProperty i "BatchCameraRender_framerange_from" undefined
@@ -465,8 +413,6 @@ fn set_light_state cameraItems: solo_lights: on_lights: off_lights: =
 		if i.selected then
 		(
 			tempstr = "" --this string contains light names
-			-- obj_name = i.text	--this is camera name
-			-- obj_itself = getNodeByName obj_name --get the camera to set properties to
 			
 			if solo_lights != unsupplied then
 			(

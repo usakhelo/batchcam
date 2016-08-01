@@ -1,0 +1,11 @@
+- region is not cleaned when clear pressed
+
+region settins are not copied/pasted
+
+region width and height gets wrong percentage values
+
+region's set button should set resolution as well as region coords
+
+render scripts are not cleaned
+
+if enable checked in renderscripts, script files are not checked for undefined

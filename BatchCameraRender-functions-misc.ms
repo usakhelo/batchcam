@@ -221,7 +221,11 @@ struct BatchCameraRenderParamsStruct
 		BatchCameraRender_postrender_script,
 		BatchCameraRender_postrender_enabled,
 		BatchCameraRender_image_aspect,
-		
+		BatchCameraRender_region_enabled,
+		BatchCameraRender_region_x,
+		BatchCameraRender_region_y,
+		BatchCameraRender_region_w,
+		BatchCameraRender_region_h,
 		BatchCameraRender_perCameraScriptEnable,
 		BatchCameraRender_perCameraScript
 )

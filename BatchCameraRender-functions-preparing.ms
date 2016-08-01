@@ -233,7 +233,7 @@ fn prepare_render_elements camera_to_render=
 					newPath = getUserProperty camera_to_render "BatchCameraRender_elements_output"
 					if (isNotUndefined newPath) then
 					(
-						newPath = parse_file_name_template newPath (compose_full_parsing_dictionary camera_to_render.name extraItems:syntaxExtraItems)
+						newPath = parse_file_name_template newPath (compose_full_parsing_dictionary camera_to_render extraItems:syntaxExtraItems)
 					)
 					else
 					(
@@ -244,7 +244,7 @@ fn prepare_render_elements camera_to_render=
 -- 					append syntaxExtraItems #("mainoutput", (mainFileNameOnly as string))
 					if (isNotUndefinedOrEmpty elementNamePattern) then
 					(
-						elementsFileName = parse_file_name_template elementNamePattern (compose_full_parsing_dictionary camera_to_render.name extraItems:syntaxExtraItems)
+						elementsFileName = parse_file_name_template elementNamePattern (compose_full_parsing_dictionary camera_to_render extraItems:syntaxExtraItems)
 					)
 					else
 						elementsFileName = mainFileNameOnly + "_" +  elementType + "_" + elementName
@@ -402,6 +402,8 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 			vr.output_on = false
 		)
 
+		vr.system_distributedRender = (Vray_Settings_Rollout.distr_rendering.checked)
+		
 		--set misc. settings
 		temp_string = getUserProperty camera_to_render "BatchCameraRender_vray_ortho_mode"
 		if (isNotUndefined temp_string) then

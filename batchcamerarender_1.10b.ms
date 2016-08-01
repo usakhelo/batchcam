@@ -1787,6 +1787,8 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 		(
 			if (classof uiCheckBox) != CheckButtonControl then
 				uiCheckBox.triState = 2
+			else
+				uiCheckBox.state = false
 		)
 	)
 	else --multiple selection
@@ -1810,11 +1812,12 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 					state_diff_flag = true	--set flag if values differ
 					if (classof uiCheckBox) != CheckButtonControl then
 						uiCheckBox.triState = 2
+					else
+						uiCheckBox.state = false
 				)
 				else if not state_diff_flag then	--if values are same and flag hasn't been set
 				(
-					if (classof uiCheckBox) != CheckButtonControl then
-						uiCheckBox.triState = if temp_string then 1 else 0
+					uiCheckBox.state = temp_string
 				)
 				
 				prev_state = temp_string
@@ -1823,6 +1826,8 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 			(
 				if (classof uiCheckBox) != CheckButtonControl then
 						uiCheckBox.triState = 2
+				else
+						uiCheckBox.state = false
 			)			
 		)
 	)
@@ -2519,6 +2524,8 @@ fn populate_resolution_options selectedItems =
 	populate_spinner_field selectedItems "image_aspect" Output_Size_Rollout.image_aspect_spinner
 	--display selected resolution
 	populate_dropdownbox_resolution selectedItems Output_Size_Rollout.out_size_list
+	local temp = getUserProperty ((selectedItems[1]).tag.value) ("BatchCameraRender_region_enabled")
+	format "region_enabled: %\n" temp
 	populate_checkbox_item selectedItems "region_enabled" Output_Size_Rollout.use_region
 	populate_spinner_field selectedItems "region_x" Output_Size_Rollout.region_x
 	populate_spinner_field selectedItems "region_y" Output_Size_Rollout.region_y
