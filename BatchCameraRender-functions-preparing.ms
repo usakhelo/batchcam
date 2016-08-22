@@ -429,7 +429,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 		temp_string = getUserProperty camera_to_render "BatchCameraRender_irmap_read_file"
 		if isNotUndefined temp_string then
 		(
-			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render.name)
+			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render)
 			fullPath = checkAndAppendMainPath temp_string			
 			
 			vr.adv_irradmap_loadFileName = fullPath
@@ -439,7 +439,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 		(
 			--this option should be checked for path existance
 			--if path doesn't exist try to create it
-			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render.name)
+			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render)
 			fullPath = checkAndAppendMainPath temp_string
 			temp_path = getFilenamePath fullPath
 			--check if the path exist
@@ -483,7 +483,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 		temp_string = getUserProperty camera_to_render "BatchCameraRender_lcmap_read_file"
 		if (isNotUndefined temp_string) then
 		(
-			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render.name)
+			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render)
 			fullPath = checkAndAppendMainPath temp_string
 			vr.lightcache_loadFileName = fullPath
 		)
@@ -492,7 +492,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 		(
 			--this option should be checked for path existance
 			--if path doesn't exist try to create it
-			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render.name)
+			temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render)
 			fullPath = checkAndAppendMainPath temp_string
 			temp_path = getFilenamePath fullPath
 			--check if the path exist

@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.10.2b"
+VERSION_STRING = "1.10.3b"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -568,11 +568,16 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							if (isNotUndefined reg_x) and (isNotUndefined reg_y) and\
 							(isNotUndefined reg_w) and (isNotUndefined reg_h)	then
 							(
-								local x = (renderWidth / 100.0) * (reg_x as integer)
-								local y = (renderHeight / 100.0) * (reg_y as integer)
-								local w = ((renderWidth / 100.0) * (reg_w as integer)) + x
-								local h = ((renderHeight / 100.0) * (reg_h as integer)) + y
-								viewport.setRegionRect (viewport.activeViewport) (box2 x y w h)
+								reg_x = reg_x as float
+								reg_y = reg_y as float
+								reg_w	= reg_w as float
+								reg_h	= reg_h as float
+								--convert percentage to viewport sizes
+								local x = (renderWidth / 100.0) * reg_x
+								local y = (renderHeight / 100.0) * reg_y
+								local w = ((renderWidth / 100.0) * (reg_w - reg_x))
+								local h = ((renderHeight / 100.0) * (reg_h - reg_y))
+								viewport.setRegionRect (viewport.activeViewport) (box2 x y w h) 
 							)
 						)
 
