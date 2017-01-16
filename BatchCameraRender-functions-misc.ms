@@ -554,11 +554,8 @@ fn compose_global_dictionary =
 (
 	local parsing_dictionary = #()
 	
-		--date keyword
+	--date keyword
 	dateClass = (dotnetclass "System.DateTime").Now
--- 	date_array = #(dateClass.Year, dateClass.Month, dateClass.Day )
--- 	separator = "-"
--- 	date_string = (date_array[1] as string) + separator + ((leadingZero date_array[2] 2) as string) + separator + ((leadingZero date_array[3] 2) as string)
 	date_string = dateClass.ToString("yyyy-MM-dd")
 	append parsing_dictionary #("date", date_string)
 	--scenename keyword
@@ -566,10 +563,12 @@ fn compose_global_dictionary =
 	append parsing_dictionary #("scenename", scenename_string)
 	--project name keyword
 	projectfolder_string = pathConfig.getCurrentProjectFolder()
--- 	temp_array = filterString projectfolder_string "\/"
--- 	projectfolder_string = temp_array[(temp_array.count)]
 	append parsing_dictionary #("projectfolder", projectfolder_string)
 	append parsing_dictionary #("projectpath", projectfolder_string)
+	local projectname_string = pathConfig.getCurrentProjectFolder()
+	if (doesFileExist projectname_string) then
+		projectname_string = pathConfig.stripPathToLeaf projectname_string
+	append parsing_dictionary #("projectname", projectname_string)
 --	scene path keyword
 	scenepath_string = maxFilePath
 	scenepath_string = substring scenepath_string 1 (scenepath_string.count-1)

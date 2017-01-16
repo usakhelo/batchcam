@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.10.3b"
+VERSION_STRING = "1.10.4"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -142,14 +142,15 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 
 		dotNetControl lv_objects "ListView" height:global_listview_height	--height:170
 		
-		button toggle_select_all "[Un]Select All" align:#left width:75 across:5
-		button toggle_check_all "[Un]Check All" align:#left width:75 offset: [-12,0]
-		button check_selected "Check Selected" align:#left width:85 offset: [-24,0]
-		button set_viewport "Set Viewport" align:#right width:70 offset: [12,0]
-		button get_viewport "Get Viewport" align:#right width:75 offset: [0,0]
+		button toggle_select_all "[Un]Select All" align:#left width:70 across:6
+		button toggle_check_all "[Un]Check All" align:#left width:70 offset: [-2,0]
+		button check_selected "Check Selected" align:#left width:80 offset: [-4,0]
+		button set_viewport "Set Viewport" align:#right width:70 offset: [6,0]
+		button get_viewport "Get Viewport" align:#right width:70 offset: [2,0]
+		button get_selection "Get Selection" align:#right width:75 offset: [4,0]
 		
-		button render_start "Render" align:#left width:75 offset: [0,0] across:5
-		button preview_start "Preview" align:#left width:75 offset: [-12,0]
+		button render_start "Render" align:#left width:70 offset: [0,0] across:5
+		button preview_start "Preview" align:#left width:70 offset: [-18,0]
 		checkbox net_render "Net Render" align:#left offset: [-15,4]
 		checkbox show_net_submit "Show Submit Dialog" align:#left offset: [-20,4]
 		button select_camera "Select Camera" align:#right width:75 offset: [0,0]		
@@ -347,7 +348,35 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			)
 		)
 		
-		--function to select active viewport camera in script's list
+		on get_selection pressed do
+		(
+			local camobjs = for obj in selection where superclassof obj == camera collect obj
+			local selectedItems = #()
+			for obj in camobjs do
+			(
+				local listItems = lv_objects.Items.GetEnumerator()
+				while listItems.MoveNext() do
+				(
+					if (listItems.Current.tag.value.name == obj.name) then
+					(
+						append selectedItems (listItems.Current)
+					)
+				)
+			)
+			if selectedItems.count > 0 then
+			(
+				lv_objects.SelectedItems.Clear()
+				lv_objects.BeginUpdate()                                                           
+				for item in selectedItems do
+					item.selected = true
+				lv_objects.EndUpdate()
+				lv_objects.HideSelection = false
+			)
+
+			populate_ui_elements selectedItems
+		    ui_elements_refresh lv_objects
+		)
+		
 		on get_viewport pressed do
 		(
 		  if viewport.getType() == #view_camera then
@@ -1765,7 +1794,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		on syntax_info pressed do
 		(
 			info_string = "You can use special keywords in file name and folder paths.\nCurrently supported keywords are:\n\n"
-			info_string += "%cameraname%\n%scenestate%\n%renderpreset%\n%resolution%\n%date%\n%scenename%\n%projectfolder% and %projectpath%\n"
+			info_string += "%cameraname%\n%scenestate%\n%renderpreset%\n%resolution%\n%date%\n%scenename%\n%projectfolder% and %projectpath%\n%projectname%\n"
 			info_string += "%scenefolder% and %scenepath%\n\n%up%  - to change preceding path one folder upward\n"
 			info_string += "%trynum% - counts how many times the render button was pressed\n\n"
 			info_string += "%elementtype%\n%elementname%  - both work in element subfolder and element name template\n\n"
