@@ -3777,7 +3777,14 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 				local listItems = lv_objects.Items.GetEnumerator()
 				while listItems.MoveNext() do
 				(
-					if (listItems.Current.tag.value.name == obj.name) then
+					local camObj = undefined
+					local itemObj = listItems.Current.tag.value
+					if (superclassof itemObj == camera) then
+							camObj = itemObj
+						else
+							camObj = getCameraFromCA itemObj
+					
+					if (camObj.name == obj.name) then
 					(
 						append selectedItems (listItems.Current)
 					)
