@@ -3565,15 +3565,15 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 		button toggle_select_all "[Un]Select All" align:#left width:70 across:6
 		button toggle_check_all "[Un]Check All" align:#left width:70 offset: [-2,0]
 		button check_selected "Check Selected" align:#left width:80 offset: [-4,0]
-		button set_viewport "Set Viewport" align:#right width:70 offset: [6,0]
-		button get_viewport "Get Viewport" align:#right width:70 offset: [2,0]
-		button get_selection "Get Selection" align:#right width:75 offset: [4,0]
+		button set_viewport "Set Viewport" align:#right width:70 offset: [6,0] tooltip:"Sets selected viewport to the camera selected in the list"
+		button get_viewport "Get Viewport" align:#right width:70 offset: [2,0] tooltip:"Selects viewport's camera in the list"
+		button get_selection "Get Selection" align:#right width:75 offset: [4,0] tooltip:"Selects cameras in the list based on scene selection"
 		
 		button render_start "Render" align:#left width:70 offset: [0,0] across:5
 		button preview_start "Preview" align:#left width:70 offset: [-18,0]
 		checkbox net_render "Net Render" align:#left offset: [-15,4]
 		checkbox show_net_submit "Show Submit Dialog" align:#left offset: [-20,4]
-		button select_camera "Select Camera" align:#right width:75 offset: [0,0]		
+		button select_camera "Select Camera" align:#right width:75 offset: [0,0] tooltip:"Selects camera object in the scene"
 	
 		--#####--
 		--list button event handlers--
@@ -3745,26 +3745,35 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
 		--function to set selected camera to active viewport
 		on set_viewport pressed do
 		(
-			camera_name = ""
-			--extract selected item - there should be only one
-			for item in LV_ITEMS do
+			local tag_object = undefined
+			for item in LV_ITEMS while tag_object == undefined do
 			(
 				if item.selected then
-					camera_name = item.text
+				(
+					tag_object = item.tag.value
+				)
 			)
-			camera_obj = getNodeByName camera_name
-			if (superclassof camera_obj == camera)  != undefined then	--set viewport camera
-				viewport.setCamera camera_obj
 
-			local xres_prop = getUserProperty camera_obj "BatchCameraRender_frame_width"
-			local yres_prop = getUserProperty camera_obj "BatchCameraRender_frame_heigth"
-			if (isNotUndefined xres_prop) and (isNotUndefined yres_prop) then
+			if (tag_object != undefined) then
 			(
-				if renderSceneDialog.isOpen() then
-						renderSceneDialog.close()
+				local cam_obj = undefined
+				if (superclassof tag_object == camera) then
+					cam_obj = tag_object
+				else
+					cam_obj = getCameraFromCA tag_object
+				
+				viewport.setCamera cam_obj
+				
+				local xres_prop = getUserProperty tag_object "BatchCameraRender_frame_width"
+				local yres_prop = getUserProperty tag_object "BatchCameraRender_frame_heigth"
+				if (isNotUndefined xres_prop) and (isNotUndefined yres_prop) then
+				(
+					if renderSceneDialog.isOpen() then
+							renderSceneDialog.close()
 
-				renderWidth = xres_prop as integer
-				renderHeight = yres_prop as integer
+					renderWidth = xres_prop as integer
+					renderHeight = yres_prop as integer
+				)
 			)
 		)
 		
