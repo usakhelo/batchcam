@@ -171,7 +171,7 @@ fn set_resolution_width cameraItems width =
 				set_sub_item i (image_aspect as string) "image_aspect"	
 			)
 			setUserProperty i "BatchCameraRender_frame_width" (width as integer)
-			if Output_Size_Rollout.lock_aspect.checked then 
+			if Output_Size_Rollout.lock_aspect.checked or y_res == undefined then 
 			(
 				y_res = (width as float) / (image_aspect as float)
 				y_res = ((dotnetclass "System.Math").Round y_res)	--apply dotnet rounding
@@ -213,7 +213,7 @@ fn set_resolution_height cameraItems height =
 				set_sub_item i (image_aspect as string) "image_aspect"	
 			)
 			setUserProperty i "BatchCameraRender_frame_heigth" (height as integer)
-			if Output_Size_Rollout.lock_aspect.checked then 
+			if Output_Size_Rollout.lock_aspect.checked or x_res == undefined then 
 			(
 				x_res = (height as float) * (image_aspect as float)
 				x_res = ((dotnetclass "System.Math").Round x_res)	--apply dotnet rounding

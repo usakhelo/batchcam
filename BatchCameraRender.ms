@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.10.4"
+VERSION_STRING = "1.10.5"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
