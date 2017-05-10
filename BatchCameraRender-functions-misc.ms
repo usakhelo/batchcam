@@ -190,6 +190,19 @@ fn get_scene_state_array =
 	scenestate_array 
 )
 
+fn get_state_sets_array =
+(
+	local stateSetsDotNetObject = dotNetObject "Autodesk.Max.StateSets.Plugin"
+	local stateSets = stateSetsDotNetObject.Instance
+	local masterState = stateSets.EntityManager.RootEntity.MasterStateSet
+	local statesList = dotnetobject "System.Collections.Generic.List`1[[Autodesk.Max.StateSets.Entities.StateSets.StateSet, Autodesk.Max.StateSets, Version=19.51.835.0, Culture=neutral, PublicKeyToken=null]]"
+	masterState.CollectDescendantStateSets statesList
+	local scenestate_count = masterState.DescendantStateCount
+	local scenestate_array = for i=1 to scenestate_count where not (statesList.item[i-1].IsObjectStateSet) collect ((statesList.item[i-1].Name) as string)
+	sort scenestate_array
+	scenestate_array 
+)
+
 struct BatchCameraRenderParamsStruct
 (
 		BatchCameraRender_frames,
@@ -1239,6 +1252,13 @@ fn fill_ListView listview_obj camera_list =
 		else
 			add_sub_item li "undefined" "scene_state" false
 		
+		--state sets part
+		temp_string = getUserProperty camera_obj "BatchCameraRender_state_set"
+		if  isNotUndefined temp_string then
+			add_sub_item li temp_string "state_set" true
+		else
+			add_sub_item li "undefined" "state_set" false
+		
 		--render preset part
 		temp_string = getUserProperty camera_obj "BatchCameraRender_render_preset"
 		if isNotUndefined temp_string then
@@ -1309,7 +1329,7 @@ fn init_ListView listview_obj camera_list =
 	listview_obj.Columns.Clear()
 	
 	standard_columns = #("Camera", "Frames", "Resolution", "Aspect", "Path", "Elements State", "Elements Path", "Solo Lights", \
-						"Lights On", "Lights Off", "Scene State", "Render Preset")	 
+						"Lights On", "Lights Off", "Scene State", "State Set", "Render Preset")	 
 	for i in standard_columns do
 		listview_obj.Columns.add i
 	

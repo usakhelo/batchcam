@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.10.5"
+VERSION_STRING = "1.11"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
@@ -2505,13 +2505,14 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		)
 	)
 	
-	rollout Scene_States_Rollout "Scene State - Render Preset"
+	rollout Scene_States_Rollout "Scene State - State Sets - Render Preset"
 	(
-		label scene_states_list2_label "Scene State" align:#left across:5
-		dotNetControl scene_states_list2 "ComboBox" width:160 height:21 offset:[-95,20] align:#left
-		dropdownlist render_preset_list "Render Preset" width:160 align:#left offset:[-20,2]
-		button clear_scene_states "Clear" width:45  offset:[2,0] align:#right			
+		button clear_scene_states "Clear" width:45 across:2 offset:[142,0] align:#right			
 		button save_as_default  "Save to INI..." width:85 align:#right
+		label scene_states_list2_label "Scene State" align:#left across:4
+		dotNetControl scene_states_list2 "ComboBox" width:150 height:21 offset:[-120,20] align:#left
+		dropdownlist state_sets_list "State Sets" width:150 align:#center offset:[-60,2]
+		dropdownlist render_preset_list "Render Preset" width:150 align:#right offset:[0,2]
 		
 		on save_as_default pressed do
 		(
@@ -2522,6 +2523,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				
 				property_names = #(	\
 											"BatchCameraRender_scene_state", \
+											"BatchCameraRender_state_set", \
 											"BatchCameraRender_render_preset" \
 											)
 
@@ -2536,9 +2538,15 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			scene_states_list2.Items.Clear()
 			scene_states_list2.Items.AddRange resolution_array
 
+			state_sets_list.items = join #("undefined") (get_state_sets_array())
 			render_preset_list.items = join #("undefined") (get_render_preset_array())
 		)
 		
+		on state_sets_list selected item_num do
+		(
+			set_string_property LV_ITEMS "state_set" render_preset_list.selected
+		)
+
 		on render_preset_list selected item_num do
 		(
 			set_string_property LV_ITEMS "render_preset" render_preset_list.selected
