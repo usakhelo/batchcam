@@ -85,7 +85,7 @@ SAVE_VRAY_IMAGE_FILE_STATE = false
 VERSION_STRING = "1.11"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
-													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "render_preset", "image_aspect", \
+													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "state_set", "render_preset", "image_aspect", \
 													"region_enabled", "region_x", "region_y", "region_w", "region_h" )
 BatchCam_ScriptsPropertiesNames = #("OnSubmitScriptEnable", "OnSubmitScript", "perCameraScriptEnable", "perCameraScript", "prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
 BatchCam_UserValuePropertiesNames = #("UserKey1", "UserKey2", "UserKey3", "UserVal1", "UserVal2", "UserVal3", "bbJobName", "elementName")
