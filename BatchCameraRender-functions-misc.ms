@@ -619,6 +619,8 @@ fn compose_parsing_dictionary camera_obj extraItems: =
 	append parsing_dictionary #("cameraname", ((cam_obj.name) as string))
 	--scenestate keyword
 	append parsing_dictionary #("scenestate", ((batchCameraRender_getUserProperty camera_obj "BatchCameraRender_scene_state") as string))
+	--state_sets
+	append parsing_dictionary #("stateset", ((batchCameraRender_getUserProperty camera_obj "BatchCameraRender_state_set") as string))
 	--renderpreset keyword
 	append parsing_dictionary #("renderpreset", ((batchCameraRender_getUserProperty camera_obj "BatchCameraRender_render_preset") as string))
 	--resolution keyword
@@ -812,7 +814,7 @@ fn render_buttons_active state =
 --function to switch window element's activity state
 fn elements_active state =
 (
-	stack showLocals:false firstFrameOnly:false excludeOwner:true
+	-- stack showLocals:false firstFrameOnly:false excludeOwner:true
 	batchCameraRender_mainRollOut.select_camera.enabled = state
 	batchCameraRender_mainRollOut.set_viewport.enabled = state
 	batchCameraRender_mainRollOut.check_selected.enabled = state
