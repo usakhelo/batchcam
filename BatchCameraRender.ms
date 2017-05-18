@@ -124,10 +124,10 @@ global BatchCam_listItem_state
 --end of session-wide persistent variables
 --########################--
 
-include @"C:\GitHub\batchcam\BatchCameraRender-functions-misc.ms"
-include @"C:\GitHub\batchcam\BatchCameraRender-functions-populating.ms"
-include @"C:\GitHub\batchcam\BatchCameraRender-functions-setters.ms"
-include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
+include @"BatchCameraRender-functions-misc.ms"
+include @"BatchCameraRender-functions-populating.ms"
+include @"BatchCameraRender-functions-setters.ms"
+include @"BatchCameraRender-functions-preparing.ms"
 --########################--
 --ROLLOUT--
 --########################--
@@ -500,7 +500,7 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 						(
 							-- actionMan.executeAction 369690881 "1"
 							if not firstCamera then
-								sleep 4
+								sleep 2
 							firstCamera = false
 						)
 						--get camera name
@@ -688,7 +688,24 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 							temp_string = parse_file_name_template temp_string (compose_parsing_dictionary camera_to_render)
 							sceneStateMgr.RestoreAllParts temp_string
 						)
-						
+
+						--set state set
+						local ss_class = dotnetclass "Autodesk.Max.StateSets.Plugin"
+						if ss_class != undefined then	--if state sets supported
+						(
+							temp_string = getUserProperty camera_to_render "BatchCameraRender_state_set"
+							if isNotUndefined temp_string then
+							(
+								local stateSetsDotNetObject = dotNetObject "Autodesk.Max.StateSets.Plugin"
+								local stateSets = stateSetsDotNetObject.Instance
+								local masterState = stateSets.EntityManager.RootEntity.MasterStateSet
+								if (masterState.CurrentState != undefined) then --reset the state before applying anything
+									masterState.SetCurrentStateSet undefined
+								local state_set = masterState.GetDescendant temp_string
+								if (state_set != undefined) then
+									masterState.SetCurrentStateSet #(state_set)
+							)
+						)
 						--scripts setting
 						callbacks.removeScripts id:#BatchCameraRender
 						--set global variables to be visible in submit and render scripts
@@ -912,7 +929,8 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			)
 
 			--refresh ui elements
-			ui_elements_refresh lv_objects
+			if (lv_objects.items.count == 0) then --only call refresh if empty listview, because init_ListView/fill_ListView will refresh anyway
+				ui_elements_refresh lv_objects
 			
 			--add onopen callback
 			callbacks.addScript #filePostOpen "batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects" id:#batchcam
@@ -1021,12 +1039,30 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 		on lv_objects ItemCheck val do
 		(
 			BatchCam_listItem_state[(val.Index+1)] = (val.NewValue == (dotNetClass "CheckState").Checked )
+			print "test check"
 		)
 
 		on lv_objects ItemChecked val do
 		(
 			--todo: save checked state to the camera appdata
-			ui_elements_refresh lv_objects	
+			if (globalvars.isGlobal #batchCameraRender_loading_items) then
+			(
+				if not (globalvars.get #batchCameraRender_loading_items) then
+				(
+					print "test"
+					ui_elements_refresh lv_objects
+					globalvars.set #batchCameraRender_loading_items false
+				)
+				else
+				(
+					globalvars.set #batchCameraRender_loading_items ((lv_objects.items.count-1) != val.item.index) --call refresh when itemcheck
+				)
+				print (globalvars.get #batchCameraRender_loading_items)
+			)
+			else
+			(
+				global batchCameraRender_loading_items = false
+			)
 		)
 		
 		on lv_objects ItemDrag sender args do
@@ -2538,13 +2574,18 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 			scene_states_list2.Items.Clear()
 			scene_states_list2.Items.AddRange resolution_array
 
-			state_sets_list.items = join #("undefined") (get_state_sets_array())
+			local ss_class = dotnetclass "Autodesk.Max.StateSets.Plugin"
+			if ss_class != undefined then	--if state sets supported
+			(
+				state_sets_list.items = join #("undefined") (get_state_sets_array())
+			)
+
 			render_preset_list.items = join #("undefined") (get_render_preset_array())
 		)
 		
 		on state_sets_list selected item_num do
 		(
-			set_string_property LV_ITEMS "state_set" render_preset_list.selected
+			set_string_property LV_ITEMS "state_set" state_sets_list.selected
 		)
 
 		on render_preset_list selected item_num do
@@ -2580,10 +2621,13 @@ include @"C:\GitHub\batchcam\BatchCameraRender-functions-preparing.ms"
 				(
 					setUserProperty i "BatchCameraRender_scene_state" undefined
 					setUserProperty i "BatchCameraRender_render_preset" undefined
+					setUserProperty i "BatchCameraRender_state_set" undefined
 					clear_sub_item i "scene_state"
 					clear_sub_item i "render_preset"
+					clear_sub_item i "state_set"
 					scene_states_list2.SelectedIndex = 0
 					render_preset_list.selection = 1
+					state_sets_list.selection = 1
 				)
 			)
 			populate_scenestate_renderpreset LV_ITEMS
@@ -3001,6 +3045,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
 			if state != undefined then state else state = false
 			addRollout aboutRoll batchCameraRender_floater rolledUp:(not state)
 			elements_active false
+			render_buttons_active false
 			
 			BatchCam_rollout_names = for roll in batchCameraRender_floater.rollouts collect roll.name
 			--rollout state store and restore function

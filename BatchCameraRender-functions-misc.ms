@@ -812,6 +812,7 @@ fn render_buttons_active state =
 --function to switch window element's activity state
 fn elements_active state =
 (
+	stack showLocals:false firstFrameOnly:false excludeOwner:true
 	batchCameraRender_mainRollOut.select_camera.enabled = state
 	batchCameraRender_mainRollOut.set_viewport.enabled = state
 	batchCameraRender_mainRollOut.check_selected.enabled = state
@@ -873,7 +874,13 @@ fn elements_active state =
 	
 	--scene state section
 	for control_element in Scene_States_Rollout.controls do
-		control_element.enabled = state
+	(
+		case (control_element.name) of
+		(
+			"state_sets_list":	control_element.enabled  = (dotnetclass "Autodesk.Max.StateSets.Plugin" != undefined)
+			default: 		control_element.enabled = state
+		)
+	)
 )
 
 --function to set all elements "enabled" state depending on list item's selection
@@ -1303,13 +1310,12 @@ fn fill_ListView listview_obj camera_list =
 
 	ItemsArray = for item in ItemsArray collect item[1]
 
+	global batchCameraRender_loading_items = true
 	listview_obj.Items.AddRange ItemsArray
-	
+
 )
 
-
-
-			
+		
 fn init_ListView listview_obj camera_list = 
 (
 	--dotNet object initialization
@@ -1398,7 +1404,8 @@ fn batchCameraRender_reload_cameras lv_objects =
 		append LV_ITEMS (lv_objects.Items.Item i)
 	
 	--refresh ui elements
-	ui_elements_refresh lv_objects
+	if (lv_objects.items.count == 0) then --only call refresh if empty listview, because init_ListView/fill_ListView will refresh anyway
+		ui_elements_refresh lv_objects
 	
 	--reload scene states and render presets
 	Scene_States_Rollout.scene_states_list2.Items.Clear()

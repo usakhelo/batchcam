@@ -874,6 +874,7 @@ fn populate_scenestate_renderpreset selectedItems =
 (
 	populate_combobox_string_item selectedItems "scene_state" Scene_States_Rollout.scene_states_list2
 	populate_dropdownbox_string_item selectedItems "render_preset" Scene_States_Rollout.render_preset_list
+	populate_dropdownbox_string_item selectedItems "state_set" Scene_States_Rollout.state_sets_list
 )
 
 fn populate_ui_elements selectedItems=
