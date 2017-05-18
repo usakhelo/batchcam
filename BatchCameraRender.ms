@@ -162,7 +162,8 @@ include @"BatchCameraRender-functions-preparing.ms"
 		
 		on refresh pressed do
 		(
-			BatchCameraRender_reload_cameras lv_objects
+			batchCameraRender_reload_cameras lv_objects
+			ui_elements_refresh lv_objects
 		)
 		
 		on remove_button pressed do
@@ -1039,7 +1040,6 @@ include @"BatchCameraRender-functions-preparing.ms"
 		on lv_objects ItemCheck val do
 		(
 			BatchCam_listItem_state[(val.Index+1)] = (val.NewValue == (dotNetClass "CheckState").Checked )
-			print "test check"
 		)
 
 		on lv_objects ItemChecked val do
@@ -1049,7 +1049,6 @@ include @"BatchCameraRender-functions-preparing.ms"
 			(
 				if not (globalvars.get #batchCameraRender_loading_items) then
 				(
-					print "test"
 					ui_elements_refresh lv_objects
 					globalvars.set #batchCameraRender_loading_items false
 				)
@@ -1057,7 +1056,6 @@ include @"BatchCameraRender-functions-preparing.ms"
 				(
 					globalvars.set #batchCameraRender_loading_items ((lv_objects.items.count-1) != val.item.index) --call refresh when itemcheck
 				)
-				print (globalvars.get #batchCameraRender_loading_items)
 			)
 			else
 			(

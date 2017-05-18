@@ -330,6 +330,8 @@ fn propName2Id property_name =
 		"BatchCameraRender_region_y":		property_id = 7848
 		"BatchCameraRender_region_w":		property_id = 7849
 		"BatchCameraRender_region_h":		property_id = 7850
+
+		"BatchCameraRender_state_set":		property_id = 7851
 	)
 	property_id
 )
@@ -879,7 +881,7 @@ fn elements_active state =
 	(
 		case (control_element.name) of
 		(
-			"state_sets_list":	control_element.enabled  = (dotnetclass "Autodesk.Max.StateSets.Plugin" != undefined)
+			"state_sets_list":	control_element.enabled  = state and (dotnetclass "Autodesk.Max.StateSets.Plugin" != undefined)
 			default: 		control_element.enabled = state
 		)
 	)
@@ -1414,6 +1416,13 @@ fn batchCameraRender_reload_cameras lv_objects =
 	Scene_States_Rollout.scene_states_list2.Items.AddRange (join #("undefined") (get_scene_state_array()))
 	Scene_States_Rollout.render_preset_list.items = join #("undefined") (get_render_preset_array())
 	
+	--reload state sets
+	local ss_class = dotnetclass "Autodesk.Max.StateSets.Plugin"
+	if ss_class != undefined then	--if state sets supported
+	(
+		Scene_States_Rollout.state_sets_list.items = join #("undefined") (get_state_sets_array())
+	)
+
 	--custom keywords and names
 	if (temp_state = getRootNodeData "BatchCameraRender_UserKey1")  != undefined then
 		Net_Render_Options_Rollout.UserKey1.text= (temp_state as string)			
