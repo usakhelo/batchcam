@@ -82,7 +82,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.11"
+VERSION_STRING = "1.12"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
 													"elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "state_set", "render_preset", "image_aspect", \
@@ -311,7 +311,6 @@ include @"BatchCameraRender-functions-preparing.ms"
 				else
 					i.checked = false
 			)
--- 			populate_ui_elements #(LV_ITEMS[index])
 			ui_elements_refresh lv_objects
 		)
 		
@@ -711,9 +710,6 @@ include @"BatchCameraRender-functions-preparing.ms"
 						callbacks.removeScripts id:#BatchCameraRender
 						--set global variables to be visible in submit and render scripts
 						batchCameraRender_currentcamera = cam_obj
--- 							batchCameraRender_currentsettings = #()
--- 							for i=7801 to 7844 do
--- 								append batchCameraRender_currentsettings
 						
 						temp_string = getUserProperty camera_to_render "BatchCameraRender_prerender_enabled"
 						if (not preview) and (isNotUndefined temp_string) then
@@ -756,14 +752,20 @@ include @"BatchCameraRender-functions-preparing.ms"
 						--save render location to last render property
 						if (not preview) then
 							setUserProperty item "BatchCameraRender_lastRenderPath" rendOutputFilename
+						
 						--start render
-						if (not preview) and net_render.checked and (not show_net_submit.checked) then
+						if (not preview) and (Net_Render_Options_Rollout.UseDeadline.checked) then
+						(
+							viewport.setCamera cam_obj
+							submit_to_deadline cam_obj
+						)
+						else if (not preview) and net_render.checked and (not show_net_submit.checked) then
 						(
 							net_render_auto_submit cam_obj
 						)
 						else
 						(
-							if (not preview)  then
+							if (not preview) then
 								rendUseNet = net_render.checked
 							else
 								rendUseNet = false
@@ -865,7 +867,7 @@ include @"BatchCameraRender-functions-preparing.ms"
 				--runs only if at least one job is checked it listview - currently on_render_start get called only if something is checked in listview
 				if shouldBeSaved() and (Scripts_Rollout.enable_onsubmit.state) then
 				(
--- 					try
+   				-- try
 					(
 						maxscript_file_name = Scripts_Rollout.onsubmit_script.text
 						if isNotUndefinedOrEmpty maxscript_file_name then
@@ -874,10 +876,10 @@ include @"BatchCameraRender-functions-preparing.ms"
 								filein maxscript_file_name
 						)
 					)
--- 					catch
--- 					(
--- 						messagebox (getCurrentException()) title:"Submit Script Error"
--- 					)
+   				-- catch
+   			  -- (
+   				--		messagebox (getCurrentException()) title:"Submit Script Error"
+   				--	)
 				)
 				
 				do_render false false
@@ -935,7 +937,7 @@ include @"BatchCameraRender-functions-preparing.ms"
 			
 			--add onopen callback
 			callbacks.addScript #filePostOpen "batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects" id:#batchcam
---			callbacks.addScript #filePostOpen "batchCameraRender_reset_render_counter()" id:#batchcam
+		  --	callbacks.addScript #filePostOpen "batchCameraRender_reset_render_counter()" id:#batchcam
 			callbacks.addScript #filePostMerge "batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects" id:#batchcam
 			callbacks.addScript #systemPostNew "batchCameraRender_reload_cameras batchCameraRender_mainRollOut.lv_objects" id:#batchcam
 			callbacks.addScript #systemPostNew "batchCameraRender_reset_render_counter()" id:#batchcam
@@ -1247,12 +1249,12 @@ include @"BatchCameraRender-functions-preparing.ms"
 		on preview_width changed val do
 			saveVar2IniFile "Output_Size_Rollout" "preview_width" val
 		
-		group "Net Render Connection Options"
+		group "Backburner Connection Options"
 		(
 			checkbox Auto_Search "Automatic Search" align:#left offset: [0,0]
 			edittext Name_Or_Mask "Manager Name or IP Address:" labelOnTop:true align:#left fieldWidth:120 offset: [0,0] across:4
-			edittext Port "Port:" labelOnTop:true align:#left fieldWidth:60 offset: [20,0] tooltip:""
-			label label1 "Submit Job As:" align:#right offset: [0,20]
+			edittext Port "Port:" labelOnTop:true align:#left fieldWidth:60 offset: [35,0] tooltip:""
+			label label1 "Submit Job As:" align:#right offset: [50,20]
 			radiobuttons Platform labels:#("32-bit ", "64-bit ") align:#right offset: [0,20]
 		)
 
@@ -1291,6 +1293,22 @@ include @"BatchCameraRender-functions-preparing.ms"
 			saveVar2IniFile "Net_Render_Options_Rollout" "netrender_option_platform" val
 		)
 		
+		group "Deadline Connection Options"
+		(
+			checkbox UseDeadline "Use Deadline" align:#left offset:[0,0]
+			edittext DeadlineRepo "Deadline Repository:" labelOnTop:false align:#left fieldWidth:250 offset:[0,0]
+		)
+
+		on UseDeadline changed val do
+    (
+      saveVar2IniFile "Deadline settings" "use_deadline" val
+    )
+
+		on DeadlineRepo changed val do
+    (
+      saveVar2IniFile "Deadline settings" "repository" val
+    )
+
 		group "Custom Keywords and Names"
 		(
 			spinner Try_Counter "Render Try Counter (%trynum%): " range:[0,100000,0] type:#integer width:120 align:#left offset: [0,0] across:3
@@ -1506,6 +1524,24 @@ include @"BatchCameraRender-functions-preparing.ms"
 				backburnerJobNamePattern.text= (temp_state as string)
 			if (temp_state = getRootNodeData "BatchCameraRender_elementName")  != undefined then
 				renderElementNamePattern.text= (temp_state as string)
+
+			--deadline repository
+      local repo = loadVarFromIniFile "Deadline settings" "repository"
+			if repo != undefined then
+        DeadlineRepo.text = repo
+      else
+      (
+        DeadlineRepo.text = @"\\server\DeadlineRepository"
+        saveVar2IniFile "Deadline settings" "repository" DeadlineRepo.text 
+      )
+
+			if (temp_state = loadVarFromIniFile "Deadline settings" "use_deadline") != undefined then
+				UseDeadline.checked = (temp_state as booleanClass)
+			else
+			(
+				UseDeadline.checked = false
+				saveVar2IniFile "Deadline settings" "use_deadline" false
+			)
 		)
 		
 		on Net_Render_Options_Rollout rolledUp state do

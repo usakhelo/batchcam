@@ -940,6 +940,46 @@ fn leadingZero num digitCount=
 	str
 )
 
+fn submit_to_deadline camera_obj =
+(
+	global SMTDSettings 
+	global SMTDFunctions
+
+	local theNetworkRoot = Net_Render_Options_Rollout.DeadlineRepo.text
+	local remoteScript = theNetworkRoot + @"\submission\3dsmax\main\SubmitMaxToDeadline_Functions.ms" 
+	fileIn remoteScript 
+
+	SMTDFunctions.loadSettings()
+
+	local jobName = ""
+	jobNamePattern = Net_Render_Options_Rollout.backburnerJobNamePattern.text
+	if (isNotUndefinedOrEmpty jobNamePattern) then
+		jobName = parse_file_name_template jobNamePattern (compose_full_parsing_dictionary camera_obj)
+	else
+		jobName = (if maxFileName == "" then "untitled" else maxFileName) + " " + camera_obj.name
+
+	SMTDSettings.JobName = jobName
+
+	local maxFileToSubmit = SMTDPaths.tempdir + (if maxFileName == "" then "untitled.max" else maxFileName)
+	SMTDFunctions.SaveMaxFileCopy maxFileToSubmit
+
+	local SubmitInfoFile = SMTDPaths.tempdir + "\\batchcam_submit_info.job"
+	local JobInfoFile = SMTDPaths.tempdir+ "\\batchcam_job_info.job"
+
+	--rendOutputFilename = SMTDFunctions.GetFormattedOutputFilename rendOutputFilename addFramePadding:true stripPaddingNumbers:true addFrameDelimiter:true
+
+	SMTDSettings.SubmitSceneMode = #reposave
+	--SMTDSettings.SubmitSceneMode = #networksave
+  --SMTDSettings.SubmitSceneNetworkLocation = maxFileToSubmit
+
+	SMTDFunctions.CreateSubmitInfoFile SubmitInfoFile batchName:(getFilenameFile (if maxFileName == "" then "Untitled.max" else maxFileName))
+	SMTDFunctions.CreateJobInfoFile JobInfoFile
+
+	local initialArgs="\""+SubmitInfoFile+"\" \""+JobInfoFile+"\" \""+maxFileToSubmit+"\" "
+
+	SMTDFunctions.waitForCommandToComplete initialArgs SMTDSettings.TimeoutSubmission 
+)
+
 --function to submit current scene to backburner manager
 fn net_render_auto_submit camera_obj =
 (
