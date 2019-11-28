@@ -944,6 +944,7 @@ fn leadingZero num digitCount=
 
 fn submit_to_deadline camera_obj =
 (
+  global SMTDPaths
   global SMTDSettings 
   global SMTDFunctions
 
