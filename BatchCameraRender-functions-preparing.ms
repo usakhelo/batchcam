@@ -200,92 +200,105 @@ fn restoreRenderParams buffer=
 
 fn prepare_render_elements camera_to_render=
 (
-  temp_string = getUserProperty camera_to_render "BatchCameraRender_elements_state"
-  elementsFullPath = undefined
-  if (isNotUndefined temp_string) then
-  (
-    elementMgr = maxOps.GetCurRenderElementMgr()
-    if shouldBeSaved() and (temp_string as booleanClass) then
-    (
-      elementMgr.SetElementsActive true
+  local elements_state = getUserProperty camera_to_render "BatchCameraRender_elements_state"
+  local not_save_elements = getUserProperty camera_to_render "BatchCameraRender_not_save_elements"
 
+  elementsFullPath = undefined
+  if (isNotUndefined elements_state) then
+  (
+    if (isNotUndefined not_save_elements) and (not_save_elements as booleanClass) then
+    (
+      elementMgr = maxOps.GetCurRenderElementMgr()
       numOfElements = elementMgr.NumRenderElements()
-      if numOfElements != 0 then
+      if numOfElements != 0 do
+      for index=0 to numOfElements-1 do
       (
-        for index=0 to (numOfElements-1) do
-        (
-          --get element's path
-          element = elementMgr.getrenderelement index       
-          --extract element name
-          elementNameParts = filterString (element as string) ":"
-          elementType = elementNameParts[2] as string
-          elementName = element.elementName
---          elementName = elementNameParts[2] as string
-          syntaxExtraItems = #(#("elementtype", (elementType as string)), #("elementname", (elementName as string)))
-          
-          --make new file path
-          mainOutput = rendOutputFilename
-          mainPath = getFilenamePath mainOutput
-          mainFileNameOnly = getFilenameFile mainOutput
-          mainFileType = getFilenameType mainOutput
-          -- mainFileType = ".tga"
-          
-          newPath = getUserProperty camera_to_render "BatchCameraRender_elements_output"
-          if (isNotUndefined newPath) then
-          (
-            newPath = parse_file_name_template newPath (compose_full_parsing_dictionary camera_to_render extraItems:syntaxExtraItems)
-          )
-          else
-          (
-            newPath = mainPath  --Use elements path same as main output if elements path is empty. May be warning message will be useful here.
-          )
-          
-          elementNamePattern = Net_Render_Options_Rollout.renderElementNamePattern.text
---          append syntaxExtraItems #("mainoutput", (mainFileNameOnly as string))
-          if (isNotUndefinedOrEmpty elementNamePattern) then
-          (
-            elementsFileName = parse_file_name_template elementNamePattern (compose_full_parsing_dictionary camera_to_render extraItems:syntaxExtraItems)
-          )
-          else
-            elementsFileName = mainFileNameOnly + "_" +  elementType + "_" + elementName
-          
-          elementsFileName += mainFileType
-          
-          if (isPathAbsolute newPath) then
-          (
-            --use absolute path + existing or composed file name
-            elementsFullPath = pathConfig.appendPath newPath elementsFileName
-          )
-          else
-          (
-            --if subfolder then add subfolder to main path
-            elementsNewPath = pathConfig.appendPath mainPath newPath  --path is main + elements subfolder
-            elementsFullPath = pathConfig.appendPath elementsNewPath elementsFileName
-          )
-          
-          --check if the path (without filename) exist
-          temp_path = getFilenamePath elementsFullPath
-          if (not (doesFileExist temp_path)) then
-          (
-            --if silent_mode is on try to create new path
-            if  Net_Render_Options_Rollout.silent_add_path_mode.checked then
-            (
-              if not makeDir temp_path all:true then
-                throw ("Failed to create path: "+ temp_path) --if path making fails throw exception
-            )
-            else
-            (
-              throw ("Path does not exist: "+ temp_path) --if path making fails throw exception
-            )
-          )
-          --set new path to element
-          elementMgr.setRenderElementFilename index elementsFullPath
-        )
+        elementMgr.SetRenderElementFilename index ""
       )
+      elementsFullPath = ""
     )
     else
     (
-      elementMgr.SetElementsActive false
+      elementMgr = maxOps.GetCurRenderElementMgr()
+      if shouldBeSaved() and (elements_state as booleanClass) then
+      (
+        elementMgr.SetElementsActive true
+
+        numOfElements = elementMgr.NumRenderElements()
+        if numOfElements != 0 then
+        (
+          for index=0 to (numOfElements-1) do
+          (
+            --get element's path
+            element = elementMgr.getrenderelement index       
+            --extract element name
+            elementNameParts = filterString (element as string) ":"
+            elementType = elementNameParts[2] as string
+            elementName = element.elementName
+            syntaxExtraItems = #(#("elementtype", (elementType as string)), #("elementname", (elementName as string)))
+            
+            --make new file path
+            mainOutput = rendOutputFilename
+            mainPath = getFilenamePath mainOutput
+            mainFileNameOnly = getFilenameFile mainOutput
+            mainFileType = getFilenameType mainOutput
+            
+            newPath = getUserProperty camera_to_render "BatchCameraRender_elements_output"
+            if (isNotUndefined newPath) then
+            (
+              newPath = parse_file_name_template newPath (compose_full_parsing_dictionary camera_to_render extraItems:syntaxExtraItems)
+            )
+            else
+            (
+              newPath = mainPath  --Use elements path same as main output if elements path is empty. May be warning message will be useful here.
+            )
+            
+            elementNamePattern = Net_Render_Options_Rollout.renderElementNamePattern.text
+            if (isNotUndefinedOrEmpty elementNamePattern) then
+            (
+              elementsFileName = parse_file_name_template elementNamePattern (compose_full_parsing_dictionary camera_to_render extraItems:syntaxExtraItems)
+            )
+            else
+              elementsFileName = mainFileNameOnly + "_" +  elementType + "_" + elementName
+            
+            elementsFileName += mainFileType
+            
+            if (isPathAbsolute newPath) then
+            (
+              --use absolute path + existing or composed file name
+              elementsFullPath = pathConfig.appendPath newPath elementsFileName
+            )
+            else
+            (
+              --if subfolder then add subfolder to main path
+              elementsNewPath = pathConfig.appendPath mainPath newPath  --path is main + elements subfolder
+              elementsFullPath = pathConfig.appendPath elementsNewPath elementsFileName
+            )
+            
+            --check if the path (without filename) exist
+            temp_path = getFilenamePath elementsFullPath
+            if (not (doesFileExist temp_path)) then
+            (
+              --if silent_mode is on try to create new path
+              if  Net_Render_Options_Rollout.silent_add_path_mode.checked then
+              (
+                if not makeDir temp_path all:true then
+                  throw ("Failed to create path: "+ temp_path) --if path making fails throw exception
+              )
+              else
+              (
+                throw ("Path does not exist: "+ temp_path) --if path making fails throw exception
+              )
+            )
+            --set new path to element
+            elementMgr.setRenderElementFilename index elementsFullPath
+          )
+        )
+      )
+      else
+      (
+        elementMgr.SetElementsActive false
+      )
     )
   )
   elementsFullPath

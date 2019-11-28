@@ -213,6 +213,7 @@ struct BatchCameraRenderParamsStruct
     BatchCameraRender_frame_heigth,
     BatchCameraRender_render_output,
     BatchCameraRender_elements_state,
+    BatchCameraRender_not_save_elements,
     BatchCameraRender_elements_output,
     BatchCameraRender_solo_lights,
     BatchCameraRender_on_lights,
@@ -282,6 +283,7 @@ fn propName2Id property_name =
     "BatchCameraRender_frame_heigth":     property_id = 7806
     "BatchCameraRender_render_output":      property_id = 7807
     "BatchCameraRender_elements_state":     property_id = 7808
+    "BatchCameraRender_not_save_elements":	property_id = 78081
     "BatchCameraRender_elements_output":    property_id = 7809
     "BatchCameraRender_solo_lights":        property_id = 7810
     "BatchCameraRender_on_lights":          property_id = 7811
@@ -1269,6 +1271,13 @@ fn fill_ListView listview_obj camera_list =
       add_sub_item li (temp_string as string) "elements_state" true
     else
       add_sub_item li "undefined" "elements_state" false
+    
+    --get not_save_elements
+    temp_string = getUserProperty camera_obj "BatchCameraRender_not_save_elements"
+    if isNotUndefined temp_string then
+      add_sub_item li (temp_string as string) "not_save_elements" true
+    else
+      add_sub_item li "undefined" "not_save_elements" false
     
     --get elements' path
     temp_string = getUserProperty camera_obj "BatchCameraRender_elements_output"

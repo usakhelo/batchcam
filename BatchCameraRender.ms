@@ -82,10 +82,10 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.12"
+VERSION_STRING = "1.14"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
-                          "elements_state", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "state_set", "render_preset", "image_aspect", \
+                          "elements_state", "not_save_elements", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "state_set", "render_preset", "image_aspect", \
                           "region_enabled", "region_x", "region_y", "region_w", "region_h" )
 BatchCam_ScriptsPropertiesNames = #("OnSubmitScriptEnable", "OnSubmitScript", "perCameraScriptEnable", "perCameraScript", "prerender_script", "prerender_enabled", "postrender_script", "postrender_enabled")
 BatchCam_UserValuePropertiesNames = #("UserKey1", "UserKey2", "UserKey3", "UserVal1", "UserVal2", "UserVal3", "bbJobName", "elementName")
@@ -1838,7 +1838,8 @@ include @"BatchCameraRender-functions-preparing.ms"
     )
     group "Render Elements Folder/Subfolder"
     (
-      checkbox save_elements "Enable Elements" tooltip:"" align:#left
+      checkbox save_elements "Enable Elements" tooltip:"Enable Render Elements" align:#left
+      checkbox not_save_elements "Do not save Elements" toolTip:"Rendering, but not save Render Elements" align:#left
       button elements_folder_button "..." align:#left width:40 offset: [0,-2] across:2
       edittext elements_path width:320 align:#left offset: [-168,0]
     )
@@ -1853,6 +1854,7 @@ include @"BatchCameraRender-functions-preparing.ms"
         property_names = #( \
                         "BatchCameraRender_render_output", \
                         "BatchCameraRender_elements_state", \
+                        "BatchCameraRender_not_save_elements", \
                         "BatchCameraRender_elements_output" \
                       )
 
@@ -1972,6 +1974,11 @@ include @"BatchCameraRender-functions-preparing.ms"
       set_elements_state LV_ITEMS state
     )
     
+    on not_save_elements changed state do
+    (
+      set_not_save_elements LV_ITEMS state
+    )
+
     on elements_path entered val do
     (
       set_elements_path LV_ITEMS val
@@ -1996,9 +2003,11 @@ include @"BatchCameraRender-functions-preparing.ms"
         if i.selected then
         (
           setUserProperty i "BatchCameraRender_render_output" undefined
-          clear_sub_item i "path"         
+          clear_sub_item i "path"
           setUserProperty i "BatchCameraRender_elements_state" undefined
-          clear_sub_item i "elements_state"         
+          clear_sub_item i "elements_state"
+          setUserProperty i "BatchCameraRender_not_save_elements" undefined
+          clear_sub_item i "not_save_elements"
           setUserProperty i "BatchCameraRender_elements_output" undefined
           clear_sub_item i "elements_path"
         )

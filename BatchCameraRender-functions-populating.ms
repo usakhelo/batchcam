@@ -512,7 +512,8 @@ fn populate_elements_options cameraItems=
   result_file_name = Render_Output_Rollout.result_file_name
   elements_path = Render_Output_Rollout.elements_path
   elements_state = Render_Output_Rollout.save_elements
-  
+  not_save_elements = Render_Output_Rollout.not_save_elements
+
   --exclude selected items
   local selected_items = #()
   for i in lis do
@@ -532,10 +533,18 @@ fn populate_elements_options cameraItems=
     
     --set state here
     temp_string = getUserProperty obj_itself "BatchCameraRender_elements_state"
-      if (isNotUndefined temp_string) then
-        elements_state.state = (temp_string as booleanclass)
-      else
-        elements_state.triState = 2
+    if (isNotUndefined temp_string) then
+      elements_state.state = (temp_string as booleanclass)
+    else
+      elements_state.triState = 2
+
+  --set not save RE here
+    temp_string = getUserProperty obj_itself "BatchCameraRender_not_save_elements"
+    if (isNotUndefined temp_string) then
+      not_save_elements.state = (temp_string as booleanclass)
+    else
+      not_save_elements.triState = 2
+
   )
   else --multiple selection
   ( 
@@ -589,7 +598,30 @@ fn populate_elements_options cameraItems=
       else
       (
         elements_state.triState = 2
-      )     
+      )
+      
+      --populate not_save_RE for multiple items checked
+      temp_string = getUserProperty obj_itself "BatchCameraRender_not_save_elements"
+      if (isNotUndefined temp_string) then
+      (
+        temp_string = temp_string as booleanclass
+        --set previous value to first value
+        if i==1 then prev_state = temp_string
+        --show path if previous path and current are the similar
+        if temp_string != prev_state then 
+        (
+          state_diff_flag = true  --set flag if values differ
+          not_save_elements.triState = 2
+        )
+        else if not state_diff_flag then  --if values are same and flag hasn't been set
+          not_save_elements.triState = if temp_string then 1 else 0
+        
+        prev_state = temp_string
+      )
+      else
+      (
+        not_save_elements.triState = 2
+      )
     )
   )
 )

@@ -256,6 +256,18 @@ fn set_elements_state cameraItems elements_state=
   )
 )
 
+fn set_not_save_elements cameraItems not_save_elements=
+(
+  for i in cameraItems do
+  (
+    if i.selected then
+    (
+      setUserProperty i "BatchCameraRender_not_save_elements" (not_save_elements as string)
+      set_sub_item i (not_save_elements as string) "not_save_elements"
+    )
+  )
+)
+
 fn set_elements_path cameraItems elementsPath=
 (
   for i in cameraItems do
