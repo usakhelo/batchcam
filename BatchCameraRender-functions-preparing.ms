@@ -1,8 +1,8 @@
 --########################--
 --FUNCTIONS for batch camera render script
---Functions to prepare scene for the rendering, 
---to get properties from camera objects and set 
---them to render dialog 
+--Functions to prepare scene for the rendering,
+--to get properties from camera objects and set
+--them to render dialog
 --########################--
 struct BatchCam_RenderParameterStore
 (
@@ -60,7 +60,7 @@ fn storeRenderParams buffer=
   buffer.oldrenderHeight = renderHeight
   buffer.oldfilename = rendOutputFilename
   buffer.oldsavestate = rendSaveFile
-  buffer.oldrenderUseNet = rendUseNet 
+  buffer.oldrenderUseNet = rendUseNet
   buffer.oldRenderType = getRenderType()
 
   elementMgr = maxOps.GetCurRenderElementMgr()
@@ -75,57 +75,57 @@ fn storeRenderParams buffer=
       append buffer.oldElementsFullPaths ""
   )
   buffer.oldElementsState = elementMgr.GetElementsActive()
-  
+
   --store V-ray image properties
   buffer.oldoutput_saveRawFile = false
   buffer.oldoutput_rawFileName = ""
   buffer.oldoutput_on = false
   buffer.oldoutput_splitgbuffer = false
   buffer.oldoutput_splitfilename = ""
-  buffer.oldoutput_splitbitmap = ""       
+  buffer.oldoutput_splitbitmap = ""
   buffer.oldoutput_getsetsfrommax = false
   buffer.oldoutput_width = 0
   buffer.oldoutput_height = 0
-  
+
   buffer.old_vray_ortho_mode = undefined
   buffer.old_adv_irradmap_mode = undefined
   buffer.old_adv_irradmap_loadFileName  = ""
   buffer.old_adv_irradmap_autoSaveFileName = ""
   buffer.old_adv_irradmap_autoSave = false
   buffer.old_adv_irradmap_switchToSavedMap = false
-  
+
   buffer.old_lightcache_mode = undefined
   buffer.old_lightcache_loadFileName = ""
   buffer.old_lightcache_autoSave = ""
   buffer.old_lightcache_autoSaveFileName = false
   buffer.old_lightcache_switchToSavedMap = false
-  
+
   if isVrayRenderer() then
   (
     vr = renderers.current
-    
+
     if (hasproperty vr "V_Ray_settings") then
       vr = vr.V_Ray_settings
 
     buffer.oldoutput_saveRawFile = vr.output_saveRawFile
     buffer.oldoutput_rawFileName = vr.output_rawFileName
     buffer.oldoutput_on = vr.output_on
-    
+
     buffer.oldoutput_splitgbuffer = vr.output_splitgbuffer
     buffer.oldoutput_splitfilename = vr.output_splitfilename
-    
+
     buffer.oldoutput_getsetsfrommax = vr.output_getsetsfrommax
     buffer.oldoutput_width = vr.output_width
     buffer.oldoutput_height = vr.output_height
-    
+
     buffer.old_vray_ortho_mode = vr.camera_type
-    
+
     buffer.old_adv_irradmap_mode = vr.adv_irradmap_mode
     buffer.old_adv_irradmap_loadFileName  = vr.adv_irradmap_loadFileName
-    buffer.old_adv_irradmap_autoSaveFileName = vr.adv_irradmap_autoSaveFileName 
-    buffer.old_adv_irradmap_autoSave = vr.adv_irradmap_autoSave 
-    buffer.old_adv_irradmap_switchToSavedMap = vr.adv_irradmap_switchToSavedMap 
-    
+    buffer.old_adv_irradmap_autoSaveFileName = vr.adv_irradmap_autoSaveFileName
+    buffer.old_adv_irradmap_autoSave = vr.adv_irradmap_autoSave
+    buffer.old_adv_irradmap_switchToSavedMap = vr.adv_irradmap_switchToSavedMap
+
     buffer.old_lightcache_mode = vr.lightcache_mode
     buffer.old_lightcache_loadFileName = vr.lightcache_loadFileName
     buffer.old_lightcache_autoSave = vr.lightcache_autoSave
@@ -138,7 +138,7 @@ fn storeRenderParams buffer=
 fn restoreRenderParams buffer=
 (
     rendUseActiveView = buffer.old_rendUseActiveView
-    rendTimeType = buffer.oldrendType 
+    rendTimeType = buffer.oldrendType
     rendStart = buffer.oldrendStart
     rendEnd = buffer.oldrendEnd
     rendPickupFrames = buffer.oldrendPickupFrames
@@ -151,7 +151,7 @@ fn restoreRenderParams buffer=
     for index=0 to (buffer.numOfElements-1) do
       elementMgr.setRenderElementFilename index buffer.oldElementsFullPaths[index+1]
     elementMgr.SetElementsActive buffer.oldElementsState
-    
+
     --vray options
     if isVrayRenderer() then
     (
@@ -163,22 +163,22 @@ fn restoreRenderParams buffer=
       vr.output_saveRawFile = buffer.oldoutput_saveRawFile
       if buffer.oldoutput_rawFileName != undefined then vr.output_rawFileName = buffer.oldoutput_rawFileName
       vr.output_on = buffer.oldoutput_on
-      
+
       vr.output_splitgbuffer = buffer.oldoutput_splitgbuffer
       if buffer.oldoutput_splitfilename != undefined then vr.output_splitfilename = buffer.oldoutput_splitfilename
-      
+
       vr.output_getsetsfrommax = buffer.oldoutput_getsetsfrommax
       vr.output_width = buffer.oldoutput_width
       vr.output_height = buffer.oldoutput_height
-      
+
       vr.camera_type = buffer.old_vray_ortho_mode
-      
+
       vr.adv_irradmap_mode = buffer.old_adv_irradmap_mode
       if buffer.old_adv_irradmap_loadFileName != undefined then vr.adv_irradmap_loadFileName = buffer.old_adv_irradmap_loadFileName
       if buffer.old_adv_irradmap_autoSaveFileName != undefined then vr.adv_irradmap_autoSaveFileName = buffer.old_adv_irradmap_autoSaveFileName
       vr.adv_irradmap_autoSave = buffer.old_adv_irradmap_autoSave
       vr.adv_irradmap_switchToSavedMap = buffer.old_adv_irradmap_switchToSavedMap
-      
+
       vr.lightcache_mode = buffer.old_lightcache_mode
       if buffer.old_lightcache_loadFileName != undefined then vr.lightcache_loadFileName = buffer.old_lightcache_loadFileName
       if buffer.old_lightcache_autoSaveFileName != undefined then vr.lightcache_autoSaveFileName = buffer.old_lightcache_autoSaveFileName
@@ -230,19 +230,19 @@ fn prepare_render_elements camera_to_render=
           for index=0 to (numOfElements-1) do
           (
             --get element's path
-            element = elementMgr.getrenderelement index       
+            element = elementMgr.getrenderelement index
             --extract element name
             elementNameParts = filterString (element as string) ":"
             elementType = elementNameParts[2] as string
             elementName = element.elementName
             syntaxExtraItems = #(#("elementtype", (elementType as string)), #("elementname", (elementName as string)))
-            
+
             --make new file path
             mainOutput = rendOutputFilename
             mainPath = getFilenamePath mainOutput
             mainFileNameOnly = getFilenameFile mainOutput
             mainFileType = getFilenameType mainOutput
-            
+
             newPath = getUserProperty camera_to_render "BatchCameraRender_elements_output"
             if (isNotUndefined newPath) then
             (
@@ -252,7 +252,7 @@ fn prepare_render_elements camera_to_render=
             (
               newPath = mainPath  --Use elements path same as main output if elements path is empty. May be warning message will be useful here.
             )
-            
+
             elementNamePattern = Net_Render_Options_Rollout.renderElementNamePattern.text
             if (isNotUndefinedOrEmpty elementNamePattern) then
             (
@@ -260,9 +260,9 @@ fn prepare_render_elements camera_to_render=
             )
             else
               elementsFileName = mainFileNameOnly + "_" +  elementType + "_" + elementName
-            
+
             elementsFileName += mainFileType
-            
+
             if (isPathAbsolute newPath) then
             (
               --use absolute path + existing or composed file name
@@ -274,7 +274,7 @@ fn prepare_render_elements camera_to_render=
               elementsNewPath = pathConfig.appendPath mainPath newPath  --path is main + elements subfolder
               elementsFullPath = pathConfig.appendPath elementsNewPath elementsFileName
             )
-            
+
             --check if the path (without filename) exist
             temp_path = getFilenamePath elementsFullPath
             if (not (doesFileExist temp_path)) then
@@ -304,21 +304,21 @@ fn prepare_render_elements camera_to_render=
   elementsFullPath
 )
 
-fn checkAndAppendMainPath path_string = 
+fn checkAndAppendMainPath path_string =
 (
-      
+
   mainOutput = rendOutputFilename
   mainPath = getFilenamePath mainOutput
 --  mainFileNameOnly = getFilenameFile mainOutput
-  
+
   fullPath = ""
-  
+
   if (isPathAbsolute path_string) then
     fullPath = path_string
   else
     --if subfolder then add subfolder to main path
     fullPath = pathConfig.appendPath mainPath path_string --path is main + elements subfolder
-  
+
   return fullPath
 )
 
@@ -345,11 +345,11 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
           elementsPath = getFilenamePath main_output_file
 
         vr.output_saveRawFile = Vray_Settings_Rollout.save_vray_image_file.checked
-      
+
         file_extension = Vray_Settings_Rollout.vray_extension_list.items[Vray_Settings_Rollout.vray_extension_list.selection]
-        vrayRawFullPath = elementsPath + (getFilenameFile main_output_file) + ("_vray_") + file_extension 
+        vrayRawFullPath = elementsPath + (getFilenameFile main_output_file) + ("_vray_") + file_extension
         vr.output_rawFileName = vrayRawFullPath
-        
+
         vrayOutputFullPath = elementsPath + (getFilenameFile main_output_file) + ("_vrayoutput_") + (getFilenameType main_output_file)
         if (Vray_Settings_Rollout.save_separate_render_channels.checked) or (Vray_Settings_Rollout.save_vray_output.checked) then
         (
@@ -363,14 +363,14 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
             save split_bitmap
             close split_bitmap
             vr.output_splitbitmap=split_bitmap
-            
+
             deleteFile vrayOutputFullPath
           )
           catch
           (
             messagebox (getCurrentException()) title:"Error Setting Vray Output"
           )
-          
+
           if (Vray_Settings_Rollout.save_vray_output.checked) then
           (
             vr.output_splitRGB = true
@@ -416,7 +416,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
     )
 
     vr.system_distributedRender = (Vray_Settings_Rollout.distr_rendering.checked)
-    
+
     --set misc. settings
     temp_string = getUserProperty camera_to_render "BatchCameraRender_vray_ortho_mode"
     if (isNotUndefined temp_string) then
@@ -429,7 +429,7 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
           vr.camera_type = 0
       )
     )
-    
+
     --set vray global illumination options
     temp_string = getUserProperty camera_to_render "BatchCameraRender_irmap_mode"
     if (isNotUndefined temp_string) then
@@ -443,8 +443,8 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
     if isNotUndefined temp_string then
     (
       temp_string = parse_file_name_template temp_string (compose_full_parsing_dictionary camera_to_render)
-      fullPath = checkAndAppendMainPath temp_string     
-      
+      fullPath = checkAndAppendMainPath temp_string
+
       vr.adv_irradmap_loadFileName = fullPath
     )
     temp_string = getUserProperty camera_to_render "BatchCameraRender_irmap_save_file"
@@ -474,16 +474,16 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
     temp_string = getUserProperty camera_to_render "BatchCameraRender_auto_save_irmap"
     if (isNotUndefined temp_string) and shouldBeSaved() then
     (
-      if (temp_value = temp_string as BooleanClass) != undefined then 
+      if (temp_value = temp_string as BooleanClass) != undefined then
         vr.adv_irradmap_autoSave = temp_value
     )
     temp_string = getUserProperty camera_to_render "BatchCameraRender_auto_switch_irmap"
     if (isNotUndefined temp_string) then
     (
-      if (temp_value = temp_string as BooleanClass) != undefined then 
+      if (temp_value = temp_string as BooleanClass) != undefined then
         vr.adv_irradmap_switchToSavedMap = temp_value
     )
-    
+
     --lightcache settings
     temp_string = getUserProperty camera_to_render "BatchCameraRender_lcmap_mode"
     if (isNotUndefined temp_string) then
@@ -527,14 +527,14 @@ fn prepare_vray_settings camera_to_render main_output_file elementsPath =
     temp_string = getUserProperty camera_to_render "BatchCameraRender_auto_save_lcmap"
     if (isNotUndefined temp_string) and shouldBeSaved() then
     (
-      if (temp_value = temp_string as BooleanClass) != undefined then 
+      if (temp_value = temp_string as BooleanClass) != undefined then
         vr.lightcache_autoSave = temp_value
     )
     temp_string = getUserProperty camera_to_render "BatchCameraRender_auto_switch_lcmap"
     if (isNotUndefined temp_string) then
     (
-      if (temp_value = temp_string as BooleanClass) != undefined then 
-        vr.lightcache_switchToSavedMap = temp_value                 
+      if (temp_value = temp_string as BooleanClass) != undefined then
+        vr.lightcache_switchToSavedMap = temp_value
     )
   )
 )

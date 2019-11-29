@@ -7,10 +7,10 @@
 fn populate_spinner_field cameraItems property_name rollout_control  =
 (
   local spinner = rollout_control
-  
+
   --collect selected items
   local selected_items = cameraItems
-    
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -18,16 +18,16 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
 
     --fill elements path field
     if isNotUndefined temp_string then
---      spinner.value = (temp_string as integer) 
+--      spinner.value = (temp_string as integer)
       spinner.value = execute (temp_string as string)
     else
       spinner.indeterminate  = true
   )
   else --multiple selection
-  ( 
+  (
     prev_value = ""
     diff_flag = false
-    
+
     for i=1 to selected_items.count while not diff_flag do
     (
       obj_itself = (selected_items[i]).tag.value
@@ -37,14 +37,14 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
         --set previous value to first value
         if i==1 then prev_value = temp_string
         --show path if previous path and current are similar
-        if temp_string != prev_value then 
+        if temp_string != prev_value then
         (
           diff_flag = true  --set flag if values differ
           spinner.indeterminate  = true
         )
         else if not diff_flag then  --if values are same and flag hasn't been set
-          spinner.value = execute (temp_string as string) 
-        
+          spinner.value = execute (temp_string as string)
+
         prev_value = temp_string
       )
       else
@@ -62,10 +62,10 @@ fn populate_spinner_field cameraItems property_name rollout_control  =
 fn populate_text_fields cameraItems property_name rollout_control =
 (
   local uiTextField = rollout_control
-  
+
   --collect selected items
   local selected_items = cameraItems
-    
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -73,15 +73,15 @@ fn populate_text_fields cameraItems property_name rollout_control =
 
     --fill elements path field
     if isNotUndefined temp_string then
-      uiTextField.text = (temp_string as string) 
+      uiTextField.text = (temp_string as string)
     else
       uiTextField.text = "undefined"
   )
   else --multiple selection
-  ( 
+  (
     prev_path = ""
     path_diff_flag = false
-    
+
     for i=1 to selected_items.count while not path_diff_flag do
     (
       obj_itself = (selected_items[i]).tag.value
@@ -91,14 +91,14 @@ fn populate_text_fields cameraItems property_name rollout_control =
         --set previous value to first value
         if i==1 then prev_path = temp_string
         --show path if previous path and current are similar
-        if temp_string != prev_path then 
+        if temp_string != prev_path then
         (
           path_diff_flag = true --set flag if values differ
           uiTextField.text = "Varies"
         )
         else if not path_diff_flag then --if values are same and flag hasn't been set
           uiTextField.text = temp_string
-        
+
         prev_path = temp_string
       )
       else
@@ -113,9 +113,9 @@ fn populate_text_fields cameraItems property_name rollout_control =
 fn populate_checkbox_item cameraItems property_name rollout_control =
 (
   local uiCheckBox  = rollout_control
-  
+
   local selected_items = cameraItems
-    
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -131,10 +131,10 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
     )
   )
   else --multiple selection
-  ( 
+  (
     prev_state
     state_diff_flag = false
-    
+
     for i=1 to selected_items.count while not state_diff_flag do
     (
       --populate checkbox state for multiple items checked
@@ -146,7 +146,7 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
         --set previous value to first value
         if i==1 then prev_state = temp_string
         --show path if previous path and current are the similar
-        if temp_string != prev_state then 
+        if temp_string != prev_state then
         (
           state_diff_flag = true  --set flag if values differ
           if (classof uiCheckBox) != CheckButtonControl then
@@ -158,7 +158,7 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
         (
           uiCheckBox.state = temp_string
         )
-        
+
         prev_state = temp_string
       )
       else
@@ -167,7 +167,7 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
           uiCheckBox.triState = 2
         else
           uiCheckBox.state = false
-      )     
+      )
     )
   )
 )
@@ -176,10 +176,10 @@ fn populate_checkbox_item cameraItems property_name rollout_control =
 fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
 (
   local uiDropDownBox  = rollout_control
-  
+
   --collect selected items
   local selected_items = cameraItems
-  
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -190,10 +190,10 @@ fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
       uiDropDownBox.selection = 0
   )
   else --multiple selection
-  ( 
+  (
     prev_state
     state_diff_flag = false
-    
+
     for i=1 to selected_items.count while not state_diff_flag do
     (
       --populate checkbox state for multiple items checked
@@ -204,20 +204,20 @@ fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
         --set previous value to first value
         if i==1 then prev_state = temp_string
         --show path if previous path and current are the similar
-        if temp_string != prev_state then 
+        if temp_string != prev_state then
         (
           state_diff_flag = true  --set flag if values differ
           uiDropDownBox.selection = 0
         )
         else if not state_diff_flag then  --if values are same and flag hasn't been set
           uiDropDownBox.selection = (temp_string as integer)
-        
+
         prev_state = temp_string
       )
       else
       (
         uiDropDownBox.selection = 0
-      )     
+      )
     )
   )
 )
@@ -226,10 +226,10 @@ fn populate_dropdownbox_integer_item cameraItems property_name rollout_control =
 fn populate_combobox_string_item cameraItems property_name rollout_control =
 (
   local uiComboBox  = rollout_control
-  
+
   --collect selected items
   local selected_items = cameraItems
-  
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -248,10 +248,10 @@ fn populate_combobox_string_item cameraItems property_name rollout_control =
       uiComboBox.SelectedIndex = 0
   )
   else --multiple selection
-  ( 
+  (
     prev_state
     state_diff_flag = false
-    
+
     for i=1 to selected_items.count while (not state_diff_flag) do
     (
       obj_itself = (selected_items[i]).tag.value
@@ -259,9 +259,9 @@ fn populate_combobox_string_item cameraItems property_name rollout_control =
       temp_string = temp_string as string
 
       if i==1 then prev_state = temp_string
-      if temp_string != prev_state then 
+      if temp_string != prev_state then
         state_diff_flag = true
-      
+
       prev_state = temp_string
     )
     if state_diff_flag then
@@ -283,10 +283,10 @@ fn populate_combobox_string_item cameraItems property_name rollout_control =
 fn populate_dropdownbox_string_item cameraItems property_name rollout_control =
 (
   local uiDropDownBox  = rollout_control
-  
+
   --collect selected items
   local selected_items = cameraItems
-  
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -297,10 +297,10 @@ fn populate_dropdownbox_string_item cameraItems property_name rollout_control =
       uiDropDownBox.selection = 0
   )
   else --multiple selection
-  ( 
+  (
     prev_state
     state_diff_flag = false
-    
+
     for i=1 to selected_items.count while (not state_diff_flag) do
     (
       --populate checkbox state for multiple items checked
@@ -311,20 +311,20 @@ fn populate_dropdownbox_string_item cameraItems property_name rollout_control =
         --set previous value to first value
         if i==1 then prev_state = temp_string
         --show path if previous path and current are the similar
-        if temp_string != prev_state then 
+        if temp_string != prev_state then
         (
           state_diff_flag = true  --set flag if values differ
           uiDropDownBox.selection = 0
         )
         else if not state_diff_flag then  --if values are same and flag hasn't been set
           uiDropDownBox.selection  = finditem (uiDropDownBox.items) temp_string
-        
+
         prev_state = temp_string
       )
       else
       (
         uiDropDownBox.selection = 0
-      )     
+      )
     )
   )
 )
@@ -333,10 +333,10 @@ fn populate_dropdownbox_string_item cameraItems property_name rollout_control =
 fn populate_dropdownbox_resolution cameraItems rollout_control =
 (
   local uiDropDownBox  = rollout_control
-  
+
   --collect selected items
   local selected_items = cameraItems
-  
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -349,10 +349,10 @@ fn populate_dropdownbox_resolution cameraItems rollout_control =
       uiDropDownBox.selection = 0
   )
   else --multiple selection
-  ( 
+  (
     prev_state
     state_diff_flag = false
-    
+
     for i=1 to selected_items.count while (not state_diff_flag) do
     (
       --populate checkbox state for multiple items checked
@@ -365,20 +365,20 @@ fn populate_dropdownbox_resolution cameraItems rollout_control =
         --set previous value to first value
         if i==1 then prev_state = temp_string
         --show path if previous path and current are the similar
-        if temp_string != prev_state then 
+        if temp_string != prev_state then
         (
           state_diff_flag = true  --set flag if values differ
           uiDropDownBox.selection = 0
         )
         else if not state_diff_flag then  --if values are same and flag hasn't been set
           uiDropDownBox.selection  = finditem (uiDropDownBox.items) temp_string
-        
+
         prev_state = temp_string
       )
       else
       (
         uiDropDownBox.selection = 0
-      )     
+      )
     )
   )
 )
@@ -391,27 +391,27 @@ fn populate_framerange cameraItems =
   rendType2 = Frame_Range_Rollout.rendType2
   rendType3 = Frame_Range_Rollout.rendType3
   rendType5 = Frame_Range_Rollout.rendType5
-  
+
   render_from = Frame_Range_Rollout.render_from
   render_to = Frame_Range_Rollout.render_to
   render_anim_from = Frame_Range_Rollout.render_anim_from
   render_anim_to = Frame_Range_Rollout.render_anim_to
   render_frames = Frame_Range_Rollout.render_frames
   render_single = Frame_Range_Rollout.render_single
-  
+
   --exclude selected items
   local selected_items = #()
   for i in lis do
     if i.selected then
       append selected_items i
-    
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
     temp_string1 = getUserProperty obj_itself "BatchCameraRender_frames"
     temp_string2 = getUserProperty obj_itself "BatchCameraRender_framerange_from"
     temp_string5 = getUserProperty obj_itself "BatchCameraRender_anim_frame_range"
-    
+
     if (isNotUndefined temp_string5) then
     ( --render_frames
       rendType1.state = 0
@@ -519,7 +519,7 @@ fn populate_elements_options cameraItems=
   for i in lis do
     if i.selected then
       append selected_items i
-    
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -527,10 +527,10 @@ fn populate_elements_options cameraItems=
 
     --fill elements path field
     if (isNotUndefined temp_string) then
-      elements_path.text = (temp_string as string) 
+      elements_path.text = (temp_string as string)
     else
       elements_path.text = "undefined"
-    
+
     --set state here
     temp_string = getUserProperty obj_itself "BatchCameraRender_elements_state"
     if (isNotUndefined temp_string) then
@@ -547,12 +547,12 @@ fn populate_elements_options cameraItems=
 
   )
   else --multiple selection
-  ( 
+  (
     prev_path = ""
     prev_state
     path_diff_flag = false
     state_diff_flag = false
-    
+
     for i=1 to selected_items.count while not path_diff_flag do
     (
       obj_itself = (selected_items[i]).tag.value
@@ -562,21 +562,21 @@ fn populate_elements_options cameraItems=
         --set previous value to first value
         if i==1 then prev_path = temp_string
         --show path if previous path and current are the similar
-        if temp_string != prev_path then 
+        if temp_string != prev_path then
         (
           path_diff_flag = true --set flag if values differ
           elements_path.text = "Varies"
         )
         else if not path_diff_flag then --if values are same and flag hasn't been set
           elements_path.text = temp_string
-        
+
         prev_path = temp_string
       )
       else
       (
         elements_path.text = "Varies"
       )
-      
+
       --populate elemetns state for multiple items checked
       temp_string = getUserProperty obj_itself "BatchCameraRender_elements_state"
       if (isNotUndefined temp_string) then
@@ -585,21 +585,21 @@ fn populate_elements_options cameraItems=
         --set previous value to first value
         if i==1 then prev_state = temp_string
         --show path if previous path and current are the similar
-        if temp_string != prev_state then 
+        if temp_string != prev_state then
         (
           state_diff_flag = true  --set flag if values differ
           elements_state.triState = 2
         )
         else if not state_diff_flag then  --if values are same and flag hasn't been set
           elements_state.triState = if temp_string then 1 else 0
-        
+
         prev_state = temp_string
       )
       else
       (
         elements_state.triState = 2
       )
-      
+
       --populate not_save_RE for multiple items checked
       temp_string = getUserProperty obj_itself "BatchCameraRender_not_save_elements"
       if (isNotUndefined temp_string) then
@@ -608,14 +608,14 @@ fn populate_elements_options cameraItems=
         --set previous value to first value
         if i==1 then prev_state = temp_string
         --show path if previous path and current are the similar
-        if temp_string != prev_state then 
+        if temp_string != prev_state then
         (
           state_diff_flag = true  --set flag if values differ
           not_save_elements.triState = 2
         )
         else if not state_diff_flag then  --if values are same and flag hasn't been set
           not_save_elements.triState = if temp_string then 1 else 0
-        
+
         prev_state = temp_string
       )
       else
@@ -634,27 +634,27 @@ fn populate_filename_fields cameraItems=
   --compare to UIfield text
   --if differs then enter "varies" text
   --go to next item
-  
+
   result_file_name = Render_Output_Rollout.result_file_name
   file_name = Render_Output_Rollout.file_name
   file_path = Render_Output_Rollout.file_path
   elements_path = Render_Output_Rollout.elements_path
-  
+
   --exclude selected items
   local selected_items = #()
   for i in cameraItems do
     if i.selected then
       append selected_items i
-    
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
     temp_string = getUserProperty obj_itself "BatchCameraRender_render_output"
-    
+
     if (isNotUndefined temp_string) then
     (
       --put parsed string in full text textfield
-      result_file_name.text = parse_file_name_template temp_string (compose_parsing_dictionary obj_itself) 
+      result_file_name.text = parse_file_name_template temp_string (compose_parsing_dictionary obj_itself)
       file_name.text = filenameFromPath temp_string
       file_path.text = getFilenamePath temp_string
     )
@@ -663,60 +663,60 @@ fn populate_filename_fields cameraItems=
       result_file_name.text = "undefined"
       file_name.text = "undefined"
       file_path.text = "undefined"
-    )   
+    )
   )
   else
-  ( 
+  (
     prev_parsed_path = ""
     prev_templated_path = ""
     prev_path = ""
-    prev_file = ""    
-    
+    prev_file = ""
+
     parsed_diff_flag = false
     templated_diff_flag = false
     path_diff_flag = false
     file_diff_flag = false
-    
+
     temp_string = ""
-    
+
     for i=1 to selected_items.count do
-    (     
+    (
       obj_itself = (selected_items[i]).tag.value
       temp_string = getUserProperty obj_itself "BatchCameraRender_render_output"
       if (isNotUndefined temp_string) then
       (
         --if multiple items are selected
         --show only similar parts of the filename
-        
+
         -- for the full path textfield consider parsed path string
-        parsed_path = parse_file_name_template temp_string (compose_parsing_dictionary obj_itself) 
-        
+        parsed_path = parse_file_name_template temp_string (compose_parsing_dictionary obj_itself)
+
         --init previous values for the first time
-        if i==1 then 
+        if i==1 then
         (
           prev_parsed_path = parsed_path
           prev_templated_path = temp_string
           prev_path = getFilenamePath temp_string
-          prev_file = filenameFromPath temp_string  
+          prev_file = filenameFromPath temp_string
         )
-        
+
         --flag setting section
         if parsed_path != prev_parsed_path then
           parsed_diff_flag = true
-        
+
         if temp_string != prev_templated_path then
           templated_diff_flag = true
-        
+
         if (getFilenamePath temp_string) != prev_path then
           path_diff_flag = true
-        
+
         if (filenameFromPath temp_string) != prev_file then
           file_diff_flag = true
-        
+
         prev_parsed_path = parsed_path
         prev_templated_path = temp_string
         prev_path = getFilenamePath temp_string
-        prev_file = filenameFromPath temp_string  
+        prev_file = filenameFromPath temp_string
       )
       else
       (
@@ -728,7 +728,7 @@ fn populate_filename_fields cameraItems=
         path_diff_flag = true
         file_diff_flag = true
         --put "undefined" text to UI fields
-      )     
+      )
     )
     --set text fields after for loop
 --    temp_string = temp_string as string -- as string added in case temp_string is not a string or undefined
@@ -774,7 +774,7 @@ fn populate_filename_fields cameraItems=
       file_path.text = "Varies"
     )
   )
-  
+
   populate_elements_options cameraItems
   --populate last render field
   populate_text_fields cameraItems "lastRenderPath" Render_Output_Rollout.last_render_path
@@ -784,15 +784,15 @@ fn populate_light_state cameraItems=
 (
   lis = cameraItems
   solo_lights = Light_Assignement_Rollout.light_box_solo
-  on_lights = Light_Assignement_Rollout.light_box_forceon 
-  off_lights = Light_Assignement_Rollout.light_box_forceoff 
-  
+  on_lights = Light_Assignement_Rollout.light_box_forceon
+  off_lights = Light_Assignement_Rollout.light_box_forceoff
+
   --exclude selected items
   local selected_items = #()
   for i in lis do
     if i.selected then
       append selected_items i
-    
+
   if selected_items.count == 1 then
   (
     obj_itself = (selected_items[1]).tag.value
@@ -837,21 +837,21 @@ fn populate_submit_scripts_section=
     Scripts_Rollout.enable_onsubmit.state = (temp_state as BooleanClass)
   else
     Scripts_Rollout.enable_onsubmit.tristate = 2
-  
+
   temp_state = getRootNodeData "BatchCameraRender_OnSubmitScript"
 
   if isNotUndefinedOrEmpty temp_state then
     Scripts_Rollout.onsubmit_script.text = (temp_state as string)
   else
     Scripts_Rollout.onsubmit_script.text = "undefined"
-  
+
   temp_state = getRootNodeData "BatchCameraRender_perCameraScriptEnable"
 
   if isNotUndefinedOrEmpty temp_state then
     Scripts_Rollout.enable_percamera_submit.state = (temp_state as BooleanClass)
   else
     Scripts_Rollout.enable_percamera_submit.tristate = 2
-  
+
   temp_state = getRootNodeData "BatchCameraRender_perCameraScript"
 
   if isNotUndefinedOrEmpty temp_state then
@@ -862,7 +862,7 @@ fn populate_submit_scripts_section=
 batchCameraRender_populateScripts = populate_submit_scripts_section
 
 
-fn populate_script_rollout selectedItems = 
+fn populate_script_rollout selectedItems =
 (
   populate_text_fields selectedItems "prerender_script" Scripts_Rollout.prerender_script
   populate_checkbox_item selectedItems "prerender_enabled" Scripts_Rollout.enable_prerender
@@ -883,7 +883,7 @@ fn populate_vray_options selectedItems =
     if vray_property.propertyType == "checkbox" then
       populate_checkbox_item selectedItems vray_property.propertyName vray_property.propertyUIelement
     if vray_property.propertyType == "dropdownlist" then
-      populate_dropdownbox_integer_item selectedItems vray_property.propertyName vray_property.propertyUIelement    
+      populate_dropdownbox_integer_item selectedItems vray_property.propertyName vray_property.propertyUIelement
   )
 )
 

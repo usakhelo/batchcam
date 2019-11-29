@@ -6,7 +6,7 @@
 --general function to set filename property to user properties
 fn set_file_name_property cameraItems property_name fullfilename=
 (
-  fullfilename = trimLeadTrailSpaces fullfilename 
+  fullfilename = trimLeadTrailSpaces fullfilename
   for i in cameraItems do
   (
     if i.selected then
@@ -95,7 +95,7 @@ fn set_resolution cameraItems width height =
       --compute and save new image aspect property
       image_aspect = (x_res as float)/(y_res as float)
       setUserProperty i "BatchCameraRender_image_aspect" image_aspect
-      set_sub_item i (image_aspect as string) "image_aspect"      
+      set_sub_item i (image_aspect as string) "image_aspect"
     )
   )
 )
@@ -134,7 +134,7 @@ fn set_aspect_ratio cameraItems image_aspect =
       x_res = (getUserProperty obj_itself "BatchCameraRender_frame_width") as integer
       local y_res = undefined
       if (isNotUndefined x_res) then
-      (       
+      (
         y_res = x_res / image_aspect
         y_res = y_res as integer
         setUserProperty i "BatchCameraRender_frame_heigth" y_res
@@ -142,7 +142,7 @@ fn set_aspect_ratio cameraItems image_aspect =
       if (y_res as integer) != undefined then
         set_sub_item i (x_res as string + " x " + y_res as string) "resolution"
       setUserProperty i "BatchCameraRender_image_aspect" image_aspect
-      set_sub_item i (image_aspect as string) "image_aspect"  
+      set_sub_item i (image_aspect as string) "image_aspect"
     )
   )
 )
@@ -168,10 +168,10 @@ fn set_resolution_width cameraItems width =
         else
           image_aspect =  1.333
         setUserProperty i "BatchCameraRender_image_aspect" image_aspect
-        set_sub_item i (image_aspect as string) "image_aspect"  
+        set_sub_item i (image_aspect as string) "image_aspect"
       )
       setUserProperty i "BatchCameraRender_frame_width" (width as integer)
-      if Output_Size_Rollout.lock_aspect.checked or y_res == undefined then 
+      if Output_Size_Rollout.lock_aspect.checked or y_res == undefined then
       (
         y_res = (width as float) / (image_aspect as float)
         y_res = ((dotnetclass "System.Math").Round y_res) --apply dotnet rounding
@@ -181,9 +181,9 @@ fn set_resolution_width cameraItems width =
       (
         image_aspect =  (width as float) / (y_res as float)
         setUserProperty i "BatchCameraRender_image_aspect" image_aspect
-        set_sub_item i (image_aspect as string) "image_aspect"          
+        set_sub_item i (image_aspect as string) "image_aspect"
       )
-      
+
       if (width as integer) != undefined then
         set_sub_item i ((width as integer) as string + " x " + y_res as string) "resolution"
     )
@@ -210,10 +210,10 @@ fn set_resolution_height cameraItems height =
         else
           image_aspect =  1.333
         setUserProperty i "BatchCameraRender_image_aspect" image_aspect
-        set_sub_item i (image_aspect as string) "image_aspect"  
+        set_sub_item i (image_aspect as string) "image_aspect"
       )
       setUserProperty i "BatchCameraRender_frame_heigth" (height as integer)
-      if Output_Size_Rollout.lock_aspect.checked or x_res == undefined then 
+      if Output_Size_Rollout.lock_aspect.checked or x_res == undefined then
       (
         x_res = (height as float) * (image_aspect as float)
         x_res = ((dotnetclass "System.Math").Round x_res) --apply dotnet rounding
@@ -223,7 +223,7 @@ fn set_resolution_height cameraItems height =
       (
         image_aspect =  (x_res as float) / (height as float)
         setUserProperty i "BatchCameraRender_image_aspect" image_aspect
-        set_sub_item i (image_aspect as string) "image_aspect"          
+        set_sub_item i (image_aspect as string) "image_aspect"
       )
       if (height as integer) != undefined then
         set_sub_item i ((x_res as integer) as string + " x " + (height as integer) as string) "resolution"
@@ -275,8 +275,8 @@ fn set_elements_path cameraItems elementsPath=
     if i.selected then
     (
       elementsPath = trimLeadTrailSpaces elementsPath
-      if not (pathConfig.isLegalPath elementsPath) then 
-        elementsPath="" 
+      if not (pathConfig.isLegalPath elementsPath) then
+        elementsPath=""
       else
         elementsPath = pathConfig.appendPath elementsPath ""
 
@@ -305,7 +305,7 @@ fn set_render_folder cameraItems foldername=
         temp_name = filenameFromPath temp_string      --exclude file name
         temp_fullname = pathConfig.appendPath temp_path temp_name --append new folder path to the file name
 --        temp_fullname = pathConfig.convertPathToAbsolute temp_fullname
-        
+
         setUserProperty i "BatchCameraRender_render_output" (temp_fullname as string)
         set_sub_item i (temp_fullname as string) "path"
       )
@@ -323,14 +323,14 @@ fn set_render_file cameraItems file_name_only=
       temp_string = getUserProperty obj_itself "BatchCameraRender_render_output"  --full path from camera object
       --get name from function parameters
       temp_name = filenameFromPath file_name_only --exclude file name from function argument, in case file path given along with file name
-      
+
       if isNotUndefined temp_string then
       (
         --get path from camera properties
         temp_path = getFilenamePath temp_string --exclude path from full name
 
         temp_fullname = pathConfig.appendPath temp_path temp_name --create new full name with path and file name from function argument
-        
+
         setUserProperty i "BatchCameraRender_render_output" (temp_fullname as string)
         set_sub_item i (temp_fullname as string) "path"
       )
@@ -393,7 +393,7 @@ fn set_anim_frame_range cameraItems =
         setUserProperty i "BatchCameraRender_framerange_to" undefined
         setUserProperty i "BatchCameraRender_frames" undefined
         set_sub_item i ("anim.range:" + (frame_from as integer) as string + "..." + (frame_to as integer) as string) "frames"
-        
+
         Frame_Range_Rollout.render_anim_from.text = (temp_frame_range[1].frame as integer) as string
         Frame_Range_Rollout.render_anim_to.text = (temp_frame_range[2].frame as integer) as string
       )
@@ -425,18 +425,18 @@ fn set_light_state cameraItems: solo_lights: on_lights: off_lights: =
     if i.selected then
     (
       tempstr = "" --this string contains light names
-      
+
       if solo_lights != unsupplied then
       (
         for str in solo_lights do
         (
           if tempstr.count != 0 then --if string is empty don't add comma
-            tempstr = tempstr + "," + str as string 
+            tempstr = tempstr + "," + str as string
           else
             tempstr = tempstr + str as string
         )
         setUserProperty i "BatchCameraRender_solo_lights" tempstr
-        
+
         if tempstr == "undefined" then
           clear_sub_item i "solo_lights"
         else
@@ -452,7 +452,7 @@ fn set_light_state cameraItems: solo_lights: on_lights: off_lights: =
             tempstr = tempstr + str as string
         )
         setUserProperty i "BatchCameraRender_on_lights" tempstr
-        
+
         if tempstr == "undefined" then
           clear_sub_item i "on_lights"
         else
@@ -468,12 +468,12 @@ fn set_light_state cameraItems: solo_lights: on_lights: off_lights: =
             tempstr = tempstr + str as string
         )
         setUserProperty i "BatchCameraRender_off_lights" tempstr
-        
+
         if tempstr == "undefined" then
           clear_sub_item i "off_lights"
         else
           set_sub_item i (tempstr as string) "off_lights"
       )
     )
-  ) 
+  )
 )
