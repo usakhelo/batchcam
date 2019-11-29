@@ -119,6 +119,16 @@ fn get_camera_list =
 (
   local camera_array = #()
   local camera_list = for obj in cameras where iskindof obj camera collect obj
+
+  local xcount = xrefs.getXRefFileCount()
+  local xref_cameras = #()
+  for xindex = 1 to xcount do
+  (
+    xscene = xrefs.getXRefFile xindex
+    local x_cameras = for obj in xscene.tree.children where iskindof obj camera collect obj
+    join xref_cameras x_cameras
+  )
+
   for cam in camera_list do
   (
     append camera_array cam
@@ -129,6 +139,7 @@ fn get_camera_list =
     )
   )
 
+  join camera_array xref_cameras
   camera_array
 )
 
