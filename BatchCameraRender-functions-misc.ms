@@ -1560,10 +1560,14 @@ fn get_light_state light_obj =
     temp_sun = light_obj.GetSun()
     temp_sky = light_obj.GetSky()
     if temp_sun != undefined then
-      sun_state = temp_sun.enabled
+    (
+      if hasProperty temp_sun "on" then
+        sun_state = temp_sun.on
+      else if hasProperty temp_sun "enabled" then
+        sun_state = temp_sun.enabled
+    )
     if temp_sky != undefined then
       sky_state = temp_sky.enabled
---    format "sun_state: % sky_state: %\n" sun_state sky_state
     light_state = sun_state or sky_state
   )
   else
