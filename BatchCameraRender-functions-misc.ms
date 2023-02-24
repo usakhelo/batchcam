@@ -1527,7 +1527,12 @@ fn switch_lights light_name state =
       temp_sun = light_obj.GetSun()
       temp_sky = light_obj.GetSky()
       if temp_sun != undefined then
-        temp_sun.enabled = state
+      (
+        if hasProperty temp_sun "on" then
+          temp_sun.on = state
+        else if hasProperty temp_sun "enabled" then
+          temp_sun.enabled = state
+      )
       if temp_sky != undefined then
         temp_sky.enabled = state
     )
