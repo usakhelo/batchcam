@@ -6,6 +6,8 @@ you can contact me @ josbalcaen.com
 global myRoll
 global roll_GlobalSettings
 global mf_render_rollout
+global roll_info
+global roll_settings
 
 try (closeRolloutFloater mf_render_rollout) catch ()
 
@@ -210,9 +212,9 @@ try (closeRolloutFloater mf_render_rollout) catch ()
 		
 		fn batchCamRenderFn = 
 		(
-			try (closeRolloutFloater batchCameraRender_floater) catch ()
+			try (closeRolloutFloater batchCameraRender_floater) catch (print "batchCameraRender_floater not found")
 			macros.run "Sergo Pogosyan" "BatchCameraRender"
-			batchCameraRender_mainRollOut.quietRender()
+			try (batchCameraRender_mainRollOut.quietRender()) catch (print "batchCameraRender_mainRollOut not found")
 		)
 
 		fn RenderLoop renderFn =
