@@ -4,7 +4,7 @@ macroScript BatchCameraRender
   buttonText:"BatchCam"
 
 -- Batch Camera Render, maxscript tool for batch rendering in 3ds max
--- Copyright (C) 2010-2011, Sergo Pogosyan
+-- Copyright (C) 2010-2023, Sergo Pogosyan
 -- 
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License
