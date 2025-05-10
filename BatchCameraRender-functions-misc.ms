@@ -4,22 +4,30 @@
 --
 fn CompileDotNet src =
 (
-  local csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-  local compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-  compilerParams.ReferencedAssemblies.AddRange #("System.dll", "System.Windows.Forms.dll")
-  compilerParams.GenerateInMemory = true
-  local compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(src)
-  if (compilerResults.Errors.Count > 0 ) then
-  (
-    local errs = stringstream ""
-    for i = 0 to (compilerResults.Errors.Count-1) do
-    (
-      err = compilerResults.Errors.Item[i]
-      format "Error:% Line:% Column:% %\n" err.ErrorNumber err.Line err.Column err.ErrorText to:errs
-    )
-    format "Errors encountered while compiling C# code\n" errs
-    format "%\n" errs
-  )
+	if( (maxversion())[1] < 28000 ) then
+	(	
+		local csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+		local compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+		compilerParams.ReferencedAssemblies.AddRange #("System.dll", "System.Windows.Forms.dll")
+		compilerParams.GenerateInMemory = true
+		local compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(src)
+		if (compilerResults.Errors.Count > 0 ) then
+		(
+			local errs = stringstream ""
+			for i = 0 to (compilerResults.Errors.Count-1) do
+			(
+				err = compilerResults.Errors.Item[i]
+				format "Error:% Line:% Column:% %\n" err.ErrorNumber err.Line err.Column err.ErrorText to:errs
+			)
+			format "Errors encountered while compiling C# code\n" errs
+			format "%\n" errs
+		)
+	)
+	else
+	(
+		compHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"				
+		compHelper.compile src #()						
+	)
 )
 
 fn CreateNativeWindowOps =
