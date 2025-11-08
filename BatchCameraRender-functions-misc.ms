@@ -2,7 +2,8 @@
 --FUNCTIONS for batch camera render script
 --########################--
 --
-fn CompileDotNet src =
+
+fn CompileDotNet25 src =
 (
   local csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
   local compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
@@ -20,6 +21,24 @@ fn CompileDotNet src =
     format "Errors encountered while compiling C# code\n" errs
     format "%\n" errs
   )
+)
+
+fn CompileDotNet26 src =
+(
+  local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+  CSharpCompilationHelper.compile src #()
+)
+
+fn CompileDotNet src =
+(
+	if (maxVersion())[1] >= 28000 then
+	(
+		CompileDotNet26 src
+	)
+	else
+	(
+		CompileDotNet25 src
+	)
 )
 
 fn CreateNativeWindowOps =

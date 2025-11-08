@@ -4,7 +4,7 @@ macroScript BatchCameraRender
   buttonText:"BatchCam"
 
 -- Batch Camera Render, maxscript tool for batch rendering in 3ds max
--- Copyright (C) 2010-2023, Sergo Pogosyan
+-- Copyright (C) 2009-2025, Sergo Pogosyan
 -- 
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@ macroScript BatchCameraRender
 -- BatchCameraRender.ms
 -- By Sergo Pogosyan (www.sergepogosyan.com, contact@sergepogosyan.com)
 -- Created On: 2009-05-25
--- tested using Max 2009, Max 2010, Max 2011, Max 2012, Max 2016
+-- tested using Max 2009-2025
 -------------------------------------------------------------------------------
 -- Description:
 -- macroscript aims to replace builtin batch render
@@ -81,7 +81,7 @@ LV_ITEMS = #()
 --default vray image file saving state
 SAVE_VRAY_IMAGE_FILE_STATE = false
 --script version
-VERSION_STRING = "1.17"
+VERSION_STRING = "1.19"
 
 BatchCam_CommonPropertiesNames = #("frames", "framerange_from", "framerange_to", "anim_frame_range", "frame_width", "frame_heigth", "render_output", \
                           "elements_state", "not_save_elements", "elements_output", "solo_lights", "on_lights", "off_lights", "scene_state", "state_set", "render_preset", "image_aspect", \
